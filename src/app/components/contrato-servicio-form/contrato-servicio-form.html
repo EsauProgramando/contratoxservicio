@@ -1,0 +1,134 @@
+<div class="p-4 bg-white shadow-md rounded-xl space-y-4">
+  <!-- Sección de búsqueda -->
+  <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
+    <i class="pi pi-search text-green-600"></i>
+    Buscar Cliente
+  </h3>
+
+  <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+    <!-- Campo de búsqueda -->
+    <div class="flex-grow">
+      <label class="block text-sm font-medium text-gray-600 mb-1">
+        Dirección o Cliente
+      </label>
+      <input
+        pInputText
+        [ngModel]="clienteBusqueda()"
+        (ngModelChange)="clienteBusqueda.set($event)"
+        placeholder="Ingrese nombre, DNI o dirección"
+        class="w-full h-10 border rounded-lg px-3 text-sm"
+      />
+    </div>
+
+    <!-- Botón buscar -->
+    <button
+      pButton
+      icon="pi pi-search"
+      label="Buscar"
+      class="p-button-warning px-4 w-full sm:w-auto"
+      (click)="buscarclienteapi()"
+    ></button>
+  </div>
+  @if (loading()){
+  <div class="flex justify-center py-6">
+    <p-progressSpinner
+      class="w-10 h-10 text-green-600"
+      [strokeWidth]="spinnerStroke"
+    />
+  </div>
+  } @if (!loading()){
+  <!-- Resultados -->
+  <ng-container>
+    <!-- Tabla de resultados en desktop -->
+    <div class="hidden md:block">
+      <p-table
+        [value]="listaBusquedaCliente()"
+        dataKey="id"
+        [paginator]="true"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        class="rounded-lg shadow-sm border"
+      >
+        <!-- Encabezado -->
+        <ng-template pTemplate="header">
+          <tr class="bg-green-50 text-green-800 text-sm font-semibold">
+            <th class="px-3 py-2">ID</th>
+            <th class="px-3 py-2">Nombre / Razón Social</th>
+            <th class="px-3 py-2">DNI / RUC</th>
+            <th class="px-3 py-2">Referencia</th>
+            <th class="px-3 py-2 text-center">Acción</th>
+          </tr>
+        </ng-template>
+
+        <!-- Cuerpo -->
+        <ng-template pTemplate="body" let-cliente>
+          <tr class="hover:bg-green-50 transition">
+            <td class="px-3 py-2">{{ cliente.id }}</td>
+            <td class="px-3 py-2 font-medium">{{ cliente.nombre_completo }}</td>
+            <td class="px-3 py-2">{{ cliente.nrodocident }}</td>
+            <td class="px-3 py-2 text-gray-600">{{ cliente.referencia }}</td>
+            <td class="px-3 py-2 text-center">
+              <p-button
+                *ngIf="cliente.estareg === 0"
+                icon="pi pi-check"
+                severity="success"
+                rounded
+                outlined
+                (click)="mostrardetalledeBusqueda(cliente)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Sin resultados -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center text-gray-500 py-4">
+              <i class="pi pi-info-circle mr-2"></i> No se encontraron clientes.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Vista tipo lista en móvil -->
+    <div class="block md:hidden space-y-3">
+      <div
+        *ngFor="let cliente of listaBusquedaCliente()"
+        class="p-3 border rounded-lg shadow-sm bg-gray-50"
+      >
+        <p class="text-sm text-gray-500">
+          ID: <span class="font-medium">{{ cliente.id }}</span>
+        </p>
+        <p class="text-sm text-gray-500">
+          Nombre: <span class="font-medium">{{ cliente.nombre_completo }}</span>
+        </p>
+        <p class="text-sm text-gray-500">
+          DNI/RUC: <span class="font-medium">{{ cliente.nrodocident }}</span>
+        </p>
+        <p class="text-sm text-gray-500">
+          Referencia: <span class="font-medium">{{ cliente.referencia }}</span>
+        </p>
+
+        <div class="mt-2 text-right">
+          <p-button
+            *ngIf="cliente.estareg === 0"
+            icon="pi pi-check"
+            label="Activar"
+            severity="success"
+            outlined
+            (click)="mostrardetalledeBusqueda(cliente)"
+          />
+        </div>
+      </div>
+
+      <div
+        *ngIf="!listaBusquedaCliente()?.length"
+        class="text-center text-gray-500 py-4"
+      >
+        <i class="pi pi-info-circle mr-2"></i> No se encontraron clientes.
+      </div>
+    </div>
+  </ng-container>
+  }
+</div>

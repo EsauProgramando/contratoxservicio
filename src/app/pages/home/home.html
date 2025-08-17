@@ -1,0 +1,52 @@
+<div class="grid justify-content-center mt-10">
+  <div class="col-12 md:col-6 lg:col-4">
+    <div class="card p-6 shadow-2 border-round-lg bg-white">
+      <!-- Cabecera con avatar y nombre -->
+      <div class="flex align-items-center gap-4 mb-4">
+        <p-avatar
+          image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png"
+          shape="circle"
+          size="xlarge"
+          class="border-2 border-blue-500"
+        />
+        <div>
+          <h2 class="m-0 text-2xl font-bold text-blue-700">Amy Elsner</h2>
+          <p class="text-sm text-gray-500">Bienvenida a tu panel de control</p>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <p class="text-justify mb-5 text-gray-600">
+        ¡Hola Amy! Este panel te permite gestionar tus tareas, revisar reportes
+        y mantener todo bajo control. Mantente al día con tus notificaciones y
+        accede rápidamente a tus configuraciones.
+      </p>
+
+      <!-- Botones de acción -->
+      <div class="flex justify-content-between gap-3 mb-4">
+        <p-button
+          label="Ver Perfil"
+          icon="pi pi-user"
+          class="p-button-rounded p-button-outlined p-button-info"
+        />
+        <p-button
+          label="Notificaciones"
+          icon="pi pi-bell"
+          severity="info"
+          class="p-button-rounded"
+        />
+        <p-button
+          label="Configuración"
+          icon="pi pi-cog"
+          [severity]="'success'"
+          class="p-button-rounded"
+        />
+      </div>
+
+      <!-- Pie con última actualización -->
+      <div class="text-right text-sm text-gray-400 italic">
+        Última actualización: hace 2 horas
+      </div>
+    </div>
+  </div>
+</div>

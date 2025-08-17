@@ -1,0 +1,339 @@
+@if (spinner){
+<app-carga></app-carga>
+}
+<div class="p-5 card">
+  <p-fieldset>
+    <ng-template #header>
+      <div class="flex items-center gap-2 px-2">
+        <img
+          src="assets/images/cottage-cheese.gif"
+          width="50"
+          style="border-radius: 50%"
+        />
+        <span class="font-bold text-green-600 text-lg">Lista de Productos</span>
+      </div>
+    </ng-template>
+    <p-table
+      #dt
+      [value]="listaProductos()"
+      dataKey="id"
+      [rowHover]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [loading]="loading"
+      [paginator]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [filterDelay]="0"
+      [globalFilterFields]="['id_productos', 'id_tipoprod', 'tipoprod']"
+      [tableStyle]="{ 'max-width': '100%' }"
+    >
+      <ng-template #caption>
+        <div class="flex justify-between">
+          <!--        <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="clear(dt)" />-->
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchValue"
+              (input)="dt.filterGlobal($event.target.value, 'contains')"
+              placeholder="Keyboard Search"
+            />
+          </p-iconfield>
+          <p-button
+            label="Nuevo Producto"
+            icon="pi pi-plus"
+            class="mr-2"
+            severity="success"
+            (click)="openNew()"
+          />
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="id_productos" style="width: 100px">
+            <div class="flex justify-between items-center gap-2">
+              IdProducto
+              <p-sortIcon field="id_productos" />
+              <p-columnFilter
+                type="text"
+                field="id_productos"
+                display="menu"
+                class="ml-auto"
+              />
+            </div>
+          </th>
+
+          <th pSortableColumn="tipoprod" style="width: 200px">
+            <div class="flex justify-between items-center gap-2">
+              TipoProducto
+              <p-sortIcon field="tipoprod" />
+              <p-columnFilter
+                type="text"
+                field="tipoprod"
+                display="menu"
+                class="ml-auto"
+              />
+            </div>
+          </th>
+
+          <th pSortableColumn="descripcion" style="width: 250px">
+            <div class="flex justify-between items-center gap-2">
+              Descripción
+              <p-sortIcon field="descripcion" />
+              <p-columnFilter
+                type="text"
+                field="descripcion"
+                display="menu"
+                class="ml-auto"
+              />
+            </div>
+          </th>
+          <th style="min-width: 14rem">Imagen</th>
+          <th pSortableColumn="calificacion_actual" style="width: 200px">
+            <div class="flex justify-between items-center gap-2">
+              Calificación
+              <p-sortIcon field="calificacion_actual" />
+              <p-columnFilter
+                type="number"
+                field="calificacion_actual"
+                display="menu"
+                class="ml-auto"
+              />
+            </div>
+          </th>
+
+          <th pSortableColumn="estado" style="width: 150px">
+            <div class="flex justify-between items-center gap-2">
+              Estado
+              <p-sortIcon field="estado" />
+              <p-columnFilter
+                type="number"
+                field="estado"
+                display="menu"
+                class="ml-auto"
+              />
+            </div>
+          </th>
+
+          <th style="width: 300px">Acción</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-product>
+        <tr class="p-selectable-row">
+          <td>
+            {{ product.id_productos }}
+          </td>
+          <td>
+            {{ product.tipoprod }}
+          </td>
+          <td>
+            {{ product.descripcion }}
+          </td>
+          <td>
+            <p-image
+              [src]="
+                environment.apiUrl +
+                '/productos/mostrar?id=' +
+                product.path_imagen
+              "
+              alt="Image"
+              width="70"
+              height="70"
+              [preview]="true"
+            />
+          </td>
+          <td>
+            <p-rating
+              [(ngModel)]="product.calificacion_actual"
+              [readonly]="true"
+            />
+          </td>
+          <td>
+            <p-tag [value]="product.estado" severity="success" />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              class="mr-2"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="editProduct(product)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="deleteProduct(product)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8">No customers found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-fieldset>
+</div>
+
+<p-dialog
+  [(visible)]="productDialog"
+  [style]="{ width: '40vw', height: '600px' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  header="Registro de Producto"
+  [modal]="true"
+>
+  <ng-template #content>
+    <div class="row-auto mt-2">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div>
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              readonly
+              [(ngModel)]="subirProducto().id_productos"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label>Id Producto</label>
+          </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel class="w-full" variant="on">
+            <p-select
+              [options]="listaestados"
+              [(ngModel)]="subirProducto().estado"
+              optionLabel="descripcion"
+              optionValue="descripcion"
+              appendTo="body"
+              [filter]="true"
+              filterBy="descripcion"
+              [showClear]="true"
+              placeholder="Selección estado"
+              class="w-full"
+            >
+              <ng-template #selectedItem let-selectedOption>
+                <div class="flex items-center gap-2">
+                  <p-tag
+                    [value]="selectedOption.descripcion"
+                    [severity]="selectedOption.severity"
+                  />
+                </div>
+              </ng-template>
+              <ng-template let-product #item>
+                <div class="flex items-center gap-2">
+                  <p-tag
+                    [value]="product.descripcion"
+                    [severity]="product.severity"
+                  />
+                </div>
+              </ng-template>
+            </p-select>
+            <label>Estado</label>
+          </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel variant="on">
+            <input
+              pInputText
+              [(ngModel)]="subirProducto().descripcion"
+              autocomplete="off"
+              class="w-full"
+            />
+            <label>Descripción</label>
+          </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel class="w-full" variant="on">
+            <p-select
+              [options]="listatipoProductos()"
+              [(ngModel)]="subirProducto().id_tipoprod"
+              optionLabel="descripcion"
+              optionValue="id_tipoprod"
+              appendTo="body"
+              [filter]="true"
+              filterBy="descripcion"
+              [showClear]="true"
+              placeholder="Seleccion de Tipo"
+              class="w-full"
+            >
+              <ng-template #selectedItem let-selectedOption>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-shopping-cart" style="color: green"></i>
+                  <div>{{ selectedOption.descripcion }}</div>
+                </div>
+              </ng-template>
+              <ng-template let-product #item>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-shopping-cart" style="color: green"></i>
+                  <div>{{ product.descripcion }}</div>
+                </div>
+              </ng-template>
+            </p-select>
+            <label>Tipo</label>
+          </p-floatlabel>
+        </div>
+        <p-floatlabel variant="on">
+          <p-inputNumber
+            [(ngModel)]="subirProducto().descactual"
+            inputId="percent"
+            prefix="%"
+            class="w-full"
+          />
+          <label>Descuento</label>
+        </p-floatlabel>
+      </div>
+      <div class="mt-2">
+        <p-fileupload
+          mode="basic"
+          name="demo[]"
+          chooseIcon="pi pi-upload"
+          url="https://www.primefaces.org/cdn/api/upload.php"
+          accept="image/*"
+          maxFileSize="10000000"
+          (onSelect)="this.carga = true"
+          (onUpload)="onBasicUploadAuto($event)"
+          [auto]="true"
+          [disabled]="carga"
+          chooseLabel="Buscar Archivos"
+        />
+      </div>
+      <div>
+        @if(carga) {
+        <div class="flex align-items justify-center">
+          <i
+            class="pi pi-spin pi-spinner-dotted"
+            style="font-size: 70px; color: #4564b2"
+          ></i>
+        </div>
+        } @if (subirProducto().archivobase64 && !carga) { @if
+        (subirProducto().extensiondoc === 'jpeg' || subirProducto().extensiondoc
+        === 'jpg' || subirProducto().extensiondoc === 'png') {
+        <img
+          [src]="subirProducto().archivobase64"
+          style="max-width: 100%; max-height: 200px"
+          class="mt-2"
+        />
+        } }
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      text
+      (click)="productDialog = false"
+    />
+    <p-button label="Guardar" icon="pi pi-check" (click)="saveProducto()" />
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }" />

@@ -1,0 +1,149 @@
+@if (spinner()){
+<app-carga></app-carga>
+}
+
+<div class="p-4 card">
+  <p-fieldset>
+    <ng-template #header>
+      <div
+        class="flex items-center gap-4 px-4 py-3 bg-blue-50 rounded-t-lg border-b border-blue-200 shadow-sm"
+      >
+        <img
+          src="assets/images/cottage-cheese.gif"
+          alt="Icono Lista de Calles"
+          class="w-12 h-12 rounded-full border border-blue-300 shadow"
+        />
+        <span class="font-semibold text-blue-700 text-xl tracking-wide">
+          LISTADO DE CALLES
+        </span>
+      </div>
+    </ng-template>
+
+    <p-table
+      #dt
+      [value]="listaCalles()"
+      dataKey="codcalle"
+      [rowHover]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [loading]="spinner()"
+      [paginator]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} calles"
+      [filterDelay]="0"
+      [globalFilterFields]="['descripcioncalle', 'destipocalle']"
+      [tableStyle]="{ 'max-width': '100%' }"
+    >
+      <ng-template #caption>
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+        >
+          <!-- Buscador -->
+          <p-iconfield iconPosition="left" class="w-full md:w-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [ngModel]="searchValue"
+              (input)="dt.filterGlobal($event.target.value, 'contains')"
+              placeholder="Buscar calle..."
+              class="w-full md:w-64"
+            />
+          </p-iconfield>
+
+          <!-- Botón -->
+          <p-button
+            label="Nueva Calle"
+            icon="pi pi-plus"
+            class="w-full md:w-auto"
+            severity="success"
+            (click)="openCallesDialog()"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #header>
+        <tr
+          class="bg-blue-100 text-blue-900 text-sm font-semibold border-b border-blue-300 shadow-sm"
+        >
+          <th pSortableColumn="codcalle" class="px-3 py-3">
+            Código
+            <p-sortIcon field="codcalle" />
+          </th>
+
+          <th pSortableColumn="descripcioncalle" class="px-3 py-3">
+            Descripción
+            <p-sortIcon field="descripcioncalle" />
+            <p-columnFilter
+              type="text"
+              field="descripcioncalle"
+              display="menu"
+              class="ml-auto"
+            />
+          </th>
+
+          <th pSortableColumn="destipocalle" class="px-3 py-3">
+            Tipo
+            <p-sortIcon field="destipocalle" />
+            <p-columnFilter
+              type="text"
+              field="destipocalle"
+              display="menu"
+              class="ml-auto"
+            />
+          </th>
+
+          <th class="px-3 py-3">Estado</th>
+          <th class="px-3 py-3">Acción</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-calle>
+        <tr class="p-selectable-row">
+          <td>{{ calle.codcalle }}</td>
+          <td>{{ calle.descripcioncalle }}</td>
+          <td>{{ calle.destipocalle }}</td>
+          <td>
+            <p-tag
+              [value]="calle.estareg === '1' ? 'Activo' : 'Inactivo'"
+              [severity]="calle.estareg === '1' ? 'success' : 'danger'"
+            />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              class="mr-2"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="editCalle(calle)"
+            />
+            <p-button
+              *ngIf="calle.estareg === '1'"
+              icon="pi pi-trash"
+              severity="danger"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="deleteCalle(calle)"
+            />
+            <p-button
+              *ngIf="calle.estareg === '0'"
+              icon="pi pi-check"
+              severity="success"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="activarCalle(calle)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">No hay calles registradas.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-fieldset>
+</div>

@@ -1,0 +1,26 @@
+export class BuscarClientes {
+  id: number = 0;
+  nombres: string = '';
+  apellidos: string = '';
+  nombre_completo: string = '';
+  tipodocident: number = 0;
+  nrodocident: string = '';
+  email: string = '';
+  telefono: string = '';
+  codcalle: number = 0;
+  nrocalle: string = '';
+  referencia: string = '';
+  latitud: string = '';
+  longitud: string = '';
+  estareg: number = 0;
+  fechareg: string = '';
+  creador: string = '';
+  fechabaja: string = '';
+  observacion_baja: string = '';
+  destipocalle: string = '';
+  descripcioncalle: string = '';
+  descripcioncorta: string = '';
+  destipodocident: string = '';
+  tipodocidenabr: string = '';
+  direccion: string = '';
+}

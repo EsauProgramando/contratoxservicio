@@ -1,0 +1,81 @@
+<p-table
+  #dtCallesBuscar
+  [value]="listaCalles()"
+  [rows]="14"
+  [paginator]="true"
+  [rowHover]="true"
+  selectionMode="single"
+  [(selection)]="selectedProduct"
+  (onRowSelect)="seleccionarCalle(selectedProduct)"
+  [loading]="loadingcalle"
+  [globalFilterFields]="['descripcioncalle']"
+  dataKey="codcalle"
+  styleClass="p-datatable-striped p-datatable-sm"
+  currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+  [showCurrentPageReport]="true"
+>
+  <ng-template pTemplate="caption">
+    <div class="table-header row align-items-center mb-3">
+      <div class="col flex flex-column gap-2">
+        <span class="p-float-label w-100">
+          <input
+            type="text"
+            pInputText
+            placeholder=" "
+            (input)="
+              dtCallesBuscar.filterGlobal($event.target.value, 'contains')
+            "
+            class="w-100"
+            id="parametro"
+            placeholder="Digite el Parámetro de Búsqueda"
+          />
+        </span>
+      </div>
+      <!-- <p-button
+        class="col-auto"
+        icon="pi pi-pencil"
+        (click)="visible = true"
+        styleClass="p-button-success ml-2"
+        label="Crear Nuevo"
+      ></p-button> -->
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="header">
+    <tr class="fs-11 text-center text-white bg-primary">
+      <th
+        *ngFor="let item of _cols"
+        [style.width]="item.width"
+        pSortableColumn="{{ item?.sort }}"
+        class="align-middle"
+      >
+        {{ item.header }}
+        <p-sortIcon
+          field="{{ item?.sort }}"
+          *ngIf="item.header !== 'Seleccionar'"
+        ></p-sortIcon>
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-rowData>
+    <tr
+      class="fs-11"
+      [pSelectableRow]="rowData"
+      *ngIf="rowData.estareg == 1"
+      style="cursor: pointer"
+    >
+      <td class="text-center align-middle">
+        <i
+          class="pi pi-check-square"
+          style="color: green; font-size: 1rem"
+          (click)="seleccionarCalle(rowData)"
+          title="Seleccionar calle"
+        ></i>
+      </td>
+      <td class="text-center align-middle">{{ rowData.codcalle }}</td>
+      <td class="text-center align-middle">{{ rowData.destipocalle }}</td>
+      <td class="align-middle">{{ rowData.descripcioncalle }}</td>
+    </tr>
+  </ng-template>
+</p-table>

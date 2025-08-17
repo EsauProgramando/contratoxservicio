@@ -1,0 +1,34 @@
+<p-dialog
+  header="Menú"
+  [(visible)]="visible"
+  [position]="position"
+  closable="false"
+  [style]="{
+    width: '25rem',
+    position: 'absolute',
+    top: '0',
+    marginTop: '51.5px',
+    height: '100%'
+  }"
+>
+  <p-panelMenu [model]="items" class="w-full md:w-90"></p-panelMenu>
+</p-dialog>
+
+@if (!visible){
+
+<p-button
+  icon="pi pi-bars"
+  [rounded]="true"
+  [outlined]="true"
+  (click)="showDialog('bottomleft'); visible = true"
+/>
+} @else {
+
+<p-button
+  icon="pi pi-times"
+  [rounded]="true"
+  [outlined]="true"
+  severity="danger"
+  (click)="visible = false"
+/>
+}
