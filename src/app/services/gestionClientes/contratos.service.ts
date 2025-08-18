@@ -21,20 +21,35 @@ export class ContratosService {
   getDetalleContratoServicio(
     idCliente: number,
     nroContrato: number
-  ): Observable<Response_Generico<Detalle_contratoxservicioRequest>> {
-    return this.http.get<Response_Generico<Detalle_contratoxservicioRequest>>(
+  ): Observable<Response_Generico<any>> {
+    return this.http.get<Response_Generico<any>>(
       `${this.baseUrl}/detalle_contratos_x_servicio/${idCliente}/${nroContrato}`
     );
   }
 
-  // 📌 Registrar, actualizar, dar de baja o activar contrato
-  registrarContrato(
+  registrarContratoConArchivo(
     op: number,
-    contrato: ContratoModel
+    contrato: ContratoModel,
+    archivoSoporte?: File,
+    archivoDocumento?: File,
+    archivoCroquis?: File
   ): Observable<Response_Generico<any>> {
+    const formData = new FormData();
+
+    // JSON debe llamarse 'form' como espera Spring
+    formData.append(
+      'form',
+      new Blob([JSON.stringify(contrato)], { type: 'application/json' })
+    );
+
+    // Archivos
+    if (archivoSoporte) formData.append('fileContrato', archivoSoporte);
+    if (archivoDocumento) formData.append('fileDocumento', archivoDocumento);
+    if (archivoCroquis) formData.append('fileCroquis', archivoCroquis);
+
     return this.http.post<Response_Generico<any>>(
       `${this.baseUrl}/registrar/${op}`,
-      contrato
+      formData
     );
   }
 }

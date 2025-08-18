@@ -11,4 +11,5 @@ export class ServicioContratadoRequest {
   fecha_activacion: string = '';
   estado_contrato: boolean = true;
   estado_servicio: boolean = true;
+  ip_fija: boolean = false;
 }

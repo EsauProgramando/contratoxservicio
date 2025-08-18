@@ -112,14 +112,29 @@ export class ContratoServicio {
     };
     this.ref = this.dialogService.open(ContratoServicioForm, {
       header: 'REGISTRAR SERVICIOS CONTRATADOS',
-      width: '90%',
+      width: '100%',
       contentStyle: { overflow: 'auto' },
       baseZIndex: 10000,
       closable: true,
       data: envioData,
     });
   }
-  editContratoServicio(dato: IndexListadoContrato) {}
+  editContratoServicio(dato: IndexListadoContrato) {
+    console.log(dato, 'resultado');
+    let envioData = {
+      op: 2,
+      id_cliente: dato.id_cliente,
+      id_contrato: dato.id_contrato,
+    };
+    this.ref = this.dialogService.open(ContratoServicioForm, {
+      header: 'REGISTRAR SERVICIOS CONTRATADOS',
+      width: '100%',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      closable: true,
+      data: envioData,
+    });
+  }
   deleteContratoServicio(dato: IndexListadoContrato) {}
   activarContratoServicio(dato: IndexListadoContrato) {}
 }
