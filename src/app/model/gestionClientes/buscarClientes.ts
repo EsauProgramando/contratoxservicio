@@ -23,4 +23,8 @@ export class BuscarClientes {
   destipodocident: string = '';
   tipodocidenabr: string = '';
   direccion: string = '';
+  //campos extras
+  url_soporte_contrato: string = '';
+  url_documento: string = '';
+  url_croquis: string = '';
 }

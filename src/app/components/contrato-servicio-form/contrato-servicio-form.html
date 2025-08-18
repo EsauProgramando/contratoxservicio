@@ -22,6 +22,7 @@
             (ngModelChange)="clienteBusqueda.set($event)"
             placeholder="Ingrese nombre, DNI o dirección"
             class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm focus:border-green-500 focus:ring focus:ring-green-200"
+            (keyup.enter)="buscarclienteapi()"
           />
         </div>
 
@@ -148,12 +149,14 @@
     <div class="flex gap-4 items-start">
       <!-- Información del cliente -->
       <div class="flex-1">
-        <h4 class="text-base font-semibold text-gray-800 mb-2 truncate">
+        <!-- Nombre -->
+        <h4 class="text-lg font-semibold text-gray-800 mb-4 truncate">
           {{ detalleBusquedaCliente().nombre_completo || "—" }}
         </h4>
 
+        <!-- Grid de información -->
         <div
-          class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-600"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm text-gray-700"
         >
           <!-- Documento -->
           <div>
@@ -171,8 +174,9 @@
                 *ngIf="detalleBusquedaCliente().telefono"
                 [href]="'tel:' + detalleBusquedaCliente().telefono"
                 class="hover:underline text-blue-600"
-                >{{ detalleBusquedaCliente().telefono }}</a
               >
+                {{ detalleBusquedaCliente().telefono }}
+              </a>
               <span *ngIf="!detalleBusquedaCliente().telefono">—</span>
             </div>
           </div>
@@ -185,8 +189,26 @@
             </div>
           </div>
 
-          <!-- Dirección -->
-          <div class="col-span-2 md:col-span-3">
+          <!-- Estado -->
+          <div>
+            <div class="text-xs text-gray-500">Estado</div>
+            <div class="font-medium">
+              <span
+                [ngClass]="
+                  detalleBusquedaCliente().estareg === 1
+                    ? 'text-emerald-600 font-semibold'
+                    : 'text-rose-600 font-semibold'
+                "
+              >
+                {{
+                  detalleBusquedaCliente().estareg === 1 ? "ACTIVO" : "INACTIVO"
+                }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Dirección (ocupa 2 columnas en grande) -->
+          <div class="sm:col-span-2 lg:col-span-2">
             <div class="text-xs text-gray-500">Dirección</div>
             <div class="font-medium truncate">
               {{
@@ -209,25 +231,12 @@
           <div>
             <div class="text-xs text-gray-500">Registrado</div>
             <div class="font-medium">
-              {{ detalleBusquedaCliente().fechareg || "—" }}
-            </div>
-          </div>
-
-          <!-- Estado -->
-          <div>
-            <div class="text-xs text-gray-500">Estado</div>
-            <div class="font-medium">
-              <span
-                [ngClass]="
-                  detalleBusquedaCliente().estareg === 1
-                    ? 'text-emerald-600 font-semibold'
-                    : 'text-rose-600 font-semibold'
-                "
-              >
-                {{
-                  detalleBusquedaCliente().estareg === 1 ? "ACTIVO" : "INACTIVO"
-                }}
-              </span>
+              {{
+                detalleBusquedaCliente().fechareg
+                  ? (detalleBusquedaCliente().fechareg
+                    | date : "dd/MM/yyyy HH:mm")
+                  : "—"
+              }}
             </div>
           </div>
         </div>
@@ -236,7 +245,7 @@
   </section>
 
   <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
-    <i class="pi pi-search text-green-600"></i>
+    <i class="pi pi-list text-green-600"></i>
     Servicios a Contratar
   </h3>
 
@@ -255,7 +264,6 @@
       [scrollable]="true"
       [rowHover]="true"
       scrollHeight="350px"
-      style="table-layout: fixed"
       class="p-datatable-striped p-datatable-sm p-datatable-gridlines"
     >
       <ng-template pTemplate="header">
@@ -264,8 +272,8 @@
           <th style="width: 120px">Tipo</th>
           <th style="width: 120px">Plan</th>
           <th style="width: 120px">Velocidad</th>
-          <th style="width: 80px">Precio Mensual (S/)</th>
-          <th style="width: 100px">Cargo Instalación (S/)</th>
+          <th style="width: 50px">Precio Mensual (S/)</th>
+          <th style="width: 50px">Cargo Instalación (S/)</th>
           <th style="width: 60px">IP Fija</th>
           <th style="width: 80px">Equipo (MAC)</th>
           <th style="width: 220px">Fecha Activación</th>
@@ -393,54 +401,100 @@
     4 Documentos Adjuntos
   </h3>
 
-  <section id="panelAdjuntos" class="p-4 bg-white shadow rounded-lg mb-4">
-    <p class="text-gray-600 mb-3">Adjunta archivos de soporte del contrato:</p>
+  <section id="panelAdjuntos" class="p-4 bg-white shadow-md rounded-lg mb-4">
+    <h3
+      class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2"
+    >
+      <i class="pi pi-paperclip text-green-600"></i> Adjuntos del contrato
+    </h3>
 
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-3">
       <!-- Contrato PDF -->
-      <div class="flex flex-col">
-        <label class="font-medium text-gray-700 mb-1">Contrato (PDF)</label>
+      <div class="border rounded-xl p-3 flex flex-col shadow-sm">
+        <label class="font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <i class="pi pi-file-pdf text-red-500"></i> Contrato (PDF)
+        </label>
+
+        @if (detalleBusquedaCliente().url_soporte_contrato &&
+        detalleBusquedaCliente().url_soporte_contrato !== 'null') {
+        <a
+          [href]="
+            'http://localhost:8080/uploads/' +
+            detalleBusquedaCliente().url_soporte_contrato
+          "
+          target="_blank"
+          class="text-blue-600 underline text-sm mb-2"
+        >
+          Ver contrato
+        </a>
+        } @else {
+        <small class="text-gray-400 italic mb-2">No cargado</small>
+        }
+
         <input
           type="file"
           accept="application/pdf"
           (change)="onFileSelected($event, 'url_soporte_contrato')"
-          class="p-2 border border-gray-300 rounded-lg cursor-pointer"
+          class="p-2 border border-gray-300 rounded-lg cursor-pointer text-sm"
         />
-        <small class="text-gray-500 mt-1">Solo archivos PDF</small>
       </div>
 
       <!-- DNI / RUC -->
-      <div class="flex flex-col">
-        <label class="font-medium text-gray-700 mb-1"
-          >DNI / RUC (imagen/PDF)</label
-        >
+      <div class="border rounded-xl p-3 flex flex-col shadow-sm">
+        <label class="font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <i class="pi pi-id-card text-indigo-500"></i> DNI / RUC
+        </label>
+
+        @if (detalleBusquedaCliente().url_documento &&
+        detalleBusquedaCliente().url_documento !== 'null') {
+        <img
+          [src]="
+            'http://localhost:8080/uploads/' +
+            detalleBusquedaCliente().url_documento
+          "
+          alt="Documento"
+          class="w-full h-32 object-cover rounded-lg border mb-2"
+        />
+        } @else {
+        <small class="text-gray-400 italic mb-2">No cargado</small>
+        }
+
         <input
           type="file"
           (change)="onFileSelected($event, 'url_documento')"
-          class="p-2 border border-gray-300 rounded-lg cursor-pointer"
+          class="p-2 border border-gray-300 rounded-lg cursor-pointer text-sm"
         />
-        <small class="text-gray-500 mt-1">Puedes subir varios archivos</small>
       </div>
 
-      <!-- Croquis / Evidencias -->
-      <div class="flex flex-col">
-        <label class="font-medium text-gray-700 mb-1"
-          >Croquis / Evidencias</label
-        >
+      <!-- Croquis -->
+      <div class="border rounded-xl p-3 flex flex-col shadow-sm">
+        <label class="font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <i class="pi pi-map-marker text-green-500"></i> Croquis / Evidencias
+        </label>
+
+        @if (detalleBusquedaCliente().url_croquis &&
+        detalleBusquedaCliente().url_croquis !== 'null') {
+        <img
+          [src]="
+            'http://localhost:8080/uploads/' +
+            detalleBusquedaCliente()!.url_croquis
+          "
+          alt="Croquis"
+          class="w-full h-32 object-cover rounded-lg border mb-2"
+        />
+        } @else {
+        <small class="text-gray-400 italic mb-2">No cargado</small>
+        }
+
         <input
           type="file"
           (change)="onFileSelected($event, 'url_croquis')"
-          class="p-2 border border-gray-300 rounded-lg cursor-pointer"
+          class="p-2 border border-gray-300 rounded-lg cursor-pointer text-sm"
         />
-        <small class="text-gray-500 mt-1">Opcional: fotos o PDF</small>
       </div>
     </div>
   </section>
 
-  <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
-    <i class="pi pi-search text-green-600"></i>
-    5 Guardar
-  </h3>
   <!-- 5) ACCIONES -->
   <section id="panelAcciones" class="mb-4">
     <div class="flex gap-2">

@@ -118,6 +118,9 @@ export class ContratoServicio {
       closable: true,
       data: envioData,
     });
+    this.ref.onClose.subscribe((valor) => {
+      this.cargarListados();
+    });
   }
   editContratoServicio(dato: IndexListadoContrato) {
     console.log(dato, 'resultado');
@@ -133,6 +136,9 @@ export class ContratoServicio {
       baseZIndex: 10000,
       closable: true,
       data: envioData,
+    });
+    this.ref.onClose.subscribe((valor) => {
+      this.cargarListados();
     });
   }
   deleteContratoServicio(dato: IndexListadoContrato) {}

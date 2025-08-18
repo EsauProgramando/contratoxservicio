@@ -115,7 +115,12 @@ export class ContratoServicioForm {
       );
     }
   }
-
+  // utils.ts (o dentro del mismo componente)
+  toEmpty = (v: any): string => {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'string' && v.trim().toLowerCase() === 'null') return '';
+    return String(v);
+  };
   private mostrardetalleimagen(idCliente: number, nroContrato: number) {
     this.contratosService
       .getDetalleContratoServicio(idCliente, nroContrato)
@@ -132,11 +137,12 @@ export class ContratoServicioForm {
                 precio_mensual: item.precio_mensual,
                 cargo_instalacion: item.cargo_instalacion,
                 ip_fija: item.ip_fija,
-                equipo_mac: item.equipo_mac,
+                equipo_mac: this.toEmpty(item.equipo_mac), // 👈 limpia "null"
                 fecha_activacion: item.fecha_activacion,
-                notas: item.notas,
+                notas: this.toEmpty(item.notas), // 👈 idem
                 estareg: item.estareg,
               }));
+
             console.log(response.data.ite, '   response.data.ite');
             // Actualizamos el observable
             this.servicios_contratadosModel.set([...nuevosServicios]);
@@ -378,15 +384,28 @@ export class ContratoServicioForm {
         this.fileCroquis ?? undefined
       )
       .subscribe({
-        next: (res) => {
-          console.log('Contrato guardado correctamente', res);
-
-          // Reset
-          this.fileContrato = null;
-          this.fileDocumento = null;
-          this.fileCroquis = null;
-          this.contratoModel.set(new ContratoModel());
-          this.servicios_contratadosModel.set([]);
+        next: (response) => {
+          console.log('Contrato guardado correctamente', response);
+          if (response?.mensaje == 'EXITO') {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Contrato guardado correctamente',
+            });
+            // Reset
+            this.fileContrato = null;
+            this.fileDocumento = null;
+            this.fileCroquis = null;
+            this.contratoModel.set(new ContratoModel());
+            this.servicios_contratadosModel.set([]);
+            this.ref!.close();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response.mensaje,
+            });
+          }
         },
         error: (err) => {
           console.error('Error guardando contrato', err);

@@ -46,7 +46,7 @@ export class ContratosService {
     if (archivoSoporte) formData.append('fileContrato', archivoSoporte);
     if (archivoDocumento) formData.append('fileDocumento', archivoDocumento);
     if (archivoCroquis) formData.append('fileCroquis', archivoCroquis);
-
+    console.log(formData, 'envio');
     return this.http.post<Response_Generico<any>>(
       `${this.baseUrl}/registrar/${op}`,
       formData

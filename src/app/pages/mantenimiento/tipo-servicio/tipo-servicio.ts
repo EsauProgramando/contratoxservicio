@@ -59,6 +59,7 @@ export class TipoServicio {
   spinner = signal<boolean>(false);
   searchValue: string = '';
   listaTpoServicio = signal<TipoServicioModel[]>([]);
+  tiposervicioDialog = signal<boolean>(false);
   constructor(
     private tipoServicioService: TipoServicioService,
     private messageService: MessageService,
@@ -94,7 +95,9 @@ export class TipoServicio {
       },
     });
   }
-  openTipoDialog() {}
+  openTipoDialog() {
+    this.tiposervicioDialog.set(true);
+  }
   editTipo(dato: TipoServicioModel) {}
   deleteTipo(dato: TipoServicioModel) {}
   activarTipo(dato: TipoServicioModel) {}
