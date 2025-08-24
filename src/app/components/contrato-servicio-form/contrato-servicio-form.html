@@ -246,6 +246,44 @@
 
   <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
     <i class="pi pi-list text-green-600"></i>
+    Vigencia del Contrato
+  </h3>
+  <section id="vigenciaContrato">
+    <!--quiero guardar los campos de campo numerico input dale un estilo Nº meses y  (Nº dias)  -->
+
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm text-gray-700"
+    >
+      <!-- Tiempo de Contrato -->
+      <div>
+        <div class="text-xs text-gray-500">Tiempo de Contrato(Nº meses)</div>
+        <div class="font-medium">
+          <p-inputNumber
+            [(ngModel)]="detalleBusquedaCliente().tiempo_contrato"
+            [mode]="'decimal'"
+            [min]="0"
+            pSize="small"
+          ></p-inputNumber>
+        </div>
+      </div>
+
+      <!-- Periodo de Gracia -->
+      <div>
+        <div class="text-xs text-gray-500">Periodo de Gracia(Nº dias)</div>
+        <div class="font-medium">
+          <p-inputNumber
+            [(ngModel)]="detalleBusquedaCliente().periodo_gracia"
+            [mode]="'decimal'"
+            [min]="0"
+            pSize="small"
+          ></p-inputNumber>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
+    <i class="pi pi-list text-green-600"></i>
     Servicios a Contratar
   </h3>
 
@@ -418,10 +456,7 @@
         @if (detalleBusquedaCliente().url_soporte_contrato &&
         detalleBusquedaCliente().url_soporte_contrato !== 'null') {
         <a
-          [href]="
-            'http://localhost:8080/uploads/' +
-            detalleBusquedaCliente().url_soporte_contrato
-          "
+          [href]="detalleBusquedaCliente().url_soporte_contrato"
           target="_blank"
           class="text-blue-600 underline text-sm mb-2"
         >
@@ -448,10 +483,7 @@
         @if (detalleBusquedaCliente().url_documento &&
         detalleBusquedaCliente().url_documento !== 'null') {
         <img
-          [src]="
-            'http://localhost:8080/uploads/' +
-            detalleBusquedaCliente().url_documento
-          "
+          [src]="detalleBusquedaCliente().url_documento"
           alt="Documento"
           class="w-full h-32 object-cover rounded-lg border mb-2"
         />
@@ -475,10 +507,7 @@
         @if (detalleBusquedaCliente().url_croquis &&
         detalleBusquedaCliente().url_croquis !== 'null') {
         <img
-          [src]="
-            'http://localhost:8080/uploads/' +
-            detalleBusquedaCliente()!.url_croquis
-          "
+          [src]="detalleBusquedaCliente()!.url_croquis"
           alt="Croquis"
           class="w-full h-32 object-cover rounded-lg border mb-2"
         />

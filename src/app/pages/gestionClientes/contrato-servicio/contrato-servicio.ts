@@ -18,6 +18,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ImageModule } from 'primeng/image';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FileUploadModule } from 'primeng/fileupload';
+import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import {
   DialogService,
@@ -54,6 +55,7 @@ import { ContratoServicioForm } from '../../../components/contrato-servicio-form
     CargaComponent,
     ToastModule,
     DynamicDialogModule,
+    TooltipModule,
   ],
   templateUrl: './contrato-servicio.html',
   styleUrl: './contrato-servicio.scss',
@@ -143,4 +145,41 @@ export class ContratoServicio {
   }
   deleteContratoServicio(dato: IndexListadoContrato) {}
   activarContratoServicio(dato: IndexListadoContrato) {}
+  generarFacturas(idContrato: number, idCliente: number) {
+    //debe preguntar si desea generar las facturas
+    this.confirmationService.confirm({
+      message: '¿Está seguro de que desea generar las facturas?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.spinner.set(true);
+        this.contratosService.generarFacturas(idContrato, idCliente).subscribe({
+          next: (response) => {
+            this.spinner.set(false);
+            if (response?.mensaje == 'EXITO') {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Facturas generadas correctamente',
+              });
+            } else {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: response?.mensaje,
+              });
+            }
+          },
+          error: (error) => {
+            this.spinner.set(false);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error al generar facturas',
+            });
+          },
+        });
+      },
+    });
+  }
 }

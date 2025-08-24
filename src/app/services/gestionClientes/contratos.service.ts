@@ -52,4 +52,13 @@ export class ContratosService {
       formData
     );
   }
+  //generar-facturas/{id_contrato}/{id_cliente}
+  generarFacturas(
+    idContrato: number,
+    idCliente: number
+  ): Observable<Response_Generico<any>> {
+    return this.http.get<Response_Generico<any>>(
+      `${this.baseUrl}/generar-facturas/${idContrato}/${idCliente}`
+    );
+  }
 }

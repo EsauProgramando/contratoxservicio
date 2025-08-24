@@ -1,95 +1,77 @@
 @if (spinner()){
 <app-carga></app-carga>
 }
-<div class="p-4 card">
+<div class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200">
   <p-fieldset>
+    <!-- Encabezado -->
     <ng-template #header>
-      <div
-        class="flex items-center gap-4 px-4 py-3 bg-blue-50 rounded-t-lg border-b border-blue-200 shadow-sm"
-      >
+      <div class="flex items-center gap-4 px-6 py-4 bg-blue-100 rounded-t-xl border-b border-blue-300">
         <img
           src="assets/images/cottage-cheese.gif"
           alt="Icono Tipos de Servicio"
-          class="w-12 h-12 rounded-full border border-blue-300 shadow"
+          class="w-14 h-14 rounded-full border border-blue-400 shadow-md"
         />
-        <span class="font-semibold text-blue-700 text-xl tracking-wide">
-          LISTADO DE TIPOS DE SERVICIO
+        <span class="text-2xl font-bold text-blue-800 tracking-wide">
+          Listado de Tipos de Servicio
         </span>
       </div>
     </ng-template>
 
+    <!-- Tabla -->
     <p-table
       #dt
       [value]="listaTpoServicio()"
       dataKey="id_tipo"
       [rowHover]="true"
       [rows]="10"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [loading]="spinner()"
       [paginator]="true"
+      [loading]="spinner()"
+      [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} tipos"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [filterDelay]="0"
       [globalFilterFields]="['descripcion']"
       [tableStyle]="{ 'max-width': '100%' }"
+      ngClass="p-datatable-striped p-datatable-sm"
     >
+      <!-- Buscador y botón -->
       <ng-template #caption>
-        <div
-          class="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
-        >
-          <!-- Buscador -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4">
           <p-iconfield iconPosition="left" class="w-full md:w-auto">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
+            <p-inputicon><i class="pi pi-search text-blue-600"></i></p-inputicon>
             <input
               pInputText
               type="text"
               [(ngModel)]="searchValue"
               (input)="dt.filterGlobal($event.target.value, 'contains')"
               placeholder="Buscar tipo..."
-              class="w-full md:w-64"
+              class="w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"
             />
           </p-iconfield>
 
-          <!-- Botón -->
           <p-button
             label="Nuevo Tipo"
             icon="pi pi-plus"
-            class="w-full md:w-auto"
-            severity="success"
+            class="transition-all duration-300 hover:scale-105"
+            styleClass="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
             (click)="openTipoDialog()"
           />
         </div>
       </ng-template>
 
+      <!-- Cabecera de la tabla -->
       <ng-template #header>
-        <tr
-          class="bg-blue-100 text-blue-900 text-sm font-semibold border-b border-blue-300 shadow-sm"
-        >
-          <th pSortableColumn="id_tipo" class="px-3 py-3">
-            Código
-            <p-sortIcon field="id_tipo" />
-          </th>
-
-          <th pSortableColumn="descripcion" class="px-3 py-3">
-            Descripción
-            <p-sortIcon field="descripcion" />
-            <p-columnFilter
-              type="text"
-              field="descripcion"
-              display="menu"
-              class="ml-auto"
-            />
-          </th>
-
+        <tr class="bg-blue-200 text-blue-900 text-sm font-semibold">
+          <th pSortableColumn="id_tipo" class="px-3 py-3">Código <p-sortIcon field="id_tipo" /></th>
+          <th pSortableColumn="descripcion" class="px-3 py-3">Descripción <p-sortIcon field="descripcion" /></th>
           <th class="px-3 py-3">Estado</th>
           <th class="px-3 py-3">Acción</th>
         </tr>
       </ng-template>
 
+      <!-- Cuerpo de la tabla -->
       <ng-template #body let-tipo>
-        <tr class="p-selectable-row">
+        <tr class="hover:bg-blue-50 transition-colors duration-300">
           <td>{{ tipo.id_tipo }}</td>
           <td>{{ tipo.descripcion }}</td>
           <td>
@@ -98,13 +80,13 @@
               [severity]="tipo.estareg === 1 ? 'success' : 'danger'"
             />
           </td>
-          <td>
+          <td class="flex gap-2">
             <p-button
               icon="pi pi-pencil"
-              class="mr-2"
               [rounded]="true"
               [outlined]="true"
               (click)="editTipo(tipo)"
+              styleClass="hover:scale-105 transition-transform"
             />
             <p-button
               *ngIf="tipo.estareg === 1"
@@ -113,6 +95,7 @@
               [rounded]="true"
               [outlined]="true"
               (click)="deleteTipo(tipo)"
+              styleClass="hover:scale-105 transition-transform"
             />
             <p-button
               *ngIf="tipo.estareg === 0"
@@ -121,14 +104,18 @@
               [rounded]="true"
               [outlined]="true"
               (click)="activarTipo(tipo)"
+              styleClass="hover:scale-105 transition-transform"
             />
           </td>
         </tr>
       </ng-template>
 
+      <!-- Mensaje vacío -->
       <ng-template #emptymessage>
         <tr>
-          <td colspan="4">No hay tipos de servicio registrados.</td>
+          <td colspan="4" class="text-center text-gray-400 italic py-4">
+            No hay tipos de servicio registrados.
+          </td>
         </tr>
       </ng-template>
     </p-table>

@@ -2,213 +2,157 @@
 <app-carga></app-carga>
 }
 <p-toast></p-toast>
-<div class="p-4 card">
+
+<!-- Contenedor principal -->
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
   <p-fieldset>
+    <!-- Encabezado -->
     <ng-template #header>
       <div
-        class="flex items-center gap-4 px-4 py-3 bg-green-50 rounded-t-lg border-b border-green-200 shadow-sm"
+        class="flex items-center gap-4 px-6 py-4 bg-green-100 rounded-t-xl border-b border-green-300"
       >
         <img
           src="assets/images/cottage-cheese.gif"
           alt="Icono Lista de Clientes"
-          class="w-12 h-12 rounded-full border border-green-300 shadow"
+          class="w-14 h-14 rounded-full border border-green-400 shadow-md"
         />
-        <span class="font-semibold text-green-700 text-xl tracking-wide">
-          LISTADO DE CLIENTES
+        <span class="text-2xl font-bold text-green-800 tracking-wide">
+          Listado de Clientes
         </span>
       </div>
     </ng-template>
 
+    <!-- Tabla -->
     <p-table
       #dt
       [value]="listaClientes()"
       dataKey="id"
       [rowHover]="true"
       [rows]="10"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [loading]="loading"
       [paginator]="true"
+      [loading]="loading"
+      [showCurrentPageReport]="true"
       currentPageReportTemplate="Se encontraron {first} de {last} Total {totalRecords} Registros"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [filterDelay]="0"
       [globalFilterFields]="['id', 'nombres', 'apellidos']"
       [tableStyle]="{ 'max-width': '100%' }"
+      ngClass="p-datatable-striped p-datatable-sm"
     >
+      <!-- Buscador y botón -->
       <ng-template #caption>
         <div
-          class="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4"
         >
-          <!-- Buscador -->
           <p-iconfield iconPosition="left" class="w-full md:w-auto">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
+            <p-inputicon
+              ><i class="pi pi-search text-green-600"></i
+            ></p-inputicon>
             <input
               pInputText
               type="text"
               [(ngModel)]="searchValue"
               (input)="dt.filterGlobal($event.target.value, 'contains')"
-              placeholder="Buscar..."
-              class="w-full md:w-64"
+              placeholder="Buscar cliente..."
+              class="w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300"
             />
           </p-iconfield>
 
-          <!-- Botón -->
           <p-button
             label="Nuevo Cliente"
             icon="pi pi-plus"
-            class="w-full md:w-auto"
-            severity="success"
+            class="transition-all duration-300 hover:scale-105"
+            styleClass="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg"
             (click)="openClienteDialog()"
           />
         </div>
       </ng-template>
 
+      <!-- Cabecera de la tabla -->
       <ng-template #header>
-        <tr
-          class="bg-green-100 text-green-900 text-sm font-semibold border-b border-green-300 shadow-sm"
-        >
+        <tr class="bg-green-200 text-green-900 text-sm font-semibold">
           <th pSortableColumn="nombres" class="px-3 py-3">
-            <div class="flex justify-between items-center gap-2">
-              Nombres
-              <p-sortIcon field="nombres" />
-              <p-columnFilter
-                type="text"
-                field="nombres"
-                display="menu"
-                class="ml-auto"
-              />
-            </div>
+            Nombres <p-sortIcon field="nombres" />
           </th>
-
           <th pSortableColumn="apellidos" class="px-3 py-3">
-            <div class="flex justify-between items-center gap-2">
-              Apellidos
-              <p-sortIcon field="apellidos" />
-              <p-columnFilter
-                type="text"
-                field="apellidos"
-                display="menu"
-                class="ml-auto"
-              />
-            </div>
+            Apellidos <p-sortIcon field="apellidos" />
           </th>
-
           <th pSortableColumn="destipodocident" class="px-3 py-3">
-            <div class="flex justify-between items-center gap-2">
-              Tipo
-              <p-sortIcon field="destipodocident" />
-              <p-columnFilter
-                type="text"
-                field="destipodocident"
-                display="menu"
-                class="ml-auto"
-              />
-            </div>
+            Tipo <p-sortIcon field="destipodocident" />
           </th>
-
           <th pSortableColumn="nrodocident" class="px-3 py-3">
-            <div class="flex justify-between items-center gap-2">
-              Nro
-              <p-sortIcon field="nrodocident" />
-              <p-columnFilter
-                type="number"
-                field="nrodocident"
-                display="menu"
-                class="ml-auto"
-              />
-            </div>
+            Nro <p-sortIcon field="nrodocident" />
           </th>
-
           <th pSortableColumn="email" class="px-3 py-3">
-            <div class="flex justify-between items-center gap-2">
-              Correo
-              <p-sortIcon field="email" />
-              <p-columnFilter
-                type="text"
-                field="email"
-                display="menu"
-                class="ml-auto"
-              />
-            </div>
+            Correo <p-sortIcon field="email" />
           </th>
-
           <th pSortableColumn="telefono" class="px-3 py-3">
-            <div class="flex justify-between items-center gap-2">
-              Teléfono
-              <p-sortIcon field="telefono" />
-              <p-columnFilter
-                type="text"
-                field="telefono"
-                display="menu"
-                class="ml-auto"
-              />
-            </div>
+            Teléfono <p-sortIcon field="telefono" />
           </th>
-
           <th class="px-3 py-3">Estado</th>
           <th class="px-3 py-3">Acción</th>
         </tr>
       </ng-template>
 
+      <!-- Cuerpo de la tabla -->
       <ng-template #body let-cliente>
-        <tr class="p-selectable-row">
-          <td>
-            {{ cliente.nombres }}
-          </td>
-          <td>
-            {{ cliente.apellidos }}
-          </td>
-
-          <td>
-            {{ cliente.destipodocident }}
-          </td>
-          <td>
-            {{ cliente.nrodocident }}
-          </td>
-          <td>
-            {{ cliente.email }}
-          </td>
-          <td>
-            {{ cliente.telefono }}
-          </td>
+        <tr class="hover:bg-green-50 transition-colors duration-300">
+          <td>{{ cliente.nombres }}</td>
+          <td>{{ cliente.apellidos }}</td>
+          <td>{{ cliente.destipodocident }}</td>
+          <td>{{ cliente.nrodocident }}</td>
+          <td>{{ cliente.email }}</td>
+          <td>{{ cliente.telefono }}</td>
           <td>
             <p-tag
               [value]="cliente.estareg === 1 ? 'Activo' : 'Inactivo'"
               [severity]="cliente.estareg === 1 ? 'success' : 'danger'"
             />
           </td>
-          <td>
+          <td class="flex gap-2">
             <p-button
               icon="pi pi-pencil"
-              class="mr-2"
               [rounded]="true"
               [outlined]="true"
+              pTooltip="Editar cliente"
               (click)="editCliente(cliente)"
+              styleClass="hover:scale-105 transition-transform"
             />
+            @if(cliente.estareg === 1){
             <p-button
-              *ngIf="cliente.estareg === 1"
               icon="pi pi-trash"
               severity="danger"
               [rounded]="true"
               [outlined]="true"
+              pTooltip="Dar de baja"
+              tooltipPosition="left"
               (click)="deleteCliente(cliente)"
+              styleClass="hover:scale-105 transition-transform"
             />
-            <!--activar cliente-->
+            } @if(cliente.estareg === 0){
             <p-button
-              *ngIf="cliente.estareg === 0"
               icon="pi pi-check"
               severity="success"
               [rounded]="true"
               [outlined]="true"
+              pTooltip="Activar cliente"
+              tooltipPosition="left"
               (click)="activarCliente(cliente)"
+              styleClass="hover:scale-105 transition-transform"
             />
+            }
           </td>
         </tr>
       </ng-template>
+
+      <!-- Mensaje vacío -->
       <ng-template #emptymessage>
         <tr>
-          <td colspan="8">No hay clientes.</td>
+          <td colspan="8" class="text-center text-gray-400 italic py-4">
+            No hay clientes disponibles.
+          </td>
         </tr>
       </ng-template>
     </p-table>
@@ -322,6 +266,27 @@
           placeholder="Ingrese teléfono"
           class="w-full"
         />
+      </div>
+      <!-- Cobertura  -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Cobertura</label>
+        <p-select
+          [options]="listadoCoberturas()"
+          [(ngModel)]="clientemodel().cobertura_id"
+          optionLabel="nombre"
+          optionValue="id"
+          appendTo="body"
+          [filter]="true"
+          placeholder="Selecciona cobertura"
+          class="w-full"
+        >
+          <ng-template #selectedItem let-opt>
+            <div class="flex items-center gap-2">
+              <i class="pi pi-map-marker text-green-600"></i>
+              <span>{{ opt.nombre }}</span>
+            </div>
+          </ng-template>
+        </p-select>
       </div>
 
       <!-- Dirección con botón -->

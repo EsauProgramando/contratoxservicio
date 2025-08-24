@@ -23,7 +23,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CargaComponent } from '../../../components/carga/carga.component';
 import { ClientesService } from '../../../services/gestionClientes/clientes.service';
 import { ListadoClientes } from '../../../model/gestionClientes/listadoclientes';
-
+import { TooltipModule } from 'primeng/tooltip';
 import { CallesSearch } from '../../../components/calles-search/calles-search';
 import { ListadoCalles } from '../../../model/mantenimiento/listadoCalles';
 
@@ -32,6 +32,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { TipodocidentService } from '../../../services/mantenimiento/tipodocident.service';
 import { ListadoTipoDocIdent } from '../../../model/mantenimiento/listadotipodocident';
 import { ClientesModel } from '../../../model/gestionClientes/clientesModel';
+import { CoberturaService } from '../../../services/mantenimiento/cobertura.service';
+import { CoberturaModel } from '../../../model/mantenimiento/coberturaModel';
 @Component({
   selector: 'app-clientes',
   imports: [
@@ -58,6 +60,7 @@ import { ClientesModel } from '../../../model/gestionClientes/clientesModel';
     InputNumberModule,
     ToastModule,
     TextareaModule,
+    TooltipModule,
   ],
   templateUrl: './clientes.html',
   styleUrl: './clientes.scss',
@@ -73,13 +76,14 @@ export class Clientes {
   listaTipoDocIdent = signal<ListadoTipoDocIdent[]>([]);
 
   clientemodel = signal<ClientesModel>(new ClientesModel());
-
+  listadoCoberturas = signal<CoberturaModel[]>([]);
   searchValue: any;
   constructor(
     private clientesService: ClientesService,
     private tipodocidentService: TipodocidentService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private coberturaService: CoberturaService
   ) {}
 
   ngOnInit() {
@@ -89,6 +93,7 @@ export class Clientes {
   private cargarListados() {
     this.cargarClientes();
     this.cargarTipoDocIdent();
+    this.cargarCoberturas();
   }
 
   private cargarClientes() {
@@ -118,6 +123,31 @@ export class Clientes {
       },
     });
   }
+  private cargarCoberturas() {
+    this.coberturaService.getCobranza().subscribe({
+      next: (response) => {
+        if (response?.mensaje == 'EXITO') {
+          this.listadoCoberturas.set(response.data);
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje,
+          });
+          this.listadoCoberturas.set([]);
+        }
+      },
+      error: (error) => {
+        this.listadoCoberturas.set([]);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar coberturas',
+        });
+      },
+    });
+  }
+
   ///validaciones por campo html
   // Computed para longitud máxima según tipo de documento
   // Computed que devuelve la longitud máxima según el tipo seleccionado
@@ -318,6 +348,15 @@ export class Clientes {
         severity: 'error',
         summary: 'Error',
         detail: 'El campo Direccion es requerido',
+      });
+      return;
+    }
+    //validar cobertura
+    if (!this.clientemodel().cobertura_id) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El campo Cobertura es requerido',
       });
       return;
     }

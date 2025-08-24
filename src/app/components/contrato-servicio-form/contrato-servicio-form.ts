@@ -143,15 +143,27 @@ export class ContratoServicioForm {
                 estareg: item.estareg,
               }));
 
-            console.log(response.data.ite, '   response.data.ite');
             // Actualizamos el observable
             this.servicios_contratadosModel.set([...nuevosServicios]);
             console.log(nuevosServicios, 'nuevosServicios');
+
             this.detalleBusquedaCliente.set(response.data.cab);
             this.detalleBusquedaCliente().estareg = response.data.cab.estareg
               ? 1
               : 0;
+            //igualar cab
             const contrato: ContratoModel = this.contratoModel();
+            contrato.tiempo_contrato = response.data.cab.tiempo_contrato;
+            contrato.periodo_gracia = response.data.cab.periodo_gracia;
+            contrato.url_soporte_contrato =
+              response.data.cab.url_soporte_contrato;
+            contrato.url_documento = response.data.cab.url_documento;
+            contrato.url_croquis = response.data.cab.url_croquis;
+            contrato.observaciones = response.data.cab.observaciones;
+            contrato.fechabaja = response.data.cab.fechabaja;
+            contrato.observacion_baja =
+              response.data.cab?.observacion_baja || '';
+            console.log(contrato, 'contrato');
             if (this.config.data.op == 1) {
               contrato.id_cliente = this.detalleBusquedaCliente().id;
             } else {
@@ -301,8 +313,6 @@ export class ContratoServicioForm {
     });
   }
   mostrardetalledeBusqueda(cliente: BuscarClientes) {
-    // lógica para manejar selección
-    console.log('Cliente seleccionado:', cliente);
     this.detalleBusquedaCliente.set(cliente);
     this.detalledelcliente.set(true);
     this.mostrartabla.set(true);
@@ -372,8 +382,24 @@ export class ContratoServicioForm {
     if (this.config.data.op == 1) {
       contrato.id_cliente = this.detalleBusquedaCliente().id;
     }
+    //igual contrato con detalleBusquedaCliente
+    contrato.tiempo_contrato = this.detalleBusquedaCliente().tiempo_contrato;
+    contrato.periodo_gracia = this.detalleBusquedaCliente().periodo_gracia;
+    contrato.url_soporte_contrato =
+      this.detalleBusquedaCliente().url_soporte_contrato;
+    contrato.url_documento = this.detalleBusquedaCliente().url_documento;
+    contrato.url_croquis = this.detalleBusquedaCliente().url_croquis;
+    contrato.observaciones = this.detalleBusquedaCliente().observaciones;
+    contrato.fechabaja = this.detalleBusquedaCliente().fechabaja;
+    contrato.observacion_baja = this.detalleBusquedaCliente().observacion_baja;
+    //id_imagen
+    contrato.id_soporte_contrato =
+      this.detalleBusquedaCliente().id_soporte_contrato;
+    contrato.id_documento = this.detalleBusquedaCliente().id_documento;
+    contrato.id_croquis = this.detalleBusquedaCliente().id_croquis;
 
     contrato.detalle = [...this.servicios_contratadosModel()];
+    console.log(contrato, 'contrato');
 
     this.contratosService
       .registrarContratoConArchivo(

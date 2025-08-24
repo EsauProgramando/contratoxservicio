@@ -1,95 +1,77 @@
 @if (spinner()){
 <app-carga></app-carga>
 }
-<div class="p-4 card">
+<div class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200">
   <p-fieldset>
+    <!-- Encabezado -->
     <ng-template #header>
-      <div
-        class="flex items-center gap-4 px-4 py-3 bg-purple-50 rounded-t-lg border-b border-purple-200 shadow-sm"
-      >
+      <div class="flex items-center gap-4 px-6 py-4 bg-purple-100 rounded-t-xl border-b border-purple-300">
         <img
           src="assets/images/cottage-cheese.gif"
           alt="Icono Velocidades de Servicio"
-          class="w-12 h-12 rounded-full border border-purple-300 shadow"
+          class="w-14 h-14 rounded-full border border-purple-400 shadow-md"
         />
-        <span class="font-semibold text-purple-700 text-xl tracking-wide">
-          LISTADO DE VELOCIDADES DE SERVICIO
+        <span class="text-2xl font-bold text-purple-800 tracking-wide">
+          Listado de Velocidades de Servicio
         </span>
       </div>
     </ng-template>
 
+    <!-- Tabla -->
     <p-table
       #dt
       [value]="listaVelocidad()"
       dataKey="id_velocidad"
       [rowHover]="true"
       [rows]="10"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [loading]="spinner()"
       [paginator]="true"
+      [loading]="spinner()"
+      [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} velocidades"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [filterDelay]="0"
       [globalFilterFields]="['descripcion']"
       [tableStyle]="{ 'max-width': '100%' }"
+      ngClass="p-datatable-striped p-datatable-sm"
     >
+      <!-- Buscador y botón -->
       <ng-template #caption>
-        <div
-          class="flex flex-col md:flex-row md:items-center md:justify-between gap-2"
-        >
-          <!-- Buscador -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4">
           <p-iconfield iconPosition="left" class="w-full md:w-auto">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
+            <p-inputicon><i class="pi pi-search text-purple-600"></i></p-inputicon>
             <input
               pInputText
               type="text"
               [(ngModel)]="searchValue"
               (input)="dt.filterGlobal($event.target.value, 'contains')"
               placeholder="Buscar velocidad..."
-              class="w-full md:w-64"
+              class="w-full md:w-72 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-300"
             />
           </p-iconfield>
 
-          <!-- Botón -->
           <p-button
             label="Nueva Velocidad"
             icon="pi pi-plus"
-            class="w-full md:w-auto"
-            severity="success"
+            class="transition-all duration-300 hover:scale-105"
+            styleClass="px-4 py-2 text-white bg-purple-600 hover:bg-purple-700 rounded-lg"
             (click)="openVelocidadDialog()"
           />
         </div>
       </ng-template>
 
+      <!-- Cabecera de la tabla -->
       <ng-template #header>
-        <tr
-          class="bg-purple-100 text-purple-900 text-sm font-semibold border-b border-purple-300 shadow-sm"
-        >
-          <th pSortableColumn="id_velocidad" class="px-3 py-3">
-            Código
-            <p-sortIcon field="id_velocidad" />
-          </th>
-
-          <th pSortableColumn="descripcion" class="px-3 py-3">
-            Descripción
-            <p-sortIcon field="descripcion" />
-            <p-columnFilter
-              type="text"
-              field="descripcion"
-              display="menu"
-              class="ml-auto"
-            />
-          </th>
-
+        <tr class="bg-purple-200 text-purple-900 text-sm font-semibold">
+          <th pSortableColumn="id_velocidad" class="px-3 py-3">Código <p-sortIcon field="id_velocidad" /></th>
+          <th pSortableColumn="descripcion" class="px-3 py-3">Descripción <p-sortIcon field="descripcion" /></th>
           <th class="px-3 py-3">Estado</th>
           <th class="px-3 py-3">Acción</th>
         </tr>
       </ng-template>
 
+      <!-- Cuerpo de la tabla -->
       <ng-template #body let-velocidad>
-        <tr class="p-selectable-row">
+        <tr class="hover:bg-purple-50 transition-colors duration-300">
           <td>{{ velocidad.id_velocidad }}</td>
           <td>{{ velocidad.descripcion }}</td>
           <td>
@@ -98,13 +80,13 @@
               [severity]="velocidad.estareg === 1 ? 'success' : 'danger'"
             />
           </td>
-          <td>
+          <td class="flex gap-2">
             <p-button
               icon="pi pi-pencil"
-              class="mr-2"
               [rounded]="true"
               [outlined]="true"
               (click)="editVelocidad(velocidad)"
+              styleClass="hover:scale-105 transition-transform"
             />
             <p-button
               *ngIf="velocidad.estareg === 1"
@@ -113,6 +95,7 @@
               [rounded]="true"
               [outlined]="true"
               (click)="deleteVelocidad(velocidad)"
+              styleClass="hover:scale-105 transition-transform"
             />
             <p-button
               *ngIf="velocidad.estareg === 0"
@@ -121,14 +104,18 @@
               [rounded]="true"
               [outlined]="true"
               (click)="activarVelocidad(velocidad)"
+              styleClass="hover:scale-105 transition-transform"
             />
           </td>
         </tr>
       </ng-template>
 
+      <!-- Mensaje vacío -->
       <ng-template #emptymessage>
         <tr>
-          <td colspan="4">No hay velocidades de servicio registradas.</td>
+          <td colspan="4" class="text-center text-gray-400 italic py-4">
+            No hay velocidades de servicio registradas.
+          </td>
         </tr>
       </ng-template>
     </p-table>
