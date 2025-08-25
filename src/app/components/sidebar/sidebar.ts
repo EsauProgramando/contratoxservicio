@@ -123,6 +123,7 @@ export class Sidebar {
           {
             label: 'Gestión de Cobranzas',
             icon: 'pi pi-users', // gestión de clientes/cobranzas
+            routerLink: './cobranzas',
           },
           {
             label: 'Registro Manual de Pagos',

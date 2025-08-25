@@ -174,6 +174,7 @@ export class MenuBar {
           {
             label: 'Gestión de Cobranzas',
             icon: 'pi pi-users', // gestión de clientes/cobranzas
+            routerLink: './cobranzas',
             command: () => {
               this.messageService.add({
                 severity: 'info',

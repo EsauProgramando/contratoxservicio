@@ -93,6 +93,7 @@
             Precio <p-sortIcon field="precio_mensual" />
           </th>
           <th>Estado</th>
+          <th>Genera Facturación</th>
           <th>Acciones</th>
         </tr>
       </ng-template>
@@ -110,6 +111,12 @@
             <p-tag
               [value]="contrato.estado ? 'ACTIVO' : 'Inactivo'"
               [severity]="contrato.estado ? 'success' : 'danger'"
+            />
+          </td>
+          <td>
+            <p-tag
+              [value]="contrato.genera_facturacion ? 'Sí' : 'No'"
+              [severity]="contrato.genera_facturacion ? 'success' : 'danger'"
             />
           </td>
           <td class="flex gap-2">
@@ -131,6 +138,17 @@
               "
               styleClass="hover:scale-105 transition-transform"
             />
+            <!--ver facturacion facturacion-->
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [outlined]="true"
+              pTooltip="Ver facturación"
+              (click)="
+                verFacturacion(contrato.id_contrato, contrato.id_cliente)
+              "
+              styleClass="hover:scale-105 transition-transform"
+            />
           </td>
         </tr>
       </ng-template>
@@ -147,3 +165,43 @@
   </p-fieldset>
 </div>
 <p-confirmDialog [style]="{ width: '450px' }" />
+<!--Ver facturacion en un tabla modal-->
+<p-dialog
+  [(visible)]="abrimodalfacturacion"
+  [modal]="true"
+  [closable]="false"
+  [header]="'Facturación'"
+  [style]="{ width: '80vw' }"
+>
+  <ng-template pTemplate="content">
+    <p-table [value]="facturas()" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Factura</th>
+          <th>Fecha de Emisión</th>
+          <th>Fecha de Vencimiento</th>
+          <th>Monto</th>
+          <th>Descripción</th>
+          <th>Estado</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-factura>
+        <tr>
+          <td>{{ factura.codigo_factura }}</td>
+          <td>{{ factura.fecha_emision | date : "dd/MM/yyyy" }}</td>
+          <td>{{ factura.fecha_vencimiento | date : "dd/MM/yyyy" }}</td>
+          <td>{{ "S/" + factura.monto }}</td>
+          <td>{{ factura.observaciones }}</td>
+          <td>{{ factura.estado }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      (click)="abrimodalfacturacion.set(false)"
+    />
+  </ng-template>
+</p-dialog>

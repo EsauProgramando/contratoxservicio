@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { Response_Generico } from '../../model/responseGeneric';
 import { IndexListadoContrato } from '../../model/gestionClientes/indexListadoContrato';
 import { ContratoModel } from '../../model/gestionClientes/contratoModel';
-import { Detalle_contratoxservicioRequest } from '../../model/gestionClientes/detalle_contratoxservicioRequest';
 @Injectable({
   providedIn: 'root',
 })
@@ -46,7 +45,6 @@ export class ContratosService {
     if (archivoSoporte) formData.append('fileContrato', archivoSoporte);
     if (archivoDocumento) formData.append('fileDocumento', archivoDocumento);
     if (archivoCroquis) formData.append('fileCroquis', archivoCroquis);
-    console.log(formData, 'envio');
     return this.http.post<Response_Generico<any>>(
       `${this.baseUrl}/registrar/${op}`,
       formData

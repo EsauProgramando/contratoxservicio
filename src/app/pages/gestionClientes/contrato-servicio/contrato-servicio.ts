@@ -30,6 +30,8 @@ import { ContratosService } from '../../../services/gestionClientes/contratos.se
 import { IndexListadoContrato } from '../../../model/gestionClientes/indexListadoContrato';
 import { ToastModule } from 'primeng/toast';
 import { ContratoServicioForm } from '../../../components/contrato-servicio-form/contrato-servicio-form';
+import { FacturacionService } from '../../../services/gestionClientes/facturacion.service';
+import { FacturacionRequest } from '../../../model/gestionClientes/FacturacionRequest';
 
 @Component({
   selector: 'app-contrato-servicio',
@@ -63,14 +65,17 @@ import { ContratoServicioForm } from '../../../components/contrato-servicio-form
 })
 export class ContratoServicio {
   spinner = signal<boolean>(false);
+  abrimodalfacturacion = signal<boolean>(false);
   listaDatos = signal<IndexListadoContrato[]>([]);
+  facturas = signal<FacturacionRequest[]>([]);
   searchValue: string = '';
   ref: DynamicDialogRef | undefined;
   constructor(
     private contratosService: ContratosService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private facturacionService: FacturacionService
   ) {}
   ngOnInit() {
     this.cargarListados();
@@ -181,5 +186,35 @@ export class ContratoServicio {
         });
       },
     });
+  }
+  verFacturacion(idContrato: number, idCliente: number) {
+    this.spinner.set(true);
+    this.abrimodalfacturacion.set(true);
+    this.facturacionService
+      .obtener_facturas_x_contrato(idContrato, idCliente)
+      .subscribe({
+        next: (response) => {
+          this.spinner.set(false);
+          if (response?.mensaje == 'EXITO') {
+            this.facturas.set(response.data);
+          } else {
+            this.facturas.set([]);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje,
+            });
+          }
+        },
+        error: (error) => {
+          this.spinner.set(false);
+          this.facturas.set([]);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al obtener facturación',
+          });
+        },
+      });
   }
 }

@@ -21,6 +21,11 @@ export const pagesRoutes: Routes = [
       ).then((m) => m.ContratoServicioModule),
   },
 
+  {
+    path: 'cobranzas',
+    loadComponent: () =>
+      import('./gestionCobranza/cobranzas/cobranzas').then((m) => m.Cobranzas),
+  },
   //mantenimientos
   {
     path: 'calles',
