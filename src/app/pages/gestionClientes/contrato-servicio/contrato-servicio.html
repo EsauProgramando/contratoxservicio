@@ -80,7 +80,7 @@
             Cliente <p-sortIcon field="cliente" />
           </th>
           <th pSortableColumn="fecha_contrato">
-            Fecha <p-sortIcon field="fecha_contrato" />
+            Fecha Contrato <p-sortIcon field="fecha_contrato" />
           </th>
           <th pSortableColumn="tipo_servicio">
             Tipo <p-sortIcon field="tipo_servicio" />
@@ -93,8 +93,8 @@
             Precio <p-sortIcon field="precio_mensual" />
           </th>
           <th>Estado</th>
-          <th>Genera Facturación</th>
-          <th>Acciones</th>
+          <th class="text-center align-middle">Genera Facturación</th>
+          <th class="text-center align-middle">Acciones</th>
         </tr>
       </ng-template>
 
@@ -107,48 +107,70 @@
           <td>{{ contrato.plan }}</td>
           <td>{{ contrato.velocidad }}</td>
           <td>{{ "S/" + contrato.precio_mensual }}</td>
-          <td>
+          <td class="text-center">
             <p-tag
               [value]="contrato.estado ? 'ACTIVO' : 'Inactivo'"
               [severity]="contrato.estado ? 'success' : 'danger'"
             />
           </td>
-          <td>
-            <p-tag
-              [value]="contrato.genera_facturacion ? 'Sí' : 'No'"
-              [severity]="contrato.genera_facturacion ? 'success' : 'danger'"
-            />
+          <td class="text-center align-middle">
+            <div class="inline-flex justify-center items-center w-full">
+              <p-tag
+                [value]="contrato.genera_facturacion ? 'Sí' : 'No'"
+                [severity]="contrato.genera_facturacion ? 'success' : 'danger'"
+              ></p-tag>
+            </div>
           </td>
-          <td class="flex gap-2">
-            <p-button
-              icon="pi pi-pencil"
-              [rounded]="true"
-              [outlined]="true"
-              pTooltip="Editar contrato"
-              (click)="editContratoServicio(contrato)"
-              styleClass="hover:scale-105 transition-transform"
-            />
-            <p-button
-              icon="pi pi-file"
-              [rounded]="true"
-              [outlined]="true"
-              pTooltip="Generar facturas"
-              (click)="
-                generarFacturas(contrato.id_contrato, contrato.id_cliente)
-              "
-              styleClass="hover:scale-105 transition-transform"
-            />
-            <!--ver facturacion facturacion-->
-            <p-button
-              icon="pi pi-eye"
-              [rounded]="true"
-              [outlined]="true"
-              pTooltip="Ver facturación"
-              (click)="
-                verFacturacion(contrato.id_contrato, contrato.id_cliente)
-              "
-              styleClass="hover:scale-105 transition-transform"
-            />
+
+          <td>
+            <div class="flex justify-center items-center gap-3">
+              <!-- Editar contrato -->
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [outlined]="true"
+                severity="info"
+                pTooltip="Editar contrato"
+                tooltipPosition="top"
+                (click)="editContratoServicio(contrato)"
+                class="p-button-sm transition-all duration-200 hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+              ></button>
+
+              <!-- Generar facturas -->
+              <button
+                pButton
+                type="button"
+                icon="pi pi-file"
+                [rounded]="true"
+                [outlined]="true"
+                severity="success"
+                pTooltip="Generar facturas"
+                tooltipPosition="top"
+                (click)="
+                  generarFacturas(contrato.id_contrato, contrato.id_cliente)
+                "
+                class="p-button-sm transition-all duration-200 hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              ></button>
+              @if(contrato.genera_facturacion){
+              <!-- Ver facturación -->
+              <button
+                pButton
+                type="button"
+                icon="pi pi-eye"
+                [rounded]="true"
+                [outlined]="true"
+                severity="contrast"
+                pTooltip="Ver facturación"
+                tooltipPosition="top"
+                (click)="
+                  verFacturacion(contrato.id_contrato, contrato.id_cliente)
+                "
+                class="p-button-sm transition-all duration-200 hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+              ></button>
+              }
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -174,7 +196,7 @@
   [style]="{ width: '80vw' }"
 >
   <ng-template pTemplate="content">
-    <p-table [value]="facturas()" [paginator]="true" [rows]="10">
+    <p-table [value]="facturas()" [scrollable]="true">
       <ng-template pTemplate="header">
         <tr>
           <th>Factura</th>

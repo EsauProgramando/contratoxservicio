@@ -38,6 +38,9 @@ import { ServicioContratadoRequest } from '../../model/gestionClientes/servicioC
 import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ContratosService } from '../../services/gestionClientes/contratos.service';
+import { ValidarFormularioContrato } from '../../model/gestionClientes/validarformulariocontrato';
+import { environment } from '../../environments/environment';
+
 @Component({
   selector: 'app-contrato-servicio-form',
   imports: [
@@ -71,6 +74,7 @@ import { ContratosService } from '../../services/gestionClientes/contratos.servi
 })
 export class ContratoServicioForm {
   listaTpoServicio = signal<TipoServicioModel[]>([]);
+  listaTpoServicioes_servicio = signal<TipoServicioModel[]>([]);
   listaVelocidad = signal<VelocidadServicioModel[]>([]);
   listaPlanServcio = signal<PlanServicioModel[]>([]);
   listaBusquedaCliente = signal<BuscarClientes[]>([]);
@@ -88,7 +92,18 @@ export class ContratoServicioForm {
   fileContrato: File | null = null;
   fileDocumento: File | null = null;
   fileCroquis: File | null = null;
-
+  disabled = signal<boolean>(false);
+  //validar formulario varios campos
+  ValidarFormularioContrato = signal(new ValidarFormularioContrato());
+  // datos del cliente como signal
+  environment = environment;
+  // señales para controlar errores en el formulario
+  formErrors = {
+    tiempo_contrato: signal(false),
+    periodo_gracia: signal(false),
+    servicios_contratados: signal(false),
+    id_tipo: signal(false),
+  };
   PRECIO_IP_FIJA = 30;
   constructor(
     private velocidadServicioService: VelocidadServicioService,
@@ -163,6 +178,7 @@ export class ContratoServicioForm {
             contrato.fechabaja = response.data.cab.fechabaja;
             contrato.observacion_baja =
               response.data.cab?.observacion_baja || '';
+            contrato.id_tipo = response.data.cab.id_tipo;
             console.log(contrato, 'contrato');
             if (this.config.data.op == 1) {
               contrato.id_cliente = this.detalleBusquedaCliente().id;
@@ -226,6 +242,9 @@ export class ContratoServicioForm {
       next: (response) => {
         if (response?.mensaje == 'EXITO') {
           this.listaTpoServicio.set(response.data);
+          this.listaTpoServicioes_servicio.set(
+            response.data.filter((item) => item.es_servicio)
+          );
         } else {
           this.messageService.add({
             severity: 'error',
@@ -233,10 +252,12 @@ export class ContratoServicioForm {
             detail: response?.mensaje,
           });
           this.listaTpoServicio.set([]);
+          this.listaTpoServicioes_servicio.set([]);
         }
       },
       error: (error) => {
         this.listaTpoServicio.set([]);
+        this.listaTpoServicioes_servicio.set([]);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -382,6 +403,13 @@ export class ContratoServicioForm {
     if (this.config.data.op == 1) {
       contrato.id_cliente = this.detalleBusquedaCliente().id;
     }
+
+    //validar
+    if (!this.validarForm()) {
+      return;
+    }
+
+    this.disabled.set(true);
     //igual contrato con detalleBusquedaCliente
     contrato.tiempo_contrato = this.detalleBusquedaCliente().tiempo_contrato;
     contrato.periodo_gracia = this.detalleBusquedaCliente().periodo_gracia;
@@ -397,7 +425,7 @@ export class ContratoServicioForm {
       this.detalleBusquedaCliente().id_soporte_contrato;
     contrato.id_documento = this.detalleBusquedaCliente().id_documento;
     contrato.id_croquis = this.detalleBusquedaCliente().id_croquis;
-
+    contrato.id_tipo = this.detalleBusquedaCliente().id_tipo;
     contrato.detalle = [...this.servicios_contratadosModel()];
     console.log(contrato, 'contrato');
 
@@ -411,6 +439,7 @@ export class ContratoServicioForm {
       )
       .subscribe({
         next: (response) => {
+          this.disabled.set(false);
           console.log('Contrato guardado correctamente', response);
           if (response?.mensaje == 'EXITO') {
             this.messageService.add({
@@ -434,6 +463,7 @@ export class ContratoServicioForm {
           }
         },
         error: (err) => {
+          this.disabled.set(false);
           console.error('Error guardando contrato', err);
         },
       });
@@ -457,5 +487,88 @@ export class ContratoServicioForm {
         this.fileCroquis = archivo;
         break;
     }
+  }
+
+  validarForm(): boolean {
+    let valido = true;
+
+    // Validar tiempo_contrato
+    const tiempo = this.detalleBusquedaCliente().tiempo_contrato;
+    if (!tiempo || tiempo === 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Seleccione un tiempo de contrato',
+      });
+      this.formErrors.tiempo_contrato.set(true);
+      valido = false;
+    } else {
+      this.formErrors.tiempo_contrato.set(false);
+    }
+
+    // Validar periodo_gracia
+    const periodo = this.detalleBusquedaCliente().periodo_gracia;
+    if (!periodo || periodo === 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Seleccione un período de gracia',
+      });
+      this.formErrors.periodo_gracia.set(true);
+      valido = false;
+    } else {
+      this.formErrors.periodo_gracia.set(false);
+    }
+    //validar id_tipo
+    if (!this.detalleBusquedaCliente().id_tipo) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Seleccione un tipo de servicio',
+      });
+      this.formErrors.id_tipo.set(true);
+      valido = false;
+    } else {
+      this.formErrors.id_tipo.set(false);
+    }
+
+    //validar si hay datos servicios_contratadosModel
+    if (!this.servicios_contratadosModel().length) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Agregue al menos un servicio contratado',
+      });
+      valido = false;
+      this.formErrors.servicios_contratados.set(true);
+    }
+
+    return valido;
+  }
+  getDirectLink(url: string | null | undefined): string {
+    if (!url || url === 'null') return '';
+
+    // Extraer ID de la URL de Google Drive
+    const match = url.match(/\/d\/(.*?)\//);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+
+    return url; // si no es de Drive, se devuelve tal cual
+  }
+  //getImagenProducto
+  getmostrarimagen(id: string) {
+    if (!id) return '';
+    this.contratosService.getImagenProducto(id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        return url;
+      },
+      error: (err) => {
+        console.error('Error al cargar imagen', err);
+        return '';
+      },
+    });
+    return '';
   }
 }

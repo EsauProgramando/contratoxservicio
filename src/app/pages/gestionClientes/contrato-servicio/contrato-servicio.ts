@@ -70,6 +70,7 @@ export class ContratoServicio {
   facturas = signal<FacturacionRequest[]>([]);
   searchValue: string = '';
   ref: DynamicDialogRef | undefined;
+
   constructor(
     private contratosService: ContratosService,
     private messageService: MessageService,
@@ -167,6 +168,7 @@ export class ContratoServicio {
                 summary: 'Éxito',
                 detail: 'Facturas generadas correctamente',
               });
+              this.cargarListados();
             } else {
               this.messageService.add({
                 severity: 'error',

@@ -1,32 +1,46 @@
+@if (spinner()){
+<app-carga></app-carga>
+}
+<p-toast></p-toast>
+
 <div class="p-6 bg-white rounded-lg shadow-md space-y-6">
-  <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2">
+  <h2
+    class="text-3xl font-bold text-indigo-700 tracking-tight flex items-center gap-3 border-b pb-3"
+  >
+    <i class="pi pi-credit-card text-indigo-500 text-xl"></i>
     Gestión de Cobranzas
   </h2>
-
   <!-- Filtros -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Nombre Completo -->
     <div>
       <label
         for="nombre_completo"
-        class="block text-sm font-medium text-gray-700"
-        >Nombre Completo</label
+        class="text-sm font-semibold text-gray-600 block mb-1"
       >
+        <i class="pi pi-user text-indigo-500 me-1"></i> Nombre Completo
+      </label>
       <input
         id="nombre_completo"
         type="text"
         [(ngModel)]="searchValue"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Ej. Juan Pérez"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       />
     </div>
 
+    <!-- Estado -->
     <div>
-      <label for="estado" class="block text-sm font-medium text-gray-700"
-        >Estado</label
+      <label
+        for="estado"
+        class="text-sm font-semibold text-gray-600 block mb-1"
       >
+        <i class="pi pi-check-circle text-indigo-500 me-1"></i> Estado
+      </label>
       <select
         id="estado"
         [(ngModel)]="facturacionEnvio().estado"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <option *ngFor="let estado of estados" [value]="estado.value">
           {{ estado.label }}
@@ -34,55 +48,162 @@
       </select>
     </div>
 
+    <!-- Tipo de Servicio -->
     <div>
-      <label for="periodo" class="block text-sm font-medium text-gray-700"
-        >Periodo</label
+      <label
+        for="id_tipo"
+        class="text-sm font-semibold text-gray-600 block mb-1"
       >
+        <i class="pi pi-cog text-indigo-500 me-1"></i> Tipo de Servicio
+      </label>
+      <select
+        id="id_tipo"
+        [(ngModel)]="facturacionEnvio().id_tipo"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <option value="">-- Seleccione --</option>
+        <option
+          *ngFor="let tipo of listaTpoServicioes_servicio()"
+          [value]="tipo.id_tipo"
+        >
+          {{ tipo.descripcion }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Periodo -->
+    <div>
+      <label
+        for="periodo"
+        class="text-sm font-semibold text-gray-600 block mb-1"
+      >
+        <i class="pi pi-calendar text-indigo-500 me-1"></i> Periodo
+      </label>
       <input
         id="periodo"
         type="text"
         [(ngModel)]="facturacionEnvio().periodo"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Ej. 2025-09"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       />
     </div>
   </div>
 
   <!-- Botones -->
-  <div class="flex justify-end space-x-4">
+  <div class="flex justify-end gap-3 mt-6">
     <button
       (click)="limpiarFiltros()"
-      class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+      class="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
     >
-      Limpiar
+      <i class="pi pi-times me-2"></i> Limpiar
     </button>
     <button
       (click)="buscarFacturas()"
-      class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+      class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
     >
-      Buscar
+      <i class="pi pi-search me-2"></i> Buscar
     </button>
   </div>
 
-  <!-- Tabla -->
-  <p-table [value]="facturas()" [paginator]="true" [rows]="10">
+  <p-table
+    [value]="facturas()"
+    [scrollable]="true"
+    [scrollable]="true"
+    scrollHeight="400px"
+    class="'p-datatable-striped p-datatable-sm shadow-md rounded-lg border-gray-200'"
+  >
+    <!-- Encabezado -->
     <ng-template pTemplate="header">
-      <tr>
+      <tr class="bg-indigo-50 text-indigo-800 text-sm font-semibold">
         <th>Factura</th>
-        <th>Fecha de Emisión</th>
-        <th>Fecha de Vencimiento</th>
-        <th>Monto</th>
+        <th pSortableColumn="nombre_completo">
+          Cliente <p-sortIcon field="nombre_completo" />
+        </th>
+        <th>Servicio</th>
         <th>Descripción</th>
-        <th>Estado</th>
+        <th>Periodo</th>
+        <th>Monto</th>
+        <th pSortableColumn="saldo">Saldo <p-sortIcon field="saldo" /></th>
+        <th>Fecha de Vencimiento</th>
+        <th>Días</th>
+        <th pSortableColumn="estado">Estado <p-sortIcon field="estado" /></th>
+
+        <th>Acciones</th>
       </tr>
     </ng-template>
+
+    <!-- Cuerpo -->
     <ng-template pTemplate="body" let-factura>
-      <tr>
+      <tr class="text-sm text-gray-700">
         <td>{{ factura.codigo_factura }}</td>
-        <td>{{ factura.fecha_emision | date : "dd/MM/yyyy" }}</td>
-        <td>{{ factura.fecha_vencimiento | date : "dd/MM/yyyy" }}</td>
-        <td>{{ "S/" + factura.monto }}</td>
+        <td>{{ factura.nombre_completo }}</td>
+        <td>{{ factura.desctipo }}</td>
         <td>{{ factura.observaciones }}</td>
-        <td>{{ factura.estado }}</td>
+        <td>{{ factura.periodo }}</td>
+        <td>S/{{ factura.monto }}</td>
+        <td>S/{{ factura.saldo }}</td>
+        <td>{{ factura.fecha_vencimiento | date : "dd/MM/yyyy" }}</td>
+        <td>{{ factura.dias_mora }}</td>
+        <td>
+          <span
+            class="px-2 py-1 rounded-full text-xs font-medium"
+            [ngClass]="{
+              'bg-green-100 text-green-700': factura.estado === 'PAGADO',
+              'bg-yellow-100 text-yellow-700': factura.estado === 'POR_VENCER',
+              'bg-red-100 text-red-700': factura.estado === 'VENCIDO',
+              'bg-purple-100 text-purple-700':
+                factura.estado === 'MOROSO_CRONICO'
+            }"
+          >
+            {{ factura.estado }}
+          </span>
+        </td>
+
+        <td class="text-center">
+          <div class="flex gap-2 justify-center">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-bell"
+              class="p-button-rounded p-button-info p-button-sm"
+              pTooltip="Recordar Pago"
+              tooltipPosition="top"
+              (click)="recordarPago(factura)"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-wallet"
+              class="p-button-rounded p-button-success p-button-sm"
+              pTooltip="Registrar Pago"
+              tooltipPosition="top"
+              (click)="registrarPago(factura)"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-calendar"
+              class="p-button-rounded p-button-warning p-button-sm"
+              pTooltip="Ver Historial"
+              tooltipPosition="top"
+              (click)="verHistorial(factura)"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Footer -->
+    <ng-template pTemplate="footer">
+      <tr class="bg-gray-50 text-sm font-semibold text-gray-700">
+        <td colspan="5" class="p-0">
+          <div class="w-full text-end pe-3 font-bold">Totales:</div>
+        </td>
+        <td class="font-bold">S/{{ getTotales().monto }}</td>
+        <td class="font-bold">S/{{ getTotales().saldo }}</td>
+        <td colspan="4"></td>
       </tr>
     </ng-template>
   </p-table>

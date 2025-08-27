@@ -31,6 +31,9 @@ import { ToastModule } from 'primeng/toast';
 import { FacturacionService } from '../../../services/gestionClientes/facturacion.service';
 import { FacturacionRequest } from '../../../model/gestionClientes/FacturacionRequest';
 import { FacturacionEnvio } from '../../../model/gestionClientes/facturacionEnvio';
+import { CargaComponent } from '../../../components/carga/carga.component';
+import { TipoServicioModel } from '../../../model/mantenimiento/tiposervicioModel';
+import { TipoServicioService } from '../../../services/mantenimiento/tipo-servicio.service';
 
 @Component({
   selector: 'app-cobranzas',
@@ -56,6 +59,7 @@ import { FacturacionEnvio } from '../../../model/gestionClientes/facturacionEnvi
     ToastModule,
     DynamicDialogModule,
     TooltipModule,
+    CargaComponent,
   ],
   templateUrl: './cobranzas.html',
   styleUrl: './cobranzas.scss',
@@ -68,6 +72,7 @@ export class Cobranzas {
   facturacionEnvio = signal<FacturacionEnvio>(new FacturacionEnvio());
   searchValue: string = '';
   ref: DynamicDialogRef | undefined;
+  listaTpoServicioes_servicio = signal<TipoServicioModel[]>([]);
   estados: any[] = [
     { label: 'Todos', value: 'TODOS' },
     { label: 'Por Vencer', value: 'POR_VENCER' },
@@ -79,8 +84,12 @@ export class Cobranzas {
   constructor(
     private messageService: MessageService,
     private dialogService: DialogService,
-    private facturacionService: FacturacionService
+    private facturacionService: FacturacionService,
+    private tipoServicioService: TipoServicioService
   ) {}
+  ngOnInit() {
+    this.cargarTipoServicio();
+  }
   buscarFacturas() {
     this.spinner.set(true);
     this.facturacionService.buscar_facturas(this.facturacionEnvio()).subscribe({
@@ -112,5 +121,64 @@ export class Cobranzas {
     this.facturacionEnvio().periodo = '';
     this.searchValue = '';
     this.facturacionEnvio().nombre_completo = '';
+  }
+  //recordatorio
+  recordarPago(factura: FacturacionRequest) {
+    // Lógica para recordar el pago de la factura
+  }
+
+  registrarPago(factura: FacturacionRequest) {
+    // Lógica para registrar el pago de la factura
+  }
+
+  verHistorial(factura: FacturacionRequest) {
+    // Lógica para ver el historial de la factura
+  }
+  getTotales() {
+    const facturas = this.facturas(); // Asumiendo que es un getter
+    let montoTotal = 0;
+    let saldoTotal = 0;
+
+    for (const f of facturas) {
+      montoTotal += Number(f.monto) || 0;
+      saldoTotal += Number(f.saldo) || 0;
+    }
+
+    return {
+      monto: montoTotal.toFixed(2),
+      saldo: saldoTotal.toFixed(2),
+    };
+  }
+  private cargarTipoServicio() {
+    this.tipoServicioService.getTipoServicio().subscribe({
+      next: (response) => {
+        if (response?.mensaje == 'EXITO') {
+          this.listaTpoServicioes_servicio.set(
+            response.data.filter((item) => item.es_servicio)
+          );
+          //agregar un valor mas que seria 0 es igual a TODOS
+          // ✅ o con update (usa el valor anterior)
+          this.listaTpoServicioes_servicio.update((prev) => [
+            { descripcion: 'TODOS', es_servicio: true, estareg: 1, id_tipo: 0 },
+            ...prev,
+          ]);
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje,
+          });
+          this.listaTpoServicioes_servicio.set([]);
+        }
+      },
+      error: (error) => {
+        this.listaTpoServicioes_servicio.set([]);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar tipos de documento de identidad',
+        });
+      },
+    });
   }
 }

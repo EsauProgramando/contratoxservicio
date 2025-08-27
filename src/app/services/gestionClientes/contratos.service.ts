@@ -59,4 +59,9 @@ export class ContratosService {
       `${this.baseUrl}/generar-facturas/${idContrato}/${idCliente}`
     );
   }
+  getImagenProducto(id: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/mostrar?id=${id}`, {
+      responseType: 'blob', // Muy importante
+    });
+  }
 }

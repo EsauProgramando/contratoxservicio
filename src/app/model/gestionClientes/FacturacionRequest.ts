@@ -1,5 +1,6 @@
 export class FacturacionRequest {
   id_factura: number = 0;
+  id_tipo: number = 0;
   codigo_factura: string = '';
   id_contrato: number = 0;
   id_cliente: number = 0;
@@ -14,4 +15,5 @@ export class FacturacionRequest {
   observaciones: string = '';
   estareg: boolean = false;
   fechareg: number = 0;
+  desctipo: string = '';
 }

@@ -34,4 +34,5 @@ export class BuscarClientes {
   id_soporte_contrato: string = '';
   id_documento: string = '';
   id_croquis: string = '';
+  id_tipo: number = 0;
 }

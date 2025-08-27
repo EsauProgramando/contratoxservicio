@@ -256,27 +256,62 @@
     >
       <!-- Tiempo de Contrato -->
       <div>
-        <div class="text-xs text-gray-500">Tiempo de Contrato(Nº meses)</div>
+        <div class="text-xs text-gray-500">Tiempo de Contrato (Nº meses)</div>
         <div class="font-medium">
           <p-inputNumber
             [(ngModel)]="detalleBusquedaCliente().tiempo_contrato"
             [mode]="'decimal'"
             [min]="0"
             pSize="small"
+            [class.ng-invalid]="formErrors.tiempo_contrato()"
           ></p-inputNumber>
+
+          <div
+            *ngIf="formErrors.tiempo_contrato()"
+            class="text-red-500 text-xs mt-1"
+          >
+            ⚠️ Seleccione un tiempo de contrato válido
+          </div>
         </div>
       </div>
 
       <!-- Periodo de Gracia -->
       <div>
-        <div class="text-xs text-gray-500">Periodo de Gracia(Nº dias)</div>
+        <div class="text-xs text-gray-500">Período de Gracia</div>
         <div class="font-medium">
           <p-inputNumber
             [(ngModel)]="detalleBusquedaCliente().periodo_gracia"
             [mode]="'decimal'"
             [min]="0"
             pSize="small"
+            [class.ng-dirty]="ValidarFormularioContrato().periodo_gracia"
+            [class.ng-invalid]="ValidarFormularioContrato().periodo_gracia"
           ></p-inputNumber>
+
+          <div
+            *ngIf="formErrors.periodo_gracia()"
+            class="text-red-500 text-xs mt-1"
+          >
+            ⚠️ Seleccione un período de gracia válido
+          </div>
+        </div>
+      </div>
+      <!--tipo de servicio filtrado por el campo es_servicio-->
+      <div>
+        <div class="text-xs text-gray-500">Tipo de Servicio</div>
+        <div class="font-medium">
+          <p-select
+            [options]="listaTpoServicioes_servicio()"
+            [(ngModel)]="detalleBusquedaCliente().id_tipo"
+            optionLabel="descripcion"
+            optionValue="id_tipo"
+            appendTo="body"
+            placeholder="Seleccione"
+            class="w-full"
+          ></p-select>
+          <div *ngIf="formErrors.id_tipo()" class="text-red-500 text-xs mt-1">
+            ⚠️ Seleccione un tipo de servicio válido
+          </div>
         </div>
       </div>
     </div>
@@ -433,6 +468,14 @@
         </tr>
       </ng-template>
     </p-table>
+    <!--validar si hay datos servicios_contratadosModel-->
+    @if (formErrors.servicios_contratados()) {
+    <div>
+      <small class="text-red-500"
+        >⚠️ Debe agregar al menos un servicio contratado.</small
+      >
+    </div>
+    }
   </section>
   <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
     <i class="pi pi-paperclip text-green-600 text-xl"></i>
@@ -456,7 +499,7 @@
         @if (detalleBusquedaCliente().url_soporte_contrato &&
         detalleBusquedaCliente().url_soporte_contrato !== 'null') {
         <a
-          [href]="detalleBusquedaCliente().url_soporte_contrato"
+          [href]="getDirectLink(detalleBusquedaCliente().url_soporte_contrato)"
           target="_blank"
           class="text-blue-600 underline text-sm mb-2"
         >
@@ -483,10 +526,18 @@
         @if (detalleBusquedaCliente().url_documento &&
         detalleBusquedaCliente().url_documento !== 'null') {
         <img
-          [src]="detalleBusquedaCliente().url_documento"
+          [src]="getDirectLink(detalleBusquedaCliente().url_documento)"
           alt="Documento"
           class="w-full h-32 object-cover rounded-lg border mb-2"
         />
+        <a
+          [href]="detalleBusquedaCliente().url_documento"
+          target="_blank"
+          class="text-blue-600 underline text-sm mb-2"
+        >
+          Ver DNI/RUC
+        </a>
+
         } @else {
         <small class="text-gray-400 italic mb-2">No cargado</small>
         }
@@ -507,10 +558,18 @@
         @if (detalleBusquedaCliente().url_croquis &&
         detalleBusquedaCliente().url_croquis !== 'null') {
         <img
-          [src]="detalleBusquedaCliente()!.url_croquis"
+          [src]="detalleBusquedaCliente().url_croquis"
           alt="Croquis"
           class="w-full h-32 object-cover rounded-lg border mb-2"
         />
+        <a
+          [href]="detalleBusquedaCliente().url_croquis"
+          target="_blank"
+          download="croquis.jpg"
+          class="text-blue-600 underline text-sm mb-2"
+        >
+          Ver Croquis
+        </a>
         } @else {
         <small class="text-gray-400 italic mb-2">No cargado</small>
         }
@@ -533,6 +592,7 @@
         label="Grabar Contratación"
         icon="pi pi-save"
         (click)="guardarContrato()"
+        [disabled]="disabled()"
       ></button>
       <button
         pButton
