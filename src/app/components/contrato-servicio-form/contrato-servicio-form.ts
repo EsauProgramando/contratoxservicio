@@ -428,7 +428,7 @@ export class ContratoServicioForm {
     contrato.id_tipo = this.detalleBusquedaCliente().id_tipo;
     contrato.detalle = [...this.servicios_contratadosModel()];
     console.log(contrato, 'contrato');
-
+    this.loading.set(true);
     this.contratosService
       .registrarContratoConArchivo(
         this.config.data.op,
@@ -439,6 +439,7 @@ export class ContratoServicioForm {
       )
       .subscribe({
         next: (response) => {
+          this.loading.set(false);
           this.disabled.set(false);
           console.log('Contrato guardado correctamente', response);
           if (response?.mensaje == 'EXITO') {
@@ -464,6 +465,7 @@ export class ContratoServicioForm {
         },
         error: (err) => {
           this.disabled.set(false);
+          this.loading.set(false);
           console.error('Error guardando contrato', err);
         },
       });

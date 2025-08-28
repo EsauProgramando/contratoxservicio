@@ -34,7 +34,10 @@ import { FacturacionEnvio } from '../../../model/gestionClientes/facturacionEnvi
 import { CargaComponent } from '../../../components/carga/carga.component';
 import { TipoServicioModel } from '../../../model/mantenimiento/tiposervicioModel';
 import { TipoServicioService } from '../../../services/mantenimiento/tipo-servicio.service';
-
+import { PagosModel } from '../../../model/gestionCobranza/pagosModel';
+import { PagosService } from '../../../services/gestionCobranza/pagos.service';
+import { DatePickerModule } from 'primeng/datepicker';
+import { TextareaModule } from 'primeng/textarea';
 @Component({
   selector: 'app-cobranzas',
   imports: [
@@ -60,6 +63,8 @@ import { TipoServicioService } from '../../../services/mantenimiento/tipo-servic
     DynamicDialogModule,
     TooltipModule,
     CargaComponent,
+    DatePickerModule,
+    TextareaModule,
   ],
   templateUrl: './cobranzas.html',
   styleUrl: './cobranzas.scss',
@@ -73,19 +78,38 @@ export class Cobranzas {
   searchValue: string = '';
   ref: DynamicDialogRef | undefined;
   listaTpoServicioes_servicio = signal<TipoServicioModel[]>([]);
+  disabled = signal<boolean>(false);
+  //pagos
+  pagos = signal<PagosModel>(new PagosModel());
+  abrimodelpagos: boolean = false;
+  formErrors = {
+    id_metodo: signal(false),
+    monto_pagado: signal(false),
+    saldo: signal(false),
+    fecha_pago: signal(false),
+  };
+  metodosPago = [
+    { label: 'Efectivo', value: 1 },
+    { label: 'Transferencia', value: 2 },
+    { label: 'Tarjeta', value: 3 },
+    { label: 'Yape', value: 4 },
+    { label: 'Plin', value: 5 },
+  ];
+
   estados: any[] = [
-    { label: 'Todos', value: 'TODOS' },
-    { label: 'Por Vencer', value: 'POR_VENCER' },
-    { label: 'Vencido', value: 'VENCIDO' },
-    { label: 'Moroso Crónico', value: 'MOROSO_CRONICO' },
-    { label: 'Pagado', value: 'PAGADO' },
+    { label: 'TODOS', value: 'TODOS' },
+    { label: 'POR VENCER', value: 'POR_VENCER' },
+    { label: 'VENCIDO', value: 'VENCIDO' },
+    { label: 'MOROSO CRONICO', value: 'MOROSO_CRONICO' },
+    { label: 'PAGADO', value: 'PAGADO' },
   ];
 
   constructor(
     private messageService: MessageService,
     private dialogService: DialogService,
     private facturacionService: FacturacionService,
-    private tipoServicioService: TipoServicioService
+    private tipoServicioService: TipoServicioService,
+    private pagosService: PagosService
   ) {}
   ngOnInit() {
     this.cargarTipoServicio();
@@ -118,7 +142,6 @@ export class Cobranzas {
   }
   limpiarFiltros() {
     this.facturacionEnvio().estado = '';
-    this.facturacionEnvio().periodo = '';
     this.searchValue = '';
     this.facturacionEnvio().nombre_completo = '';
   }
@@ -129,6 +152,15 @@ export class Cobranzas {
 
   registrarPago(factura: FacturacionRequest) {
     // Lógica para registrar el pago de la factura
+    this.abrimodelpagos = true;
+    this.pagos.update((prev) => ({
+      ...prev,
+      id_factura: factura.id_factura,
+      id_cliente: factura.id_cliente,
+      monto_pagado: factura.saldo,
+      saldo: factura.saldo,
+      nombre_completo: factura.nombre_completo,
+    }));
   }
 
   verHistorial(factura: FacturacionRequest) {
@@ -180,5 +212,133 @@ export class Cobranzas {
         });
       },
     });
+  }
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64 = reader.result as string; // esto incluye "data:mime/type;base64,..."
+        this.pagos.update((prev) => ({
+          ...prev,
+          adjunto_boleta: base64,
+        }));
+      };
+
+      reader.readAsDataURL(file); // lee como DataURL para mantener metadata y tipo
+    }
+  }
+
+  cerrarModal() {
+    this.abrimodelpagos = false;
+    this.pagos.set(new PagosModel());
+  }
+  guardarPago() {
+    // Lógica para guardar el pago
+    if (!this.validarForm()) {
+      return;
+    }
+    this.spinner.set(true);
+    this.disabled.set(true);
+    console.log(this.pagos());
+    //transformar fecha Mon Aug 04 2025 00:00:00 GMT-0500 (hora estándar de Perú) {} - eso formarto a año/mm/dd
+    const fecha = new Date(this.pagos().fecha_pago);
+    const fechaFormateada = `${fecha.getFullYear()}/${(fecha.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}/${fecha.getDate().toString().padStart(2, '0')}`;
+    console.log(fechaFormateada);
+    this.pagos.update((prev) => ({
+      ...prev,
+      fecha_pago: fechaFormateada,
+    }));
+    console.log(fechaFormateada);
+    this.pagosService.registrarPagos(this.pagos(), 1).subscribe({
+      next: (response) => {
+        this.spinner.set(false);
+        this.disabled.set(false);
+        if (response?.mensaje === 'EXITO') {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Pago registrado correctamente',
+          });
+          this.cerrarModal();
+        } else {
+          this.spinner.set(false);
+          this.disabled.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje,
+          });
+        }
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al registrar el pago',
+        });
+      },
+    });
+  }
+
+  validarForm(): boolean {
+    let valido = true;
+
+    // validar fecha
+    if (!this.pagos().fecha_pago) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'La fecha de pago es requerida',
+      });
+      this.formErrors.fecha_pago.set(true);
+      valido = false;
+    } else {
+      this.formErrors.fecha_pago.set(false);
+    }
+
+    // validar monto
+    if (!this.pagos().monto_pagado) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El monto de pago es requerido',
+      });
+      this.formErrors.monto_pagado.set(true);
+      valido = false;
+    } else {
+      this.formErrors.monto_pagado.set(false);
+    }
+
+    // validar método de pago
+    if (!this.pagos().id_metodo) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El método de pago es requerido',
+      });
+      this.formErrors.id_metodo.set(true);
+      valido = false;
+    } else {
+      this.formErrors.id_metodo.set(false);
+    }
+
+    // validar monto vs saldo
+    if (this.pagos().monto_pagado > this.pagos().saldo) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El monto de pago no puede ser mayor al saldo',
+      });
+      this.formErrors.saldo.set(true);
+      valido = false;
+    } else {
+      this.formErrors.saldo.set(false);
+    }
+
+    return valido;
   }
 }
