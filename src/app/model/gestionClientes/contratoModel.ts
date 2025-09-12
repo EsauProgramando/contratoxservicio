@@ -12,5 +12,11 @@ export class ContratoModel {
   creador: string = '';
   fechabaja: string = '';
   observacion_baja: string = '';
+  id_soporte_contrato: string = '';
+  id_documento: string = '';
+  id_croquis: string = '';
+  tiempo_contrato: number = 0;
+  periodo_gracia: number = 0;
+  id_tipo: number = 0;
   detalle: Servicios_contratadosModel[] = [];
 }

@@ -59,6 +59,7 @@ export class VelocidadServicio {
   spinner = signal<boolean>(false);
   listaVelocidad = signal<VelocidadServicioModel[]>([]);
   searchValue: string = '';
+  velocidadDialog = signal<boolean>(false);
   constructor(
     private velocidadServicioService: VelocidadServicioService,
     private messageService: MessageService,
@@ -94,7 +95,9 @@ export class VelocidadServicio {
       },
     });
   }
-  openVelocidadDialog() {}
+  openVelocidadDialog() {
+    this.velocidadDialog.set(true);
+  }
   editVelocidad(dato: VelocidadServicioModel) {}
   deleteVelocidad(dato: VelocidadServicioModel) {}
   activarVelocidad(dato: VelocidadServicioModel) {}

@@ -13,7 +13,7 @@ export class ClientesModel {
   longitud: string = '';
   creador: string = '';
   observacion_baja: string = '';
-
+  cobertura_id: number = 0;
   //extra
   direccion: string = '';
 }

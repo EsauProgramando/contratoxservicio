@@ -11,4 +11,9 @@ export class ContratoResponse {
   nrodocident: string = '';
   fechabaja: string = '';
   estado_contrato: number = 0;
+  id_soporte_contrato: string = '';
+  id_documento: string = '';
+  id_croquis: string = '';
+  tiempo_contrato: number = 0;
+  periodo_gracia: number = 0;
 }

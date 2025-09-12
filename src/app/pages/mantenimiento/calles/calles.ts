@@ -59,6 +59,7 @@ export class Calles {
   spinner = signal<boolean>(false);
   listaCalles = signal<ListadoCalles[]>([]);
   searchValue: string = '';
+  calledilog = signal<boolean>(false);
   ngOnInit() {
     this.cargarCalles();
   }
@@ -94,7 +95,9 @@ export class Calles {
       },
     });
   }
-  openCallesDialog() {}
+  openCallesDialog() {
+    this.calledilog.set(true);
+  }
   editCalle(dato: ListadoCalles) {}
   deleteCalle(dato: ListadoCalles) {}
   activarCalle(dato: ListadoCalles) {}

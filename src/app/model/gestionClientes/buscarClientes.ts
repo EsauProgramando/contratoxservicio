@@ -23,4 +23,16 @@ export class BuscarClientes {
   destipodocident: string = '';
   tipodocidenabr: string = '';
   direccion: string = '';
+  //campos extras
+  url_soporte_contrato: string = '';
+  url_documento: string = '';
+  url_croquis: string = '';
+  tiempo_contrato: number = 0;
+  periodo_gracia: number = 0;
+  observaciones: string = '';
+  //id_imagen
+  id_soporte_contrato: string = '';
+  id_documento: string = '';
+  id_croquis: string = '';
+  id_tipo: number = 0;
 }

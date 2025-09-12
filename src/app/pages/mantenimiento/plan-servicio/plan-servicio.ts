@@ -59,6 +59,7 @@ export class PlanServicio {
   spinner = signal<boolean>(false);
   searchValue: string = '';
   listaPlanServicio = signal<PlanServicioModel[]>([]);
+  planDialog = signal<boolean>(false);
   constructor(
     private planServicioService: PlanServicioService,
     private messageService: MessageService,
@@ -96,7 +97,9 @@ export class PlanServicio {
       },
     });
   }
-  openPlanDialog() {}
+  openPlanDialog() {
+    this.planDialog.set(true);
+  }
   editPlan(data: PlanServicioModel) {}
   deletePlan(data: PlanServicioModel) {}
   activarPlan(data: PlanServicioModel) {}
