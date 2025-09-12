@@ -76,13 +76,13 @@
   <div class="flex justify-end gap-3 mt-6">
     <button
       (click)="limpiarFiltros()"
-      class="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+      class="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer"
     >
       <i class="pi pi-times me-2"></i> Limpiar
     </button>
     <button
       (click)="buscarFacturas()"
-      class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+      class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition cursor-pointer"
     >
       <i class="pi pi-search me-2"></i> Buscar
     </button>
@@ -226,10 +226,10 @@
             >
             <div class="relative">
               <input
-                type="number"
-                id="id_factura"
-                name="id_factura"
-                [(ngModel)]="pagos().id_factura"
+                type="text"
+                id="codigo_factura"
+                name="codigo_factura"
+                [(ngModel)]="pagos().codigo_factura"
                 readonly
                 pInputText
                 class="w-full bg-gray-100 text-gray-500 pr-10 cursor-not-allowed"
@@ -412,5 +412,33 @@
         </div>
       </form>
     </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="abrimodalhistorial"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+>
+  <ng-template pTemplate="header">
+    <h5>Historial de Servicios</h5>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <p-table [value]="listaHistorialServicio()" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha</th>
+          <th>Descripción</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.fecha_accion | date : "dd/MM/yyyy" }}</td>
+          <td>{{ item.descripcion }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
   </ng-template>
 </p-dialog>

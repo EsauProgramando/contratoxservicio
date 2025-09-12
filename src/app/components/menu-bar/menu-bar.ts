@@ -4,9 +4,9 @@ import { ToastModule } from 'primeng/toast';
 import { MenuItem, MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
-import { Sidebar } from '../sidebar/sidebar';
 import { CommonModule } from '@angular/common';
-
+import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-menu-bar',
   templateUrl: './menu-bar.html',
@@ -17,7 +17,8 @@ import { CommonModule } from '@angular/common';
 })
 export class MenuBar {
   items: MenuItem[] | undefined;
-  constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService, private router: Router) {}
+
   ngOnInit() {
     this.items = [
       {
@@ -32,102 +33,102 @@ export class MenuBar {
               // this.messageService.add({ severity: 'success', summary: 'Success', detail: 'File created', life: 3000 });
             },
           },
-          {
-            label: 'Asignación de Plan',
-            icon: 'pi pi-check-circle',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Estado del Servicio',
-            icon: 'pi pi-info-circle',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Configuración Técnica del Servicio',
-            icon: 'pi pi-cog',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Adjuntos',
-            icon: 'pi pi-paperclip',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Historial de Cambios',
-            icon: 'pi pi-history',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Búsqueda y Filtros',
-            icon: 'pi pi-filter',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Integración con mapa',
-            icon: 'pi pi-map', // mapa
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Botón para Corte/Activación',
-            icon: 'pi pi-power-off',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
+          // {
+          //   label: 'Asignación de Plan',
+          //   icon: 'pi pi-check-circle',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Estado del Servicio',
+          //   icon: 'pi pi-info-circle',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Configuración Técnica del Servicio',
+          //   icon: 'pi pi-cog',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Adjuntos',
+          //   icon: 'pi pi-paperclip',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Historial de Cambios',
+          //   icon: 'pi pi-history',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Búsqueda y Filtros',
+          //   icon: 'pi pi-filter',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Integración con mapa',
+          //   icon: 'pi pi-map', // mapa
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Botón para Corte/Activación',
+          //   icon: 'pi pi-power-off',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
           {
             label: 'Contrato por Servicio',
             icon: 'pi pi-file',
@@ -141,30 +142,30 @@ export class MenuBar {
               });
             },
           },
-          {
-            label: 'Gestión de Clientes y Servicios',
-            icon: 'pi pi-users',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Gestión de Servicios Contratados',
-            icon: 'pi pi-briefcase',
-            command: () => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No printer connected',
-                life: 3000,
-              });
-            },
-          },
+          // {
+          //   label: 'Gestión de Clientes y Servicios',
+          //   icon: 'pi pi-users',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Gestión de Servicios Contratados',
+          //   icon: 'pi pi-briefcase',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'error',
+          //       summary: 'Error',
+          //       detail: 'No printer connected',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
         ],
       },
       {
@@ -185,295 +186,311 @@ export class MenuBar {
             },
           },
           {
-            label: 'Registro Manual de Pagos',
-            icon: 'pi pi-money-bill', // registro de pagos
+            label: 'Gestiòn Corte de Servicio',
+            icon: 'pi pi-times',
+            routerLink: './gestion-cortes',
             command: () => {
               this.messageService.add({
                 severity: 'info',
-                summary: 'Registro Manual de Pagos',
+                summary: 'Corte de Servicio',
                 detail: 'Funcionalidad en desarrollo',
                 life: 3000,
               });
             },
           },
           {
-            label: 'Visualización de Pagos',
-            icon: 'pi pi-eye', // ver pagos
+            label: 'Gestion Reapertura de Servicio',
+            icon: 'pi pi-refresh', // Icono de refresco
+            routerLink: './gestion-reaperturas',
             command: () => {
               this.messageService.add({
                 severity: 'info',
-                summary: 'Visualización de Pagos',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Configuración de Reglas de Corte y Reconexión',
-            icon: 'pi pi-cog', // configuración
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Configuración de Reglas de Corte y Reconexión',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Pantalla de Control de Cortes',
-            icon: 'pi pi-sliders-h', // panel de control
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Pantalla de Control de Cortes',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Pantalla de Clientes Morosos',
-            icon: 'pi pi-exclamation-triangle', // alerta/morosos
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Pantalla de Clientes Morosos',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Reportes de Cobranza',
-            icon: 'pi pi-chart-line', // gráfico de línea como reporte
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Reportes de Cobranza',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-        ],
-      },
-      {
-        label: 'Recaudación y Métodos de Pago',
-        icon: 'pi pi-wallet', // ícono general de pagos/recaudación
-        items: [
-          {
-            label: 'Métodos de Pago Disponibles',
-            icon: 'pi pi-credit-card', // representa métodos de pago
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Configuración',
-                detail: 'Parámetros Generales configurados',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Registro de Pagos Manuales',
-            icon: 'pi pi-money-bill', // registro de dinero/pagos
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Registro de Pagos Manuales',
-                detail: 'Registro de pagos manuales realizado',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Validación de Vouchers',
-            icon: 'pi pi-check-square', // validación/aprobación
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Validación de Vouchers',
-                detail: 'Integraciones configuradas correctamente',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Historial de Recaudación',
-            icon: 'pi pi-calendar', // historial/registro por fecha
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Historial de Recaudación',
-                detail: 'Integraciones configuradas correctamente',
-                life: 3000,
-              });
-            },
-          },
-        ],
-      },
-
-      {
-        separator: true,
-      },
-      {
-        label: 'Morosidad y Retención',
-        icon: 'pi pi-users', // representa clientes en general
-        items: [
-          {
-            label: 'Clasificación de Clientes Morosos',
-            icon: 'pi pi-filter', // filtrar clientes morosos
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Clasificación',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Seguimiento de Morosidad',
-            icon: 'pi pi-eye', // seguimiento/visualización
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Seguimiento',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Retención y Negociación',
-            icon: 'pi pi-briefcase', // negociación y retención
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Retención',
+                summary: 'Reapertura de Servicio',
                 detail: 'Funcionalidad en desarrollo',
                 life: 3000,
               });
             },
           },
 
-          {
-            label: 'Baja Definitiva',
-            icon: 'pi pi-trash', // baja/eliminación
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Baja',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Reportes de Morosidad y Retención',
-            icon: 'pi pi-file', // reporte/documento
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Reportes',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-        ],
-      },
-      {
-        label: 'Instalación y Configuración',
-        icon: 'pi pi-cog', // configuración general
-        items: [
-          {
-            label: 'Ordenes de Instalación (OT)',
-            icon: 'pi pi-list', // lista de órdenes
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Clasificación',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Agenda Técnica',
-            icon: 'pi pi-calendar', // seguimiento/agenda
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Seguimiento',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Ejecución de Instalación',
-            icon: 'pi pi-check-circle', // instalación completada
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Retención',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Inventario Técnico y Asignación',
-            icon: 'pi pi-box', // inventario
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Inventario',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Reporte de Instalaciones',
-            icon: 'pi pi-file', // documento/reporte
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Reportes',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
-          {
-            label: 'Módulo de Facturación Electrónica',
-            icon: 'pi pi-wallet', // representa facturación/pagos
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Facturación',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
+          // {
+          //   label: 'Registro Manual de Pagos',
+          //   icon: 'pi pi-money-bill', // registro de pagos
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'info',
+          //       summary: 'Registro Manual de Pagos',
+          //       detail: 'Funcionalidad en desarrollo',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Visualización de Pagos',
+          //   icon: 'pi pi-eye', // ver pagos
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'info',
+          //       summary: 'Visualización de Pagos',
+          //       detail: 'Funcionalidad en desarrollo',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Configuración de Reglas de Corte y Reconexión',
+          //   icon: 'pi pi-cog', // configuración
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'info',
+          //       summary: 'Configuración de Reglas de Corte y Reconexión',
+          //       detail: 'Funcionalidad en desarrollo',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
 
-          {
-            label: 'Módulo de Reportes de Gestión y Operación',
-            icon: 'pi pi-chart-line', // reportes gráficos
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Reportes',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
+          // {
+          //   label: 'Pantalla de Clientes Morosos',
+          //   icon: 'pi pi-exclamation-triangle', // alerta/morosos
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'info',
+          //       summary: 'Pantalla de Clientes Morosos',
+          //       detail: 'Funcionalidad en desarrollo',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
+          // {
+          //   label: 'Reportes de Cobranza',
+          //   icon: 'pi pi-chart-line', // gráfico de línea como reporte
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'info',
+          //       summary: 'Reportes de Cobranza',
+          //       detail: 'Funcionalidad en desarrollo',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
         ],
       },
+      // {
+      //   label: 'Recaudación y Métodos de Pago',
+      //   icon: 'pi pi-wallet', // ícono general de pagos/recaudación
+      //   items: [
+      //     {
+      //       label: 'Métodos de Pago Disponibles',
+      //       icon: 'pi pi-credit-card', // representa métodos de pago
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Configuración',
+      //           detail: 'Parámetros Generales configurados',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Registro de Pagos Manuales',
+      //       icon: 'pi pi-money-bill', // registro de dinero/pagos
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Registro de Pagos Manuales',
+      //           detail: 'Registro de pagos manuales realizado',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Validación de Vouchers',
+      //       icon: 'pi pi-check-square', // validación/aprobación
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Validación de Vouchers',
+      //           detail: 'Integraciones configuradas correctamente',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Historial de Recaudación',
+      //       icon: 'pi pi-calendar', // historial/registro por fecha
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Historial de Recaudación',
+      //           detail: 'Integraciones configuradas correctamente',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //   ],
+      // },
+
+      // {
+      //   separator: true,
+      // },
+      // {
+      //   label: 'Morosidad y Retención',
+      //   icon: 'pi pi-users', // representa clientes en general
+      //   items: [
+      //     {
+      //       label: 'Clasificación de Clientes Morosos',
+      //       icon: 'pi pi-filter', // filtrar clientes morosos
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Clasificación',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Seguimiento de Morosidad',
+      //       icon: 'pi pi-eye', // seguimiento/visualización
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Seguimiento',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Retención y Negociación',
+      //       icon: 'pi pi-briefcase', // negociación y retención
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Retención',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+
+      //     {
+      //       label: 'Baja Definitiva',
+      //       icon: 'pi pi-trash', // baja/eliminación
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Baja',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Reportes de Morosidad y Retención',
+      //       icon: 'pi pi-file', // reporte/documento
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Reportes',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //   ],
+      // },
+      // {
+      //   label: 'Instalación y Configuración',
+      //   icon: 'pi pi-cog', // configuración general
+      //   items: [
+      //     {
+      //       label: 'Ordenes de Instalación (OT)',
+      //       icon: 'pi pi-list', // lista de órdenes
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Clasificación',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Agenda Técnica',
+      //       icon: 'pi pi-calendar', // seguimiento/agenda
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Seguimiento',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Ejecución de Instalación',
+      //       icon: 'pi pi-check-circle', // instalación completada
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Retención',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Inventario Técnico y Asignación',
+      //       icon: 'pi pi-box', // inventario
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Inventario',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Reporte de Instalaciones',
+      //       icon: 'pi pi-file', // documento/reporte
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Reportes',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //     {
+      //       label: 'Módulo de Facturación Electrónica',
+      //       icon: 'pi pi-wallet', // representa facturación/pagos
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Facturación',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+
+      //     {
+      //       label: 'Módulo de Reportes de Gestión y Operación',
+      //       icon: 'pi pi-chart-line', // reportes gráficos
+      //       command: () => {
+      //         this.messageService.add({
+      //           severity: 'info',
+      //           summary: 'Reportes',
+      //           detail: 'Funcionalidad en desarrollo',
+      //           life: 3000,
+      //         });
+      //       },
+      //     },
+      //   ],
+      // },
 
       {
         label: 'Mantenimientos',
@@ -534,5 +551,28 @@ export class MenuBar {
         ],
       },
     ];
+  }
+
+  logout() {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Tu sesión se cerrará.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('loggedIn'); // o limpiar todo
+        this.router.navigate(['/login']); // redirige al login
+        Swal.fire(
+          '¡Sesión cerrada!',
+          'Has cerrado sesión correctamente.',
+          'success'
+        );
+      }
+    });
   }
 }

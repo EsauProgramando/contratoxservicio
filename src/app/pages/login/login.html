@@ -1,0 +1,66 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200"
+>
+  <div
+    class="bg-white p-10 rounded-xl shadow-lg w-full max-w-md border border-slate-300"
+  >
+    <!-- Logo y encabezado -->
+    <div class="flex flex-col items-center mb-6">
+      <img
+        src="../../../assets/images/logo.png"
+        alt="Logo"
+        class="w-16 h-16 mb-2"
+      />
+      <h1 class="text-2xl font-bold text-slate-800 tracking-tight text-center">
+        AGOISP.PRO
+      </h1>
+      <p class="text-sm text-slate-500 text-center mt-1">
+        Software de Gestion Servicios de Internet
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <form class="space-y-5" (submit)="login()">
+      <!-- Usuario -->
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Usuario"
+          [(ngModel)]="username"
+          name="username"
+          class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-md bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white transition"
+        />
+        <span class="absolute left-4 top-3.5 text-slate-400">
+          <i class="pi pi-user"></i>
+        </span>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="relative">
+        <input
+          type="password"
+          placeholder="Contraseña"
+          [(ngModel)]="password"
+          name="password"
+          class="w-full px-4 py-3 pl-11 border border-slate-300 rounded-md bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white transition"
+        />
+        <span class="absolute left-4 top-3.5 text-slate-400">
+          <i class="pi pi-lock"></i>
+        </span>
+      </div>
+
+      <!-- Botón -->
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-md shadow-sm hover:shadow-md transition duration-200 cursor-pointer"
+      >
+        Ingresar
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="mt-6 text-center text-xs text-slate-400">
+      &copy; 2025 AGOISP.PRO. Todos los derechos reservados.
+    </div>
+  </div>
+</div>

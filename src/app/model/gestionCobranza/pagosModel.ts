@@ -10,7 +10,7 @@ export class PagosModel {
   id_adjuntaboleta: string = '';
   observaciones: string = '';
   creador: string = '';
-
+  codigo_factura: string = '';
 
   //otros campos
   nombre_completo: string = '';

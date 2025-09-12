@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from '../auth/auth-guard';
+
 export const pagesRoutes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+
   {
     path: 'home',
     loadComponent: () => import('./home/home').then((m) => m.Home),
@@ -12,7 +15,6 @@ export const pagesRoutes: Routes = [
         (m) => m.ClientesModule
       ),
   },
-
   {
     path: 'contrato-servicio',
     loadChildren: () =>
@@ -20,32 +22,32 @@ export const pagesRoutes: Routes = [
         './gestionClientes/contrato-servicio/contrato-servicio.module'
       ).then((m) => m.ContratoServicioModule),
   },
-
   {
     path: 'cobranzas',
     loadComponent: () =>
       import('./gestionCobranza/cobranzas/cobranzas').then((m) => m.Cobranzas),
   },
-  //mantenimientos
+  // demás rutas mantenimientos también protegidas
+
   {
     path: 'calles',
     loadChildren: () =>
-      import('./mantenimiento/calles/calles.module').then(
-        (m) => m.CallesModule
+      import('./mantenimiento/calles/calles-routing.module').then(
+        (m) => m.CallesRoutingModule
       ),
   },
   {
     path: 'plan-servicio',
     loadChildren: () =>
-      import('./mantenimiento/plan-servicio/plan-servicio.module').then(
-        (m) => m.PlanServicioModule
+      import('./mantenimiento/plan-servicio/plan-servicio-routing.module').then(
+        (m) => m.PlanServicioRoutingModule
       ),
   },
   {
     path: 'tipo-servicio',
     loadChildren: () =>
-      import('./mantenimiento/tipo-servicio/tipo-servicio.module').then(
-        (m) => m.TipoServicioModule
+      import('./mantenimiento/tipo-servicio/tipo-servicio-routing.module').then(
+        (m) => m.TipoServicioRoutingModule
       ),
   },
   {
@@ -55,7 +57,19 @@ export const pagesRoutes: Routes = [
         './mantenimiento/velocidad-servicio/velocidad-servicio.module'
       ).then((m) => m.VelocidadServicioModule),
   },
-
-  { path: '**', redirectTo: 'home' },
+  {
+    path: 'gestion-cortes',
+    loadComponent: () =>
+      import('./gestionCobranza/gestioncortes/gestioncortes').then(
+        (m) => m.Gestioncortes
+      ),
+  },
+  {
+    path: 'gestion-reaperturas',
+    loadComponent: () =>
+      import('./gestionCobranza/gestionreaperturas/gestionreaperturas').then(
+        (m) => m.Gestionreaperturas
+      ),
+  },
+  { path: '**', redirectTo: 'login' },
 ];
-0;

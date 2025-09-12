@@ -1,0 +1,245 @@
+@if (spinner()){
+<app-carga></app-carga>
+}
+<p-toast></p-toast>
+
+<div class="min-h-screen flex flex-col bg-gray-50">
+  <!-- Header -->
+  <header class="p-6 bg-white shadow-sm">
+    <h1 class="text-3xl font-bold text-blue-700 tracking-tight">
+      Reapertura de Servicio
+    </h1>
+    <hr class="mt-2 border-blue-300" />
+  </header>
+
+  <!-- Filtros -->
+  <section class="p-6 bg-white shadow-md">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Filtros</h2>
+    <div class="flex flex-wrap gap-6 items-end">
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Buscar</label>
+        <input
+          [(ngModel)]="CortesenvioListadofiltro().nombre_completo"
+          type="text"
+          placeholder="Cliente"
+          class="p-inputtext p-component w-64 rounded-md shadow-sm"
+        />
+      </div>
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
+        <p-select
+          [options]="estadoOptions"
+          [(ngModel)]="CortesenvioListadofiltro().estado_corte"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccionar estado"
+          class="w-48"
+          appendTo="body"
+        />
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button
+          (click)="obtener_cortes_listados()"
+          class="p-button-sm p-button-primary cursor-pointer"
+        >
+          Aplicar
+        </button>
+        <button
+          (click)="limpiarFiltros()"
+          class="p-button-sm p-button-secondary cursor-pointer"
+        >
+          Limpiar
+        </button>
+        <span
+          class="px-3 py-1 rounded-full bg-green-200 text-green-700 text-sm"
+        >
+          {{ Totalregistros }} registros
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabla -->
+  <section class="flex-grow p-6 overflow-auto">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Servicios cortados</h2>
+    <p-table
+      [value]="CortesServicioRequest()"
+      [tableStyle]="{ 'max-width': '100%' }"
+      ngClass="p-datatable-striped p-datatable-sm"
+      class="p-datatable-sm w-full"
+    >
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-100 text-gray-600 text-sm">
+          <th>Cliente</th>
+          <th>DNI/RUC</th>
+          <th>Servicio / ID</th>
+          <th>Motivo del corte</th>
+          <th>Fecha de corte</th>
+          <th>Estado</th>
+          <th>Observaciones</th>
+          <th>Historial</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr class="hover:bg-gray-50 text-sm">
+          <td>
+            {{ row.nombre_completo }}
+          </td>
+          <td>
+            {{ row.nrodocident }}
+          </td>
+          <td>
+            {{ row.tipo_servicio }}
+          </td>
+          <td>{{ row.motivo_corte }}</td>
+          <td>{{ row.fecha_corte | date : "dd/MM/yyyy HH:mm:ss" }}</td>
+
+          <td>
+            {{ row.estadocliente }}
+          </td>
+
+          <td>{{ row.observaciones }}</td>
+          <td>
+            <button
+              (click)="verHistorial(row)"
+              class="p-button-sm p-button-info"
+            >
+              Ver historial
+            </button>
+          </td>
+
+          <td class="flex flex-col gap-2">
+            <button
+              pButton
+              label="Reconectar"
+              (click)="reconectar(row)"
+              class="p-button-sm p-button-success"
+            ></button>
+            <button
+              pButton
+              label="Reprogramar"
+              (click)="reprogramar(row)"
+              class="p-button-sm p-button-warning"
+            ></button>
+            <button
+              pButton
+              label="Observaciones"
+              (click)="agregarObs(row)"
+              class="p-button-sm p-button-secondary"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
+
+<!-- MODAL: Reapertura -->
+<p-dialog
+  header="Reapertura del servicio"
+  [(visible)]="showModalReapertura"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <div class="space-y-4">
+      <!-- Fecha -->
+      <div>
+        <label
+          for="reaperturaFecha"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Fecha de reconexión
+        </label>
+        <input
+          type="datetime-local"
+          [(ngModel)]="reaperturaFecha"
+          pInputText
+          class="w-full p-inputtext p-component rounded-md shadow-sm"
+        />
+      </div>
+
+      <!-- Responsable -->
+      <div>
+        <label
+          for="reaperturaResponsable"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Responsable
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="reaperturaResponsable"
+          pInputText
+          placeholder="Responsable de la reconexión"
+          class="w-full p-inputtext p-component rounded-md shadow-sm"
+        />
+      </div>
+
+      <!-- Observaciones -->
+      <div>
+        <label
+          for="reaperturaObservaciones"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Observaciones
+        </label>
+        <textarea
+          [(ngModel)]="reaperturaObservaciones"
+          pInputText
+          placeholder="Observaciones (opcional)"
+          rows="3"
+          class="w-full p-inputtext p-component rounded-md shadow-sm resize-none"
+        ></textarea>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        pButton
+        label="Guardar"
+        (click)="guardarReapertura()"
+        class="p-button-sm p-button-success"
+      ></button>
+      <button
+        pButton
+        label="Cancelar"
+        (click)="closeModalReapertura()"
+        class="p-button-sm p-button-secondary"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+<p-dialog
+  [(visible)]="abrimodalhistorial"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+>
+  <ng-template pTemplate="header">
+    <h5>Historial de Servicios</h5>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <p-table [value]="listaHistorialServicio()" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha</th>
+          <th>Descripción</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.fecha_accion | date : "dd/MM/yyyy" }}</td>
+          <td>{{ item.descripcion }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-dialog>

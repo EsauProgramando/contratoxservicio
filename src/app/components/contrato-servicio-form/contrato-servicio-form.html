@@ -277,7 +277,7 @@
 
       <!-- Periodo de Gracia -->
       <div>
-        <div class="text-xs text-gray-500">Período de Gracia</div>
+        <div class="text-xs text-gray-500">Período de Gracia (Nº dias)</div>
         <div class="font-medium">
           <p-inputNumber
             [(ngModel)]="detalleBusquedaCliente().periodo_gracia"
@@ -526,17 +526,14 @@
         @if (detalleBusquedaCliente().url_documento &&
         detalleBusquedaCliente().url_documento !== 'null') {
         <img
-          [src]="getDirectLink(detalleBusquedaCliente().url_documento)"
+          [src]="
+            environment.apiUrl +
+            '/contratos_x_servicio/mostrar?id=' +
+            detalleBusquedaCliente().id_documento
+          "
           alt="Documento"
           class="w-full h-32 object-cover rounded-lg border mb-2"
         />
-        <a
-          [href]="detalleBusquedaCliente().url_documento"
-          target="_blank"
-          class="text-blue-600 underline text-sm mb-2"
-        >
-          Ver DNI/RUC
-        </a>
 
         } @else {
         <small class="text-gray-400 italic mb-2">No cargado</small>
@@ -558,18 +555,15 @@
         @if (detalleBusquedaCliente().url_croquis &&
         detalleBusquedaCliente().url_croquis !== 'null') {
         <img
-          [src]="detalleBusquedaCliente().url_croquis"
+          [src]="
+            environment.apiUrl +
+            '/contratos_x_servicio/mostrar?id=' +
+            detalleBusquedaCliente().id_croquis
+          "
           alt="Croquis"
           class="w-full h-32 object-cover rounded-lg border mb-2"
         />
-        <a
-          [href]="detalleBusquedaCliente().url_croquis"
-          target="_blank"
-          download="croquis.jpg"
-          class="text-blue-600 underline text-sm mb-2"
-        >
-          Ver Croquis
-        </a>
+
         } @else {
         <small class="text-gray-400 italic mb-2">No cargado</small>
         }

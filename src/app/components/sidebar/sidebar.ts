@@ -69,51 +69,51 @@ export class Sidebar {
             icon: 'pi pi-plus',
             routerLink: './clientes',
           },
-          {
-            label: 'Asignación de Plan',
-            icon: 'pi pi-check-circle',
-          },
-          {
-            label: 'Estado del Servicio',
-            icon: 'pi pi-info-circle',
-          },
-          {
-            label: 'Configuración Técnica del Servicio',
-            icon: 'pi pi-cog',
-          },
-          {
-            label: 'Adjuntos',
-            icon: 'pi pi-paperclip',
-          },
-          {
-            label: 'Historial de Cambios',
-            icon: 'pi pi-history',
-          },
-          {
-            label: 'Búsqueda y Filtros',
-            icon: 'pi pi-filter',
-          },
-          {
-            label: 'Integración con mapa',
-            icon: 'pi pi-map', // mapa
-          },
-          {
-            label: 'Botón para Corte/Activación',
-            icon: 'pi pi-power-off',
-          },
+          // {
+          //   label: 'Asignación de Plan',
+          //   icon: 'pi pi-check-circle',
+          // },
+          // {
+          //   label: 'Estado del Servicio',
+          //   icon: 'pi pi-info-circle',
+          // },
+          // {
+          //   label: 'Configuración Técnica del Servicio',
+          //   icon: 'pi pi-cog',
+          // },
+          // {
+          //   label: 'Adjuntos',
+          //   icon: 'pi pi-paperclip',
+          // },
+          // {
+          //   label: 'Historial de Cambios',
+          //   icon: 'pi pi-history',
+          // },
+          // {
+          //   label: 'Búsqueda y Filtros',
+          //   icon: 'pi pi-filter',
+          // },
+          // {
+          //   label: 'Integración con mapa',
+          //   icon: 'pi pi-map', // mapa
+          // },
+          // {
+          //   label: 'Botón para Corte/Activación',
+          //   icon: 'pi pi-power-off',
+          // },
           {
             label: 'Contrato por Servicio',
             icon: 'pi pi-file',
             routerLink: './contrato-servicio',
           },
-          {
-            label: 'Gestión de Clientes y Servicios',
-            icon: 'pi pi-users',
-          },
-          {
-            label: 'Gestión de Servicios Contratados',
-            icon: 'pi pi-briefcase',
-          },
+          // {
+          //   label: 'Gestión de Clientes y Servicios',
+          //   icon: 'pi pi-users',
+          // },
+          // {
+          //   label: 'Gestión de Servicios Contratados',
+          //   icon: 'pi pi-briefcase',
+          // },
         ],
       },
       {
@@ -121,125 +121,133 @@ export class Sidebar {
         icon: 'pi pi-wallet', // ícono general para cobranzas/pagos
         items: [
           {
-            label: 'Gestión de Cobranzas',
-            icon: 'pi pi-users', // gestión de clientes/cobranzas
+            label: 'Gestiòn Corte de Servicio',
+            icon: 'pi pi-times',
             routerLink: './cobranzas',
           },
           {
-            label: 'Registro Manual de Pagos',
-            icon: 'pi pi-money-bill', // registro de pagos
-          },
-          {
-            label: 'Visualización de Pagos',
-            icon: 'pi pi-eye', // ver pagos
-          },
-          {
-            label: 'Configuración de Reglas de Corte y Reconexión',
-            icon: 'pi pi-cog', // configuración
-          },
-          {
-            label: 'Pantalla de Control de Cortes',
+            label: 'Gestiòn Corte de Servicio',
             icon: 'pi pi-sliders-h', // panel de control
+            routerLink: './gestion-cortes',
           },
           {
-            label: 'Pantalla de Clientes Morosos',
-            icon: 'pi pi-exclamation-triangle', // alerta/morosos
+            label: 'Gestion Reapertura de Servicio',
+            icon: 'pi pi-refresh', // Icono de refresco
+            routerLink: './gestion-reaperturas',
           },
-          {
-            label: 'Reportes de Cobranza',
-            icon: 'pi pi-chart-line', // gráfico de línea como reporte
-          },
-        ],
-      },
-      {
-        label: 'Recaudación y Métodos de Pago',
-        icon: 'pi pi-wallet', // ícono general de pagos/recaudación
-        items: [
-          {
-            label: 'Métodos de Pago Disponibles',
-            icon: 'pi pi-credit-card', // representa métodos de pago
-          },
-          {
-            label: 'Registro de Pagos Manuales',
-            icon: 'pi pi-money-bill', // registro de dinero/pagos
-          },
-          {
-            label: 'Validación de Vouchers',
-            icon: 'pi pi-check-square', // validación/aprobación
-          },
-          {
-            label: 'Historial de Recaudación',
-            icon: 'pi pi-calendar', // historial/registro por fecha
-          },
-        ],
-      },
+          // {
+          //   label: 'Registro Manual de Pagos',
+          //   icon: 'pi pi-money-bill', // registro de pagos
+          // },
+          // {
+          //   label: 'Visualización de Pagos',
+          //   icon: 'pi pi-eye', // ver pagos
+          // },
+          // {
+          //   label: 'Configuración de Reglas de Corte y Reconexión',
+          //   icon: 'pi pi-cog', // configuración
+          // },
 
-      {
-        separator: true,
-      },
-      {
-        label: 'Morosidad y Retención',
-        icon: 'pi pi-users', // representa clientes en general
-        items: [
-          {
-            label: 'Clasificación de Clientes Morosos',
-            icon: 'pi pi-filter', // filtrar clientes morosos
-          },
-          {
-            label: 'Seguimiento de Morosidad',
-            icon: 'pi pi-eye', // seguimiento/visualización
-          },
-          {
-            label: 'Retención y Negociación',
-            icon: 'pi pi-briefcase', // negociación y retención
-          },
-
-          {
-            label: 'Baja Definitiva',
-            icon: 'pi pi-trash', // baja/eliminación
-          },
-          {
-            label: 'Reportes de Morosidad y Retención',
-            icon: 'pi pi-file', // reporte/documento
-          },
+          // {
+          //   label: 'Pantalla de Clientes Morosos',
+          //   icon: 'pi pi-exclamation-triangle', // alerta/morosos
+          // },
+          // {
+          //   label: 'Reportes de Cobranza',
+          //   icon: 'pi pi-chart-line', // gráfico de línea como reporte
+          // },
         ],
       },
-      {
-        label: 'Instalación y Configuración',
-        icon: 'pi pi-cog', // configuración general
-        items: [
-          {
-            label: 'Ordenes de Instalación (OT)',
-            icon: 'pi pi-list', // lista de órdenes
-          },
-          {
-            label: 'Agenda Técnica',
-            icon: 'pi pi-calendar', // seguimiento/agenda
-          },
-          {
-            label: 'Ejecución de Instalación',
-            icon: 'pi pi-check-circle', // instalación completada
-          },
-          {
-            label: 'Inventario Técnico y Asignación',
-            icon: 'pi pi-box', // inventario
-          },
-          {
-            label: 'Reporte de Instalaciones',
-            icon: 'pi pi-file', // documento/reporte
-          },
-          {
-            label: 'Módulo de Facturación Electrónica',
-            icon: 'pi pi-wallet', // representa facturación/pagos
-          },
+      // },
+      // {
+      //   label: 'Recaudación y Métodos de Pago',
+      //   icon: 'pi pi-wallet', // ícono general de pagos/recaudación
+      //   items: [
+      //     {
+      //       label: 'Métodos de Pago Disponibles',
+      //       icon: 'pi pi-credit-card', // representa métodos de pago
+      //     },
+      //     {
+      //       label: 'Registro de Pagos Manuales',
+      //       icon: 'pi pi-money-bill', // registro de dinero/pagos
+      //     },
+      //     {
+      //       label: 'Validación de Vouchers',
+      //       icon: 'pi pi-check-square', // validación/aprobación
+      //     },
+      //     {
+      //       label: 'Historial de Recaudación',
+      //       icon: 'pi pi-calendar', // historial/registro por fecha
+      //     },
+      //   ],
+      // },
 
-          {
-            label: 'Módulo de Reportes de Gestión y Operación',
-            icon: 'pi pi-chart-line', // reportes gráficos
-          },
-        ],
-      },
-      /*
+      // {
+      //   separator: true,
+      // },
+      // {
+      //   label: 'Morosidad y Retención',
+      //   icon: 'pi pi-users', // representa clientes en general
+      //   items: [
+      //     {
+      //       label: 'Clasificación de Clientes Morosos',
+      //       icon: 'pi pi-filter', // filtrar clientes morosos
+      //     },
+      //     {
+      //       label: 'Seguimiento de Morosidad',
+      //       icon: 'pi pi-eye', // seguimiento/visualización
+      //     },
+      //     {
+      //       label: 'Retención y Negociación',
+      //       icon: 'pi pi-briefcase', // negociación y retención
+      //     },
+
+      //     {
+      //       label: 'Baja Definitiva',
+      //       icon: 'pi pi-trash', // baja/eliminación
+      //     },
+      //     {
+      //       label: 'Reportes de Morosidad y Retención',
+      //       icon: 'pi pi-file', // reporte/documento
+      //     },
+      //   ],
+      // },
+      // {
+      //   label: 'Instalación y Configuración',
+      //   icon: 'pi pi-cog', // configuración general
+      //   items: [
+      //     {
+      //       label: 'Ordenes de Instalación (OT)',
+      //       icon: 'pi pi-list', // lista de órdenes
+      //     },
+      //     {
+      //       label: 'Agenda Técnica',
+      //       icon: 'pi pi-calendar', // seguimiento/agenda
+      //     },
+      //     {
+      //       label: 'Ejecución de Instalación',
+      //       icon: 'pi pi-check-circle', // instalación completada
+      //     },
+      //     {
+      //       label: 'Inventario Técnico y Asignación',
+      //       icon: 'pi pi-box', // inventario
+      //     },
+      //     {
+      //       label: 'Reporte de Instalaciones',
+      //       icon: 'pi pi-file', // documento/reporte
+      //     },
+      //     {
+      //       label: 'Módulo de Facturación Electrónica',
+      //       icon: 'pi pi-wallet', // representa facturación/pagos
+      //     },
+
+      //     {
+      //       label: 'Módulo de Reportes de Gestión y Operación',
+      //       icon: 'pi pi-chart-line', // reportes gráficos
+      //     },
+      //   ],
+      // },
+
       {
         label: 'Mantenimientos',
         icon: 'pi pi-cog', // configuración general
@@ -266,7 +274,6 @@ export class Sidebar {
           },
         ],
       },
-      */
     ];
   }
 }

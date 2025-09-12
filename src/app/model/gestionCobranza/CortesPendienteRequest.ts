@@ -1,0 +1,19 @@
+export class CortesPendienteRequest {
+  id_cliente: number = 0;
+  nombre_completo: string = '';
+  nrodocident: string = '';
+  id_tipo: number = 0;
+  desctipo: string = '';
+  id_factura: number = 0;
+  id_contrato: number = 0;
+  periodo: string = '';
+  saldo: number = 0;
+  fecha_vencimiento: string = '';
+  dias_mora: number = 0;
+  estado: string = '';
+  id_corte: number = 0;
+  id_estado: number = 0;
+  estadocliente: string = '';
+  email: string = '';
+  telefono: string = '';
+}

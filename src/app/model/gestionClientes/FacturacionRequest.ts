@@ -16,4 +16,5 @@ export class FacturacionRequest {
   estareg: boolean = false;
   fechareg: number = 0;
   desctipo: string = '';
+  email: string = '';
 }

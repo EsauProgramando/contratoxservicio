@@ -38,6 +38,11 @@ import { PagosModel } from '../../../model/gestionCobranza/pagosModel';
 import { PagosService } from '../../../services/gestionCobranza/pagos.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
+import { GmailService } from '../../../services/gmail/gmail.service';
+import { EmailModel } from '../../../model/gmail/EmailModel';
+import Swal from 'sweetalert2';
+import { Historialservicio } from '../../../services/mantenimiento/historialservicio';
+import { HistorialServicioModel } from '../../../model/mantenimiento/HistorialServicioModel';
 @Component({
   selector: 'app-cobranzas',
   imports: [
@@ -88,6 +93,13 @@ export class Cobranzas {
     saldo: signal(false),
     fecha_pago: signal(false),
   };
+
+  emailModel = signal<EmailModel>(new EmailModel());
+  historialServicioModel = signal<HistorialServicioModel>(
+    new HistorialServicioModel()
+  );
+  listaHistorialServicio = signal<HistorialServicioModel[]>([]);
+  abrimodalhistorial: boolean = false;
   metodosPago = [
     { label: 'Efectivo', value: 1 },
     { label: 'Transferencia', value: 2 },
@@ -109,13 +121,16 @@ export class Cobranzas {
     private dialogService: DialogService,
     private facturacionService: FacturacionService,
     private tipoServicioService: TipoServicioService,
-    private pagosService: PagosService
+    private pagosService: PagosService,
+    private gmailService: GmailService,
+    private historialServicio: Historialservicio
   ) {}
   ngOnInit() {
     this.cargarTipoServicio();
   }
   buscarFacturas() {
     this.spinner.set(true);
+    this.facturas.set([]);
     this.facturacionService.buscar_facturas(this.facturacionEnvio()).subscribe({
       next: (response) => {
         this.spinner.set(false);
@@ -147,9 +162,113 @@ export class Cobranzas {
   }
   //recordatorio
   recordarPago(factura: FacturacionRequest) {
-    // Lógica para recordar el pago de la factura
-  }
+    if (!factura.email || factura.email.trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'El cliente no tiene un correo electrónico registrado.',
+      });
+      return;
+    }
 
+    // Lógica para recordar el pago de la factura
+    this.emailModel().to = factura.email;
+    this.emailModel().subject = 'Recordatorio de Pago de Factura';
+    this.emailModel().body = `Estimado/a ${
+      factura.nombre_completo
+    },<br><br>Le recordamos que su factura con código ${
+      factura.codigo_factura
+    } por un saldo de S/. ${factura.saldo.toFixed(
+      2
+    )} está pendiente de pago. La fecha de vencimiento es ${
+      factura.fecha_vencimiento
+    }.<br><br>Por favor, realice el pago a la brevedad para evitar inconvenientes.<br><br>Gracias por su atención.<br><br>Atentamente,<br>Su Empresa`;
+    console.log(this.emailModel());
+    //Swail preguntar si desea enviar el correo
+    Swal.fire({
+      title: '¿Enviar recordatorio de pago?',
+      text: `Se enviará un recordatorio de pago a ${factura.email}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Enviar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.spinner.set(true);
+        // Lógica para enviar el correo
+        this.gmailService.mensajesimple(this.emailModel()).subscribe({
+          next: (rest) => {
+            this.spinner.set(false);
+            if (rest?.response == 'EXITO') {
+              Swal.fire({
+                title: 'Éxito',
+                text: 'Recordatorio de pago enviado.',
+                icon: 'success',
+              });
+              this.guardarhistorial(
+                factura.id_cliente,
+                'Recordatorio de Pago',
+                `Se envió un recordatorio de pago a ${
+                  factura.email
+                } por el monto de S/. ${factura.saldo.toFixed(
+                  2
+                )} correspondiente a la factura ${factura.codigo_factura}.`,
+                'Activo'
+              );
+            } else {
+              Swal.fire({
+                title: 'Error',
+                text: 'No se pudo enviar el recordatorio de pago.',
+                icon: 'error',
+              });
+            }
+          },
+          error: (error) => {
+            this.spinner.set(false);
+            Swal.fire({
+              title: 'Error',
+              text: 'No se pudo enviar el recordatorio de pago.',
+              icon: 'error',
+            });
+          },
+        });
+      }
+    });
+  }
+  guardarhistorial(
+    id_cliente: number,
+    accion: string,
+    descripcion: string,
+    estado_servicio: string
+  ) {
+    this.historialServicioModel().id_cliente = id_cliente;
+    this.historialServicioModel().tipo_accion = accion;
+    this.historialServicioModel().fecha_accion = new Date().toISOString();
+    this.historialServicioModel().descripcion = descripcion;
+    this.historialServicioModel().estado_servicio = estado_servicio;
+    this.historialServicio
+      .registrarHistorialServicio(this.historialServicioModel())
+      .subscribe({
+        next: (response) => {
+          if (response?.mensaje == 'EXITO') {
+            console.log('Historial de servicio guardado');
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje,
+            });
+          }
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al cargar el historial de servicios',
+          });
+        },
+      });
+  }
   registrarPago(factura: FacturacionRequest) {
     // Lógica para registrar el pago de la factura
     this.abrimodelpagos = true;
@@ -160,11 +279,36 @@ export class Cobranzas {
       monto_pagado: factura.saldo,
       saldo: factura.saldo,
       nombre_completo: factura.nombre_completo,
+      codigo_factura: factura.codigo_factura,
     }));
   }
 
   verHistorial(factura: FacturacionRequest) {
-    // Lógica para ver el historial de la factura
+    this.abrimodalhistorial = true;
+    this.listaHistorialServicio.set([]);
+    this.cargarHistorial(factura.id_cliente);
+  }
+  cargarHistorial(id_cliente: number) {
+    this.historialServicio.getHistorialServicio(id_cliente).subscribe({
+      next: (response) => {
+        if (response?.mensaje == 'EXITO') {
+          this.listaHistorialServicio.set(response.data);
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje,
+          });
+        }
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar el historial de servicios',
+        });
+      },
+    });
   }
   getTotales() {
     const facturas = this.facturas(); // Asumiendo que es un getter
@@ -263,6 +407,14 @@ export class Cobranzas {
             summary: 'Éxito',
             detail: 'Pago registrado correctamente',
           });
+          this.guardarhistorial(
+            this.pagos().id_cliente,
+            'Registro de Pago',
+            `Se registró un pago de S/. ${this.pagos().monto_pagado.toFixed(
+              2
+            )} para la factura ID ${this.pagos().id_factura}.`,
+            'Activo'
+          );
           this.cerrarModal();
         } else {
           this.spinner.set(false);
