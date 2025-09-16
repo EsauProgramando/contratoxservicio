@@ -163,6 +163,18 @@
               tooltipPosition="top"
               (click)="registrarPago(factura)"
             ></button>
+
+            } @else {
+
+              <button
+                pButton
+                type="button"
+                icon="pi pi-file-pdf"
+                class="p-button-rounded p-button-danger p-button-sm"
+                pTooltip="Generar Factura"
+                tooltipPosition="top"
+                (click)="generarDocumento(factura)"
+              ></button>
             }
 
             <button

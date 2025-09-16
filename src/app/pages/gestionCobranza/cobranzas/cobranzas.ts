@@ -282,6 +282,19 @@ export class Cobranzas {
       codigo_factura: factura.codigo_factura,
     }));
   }
+  generarDocumento(factura: FacturacionRequest) {
+    // Lógica para registrar el pago de la factura
+    this.abrimodelpagos = true;
+    this.pagos.update((prev) => ({
+      ...prev,
+      id_factura: factura.id_factura,
+      id_cliente: factura.id_cliente,
+      monto_pagado: factura.saldo,
+      saldo: factura.saldo,
+      nombre_completo: factura.nombre_completo,
+      codigo_factura: factura.codigo_factura,
+    }));
+  }
 
   verHistorial(factura: FacturacionRequest) {
     this.abrimodalhistorial = true;
