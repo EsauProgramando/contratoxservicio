@@ -209,6 +209,7 @@ export class Gestionreaperturas {
                   'Se ha realizado una reapertura',
                   'REAPERTURADO'
                 );
+                this.obtener_cortes_listados();
                 this.messageService.add({
                   severity: 'success',
                   summary: 'Reapertura registrada',
@@ -297,6 +298,7 @@ export class Gestionreaperturas {
                         this.ReaperturaModel().fecha_reconexion,
                       'REPROGRAMADO'
                     );
+                    this.obtener_cortes_listados();
                     this.messageService.add({
                       severity: 'success',
                       summary: 'Reapertura registrada',

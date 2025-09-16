@@ -103,9 +103,6 @@ export class Cobranzas {
   metodosPago = [
     { label: 'Efectivo', value: 1 },
     { label: 'Transferencia', value: 2 },
-    { label: 'Tarjeta', value: 3 },
-    { label: 'Yape', value: 4 },
-    { label: 'Plin', value: 5 },
   ];
 
   estados: any[] = [
@@ -205,6 +202,7 @@ export class Cobranzas {
                 text: 'Recordatorio de pago enviado.',
                 icon: 'success',
               });
+
               this.guardarhistorial(
                 factura.id_cliente,
                 'Recordatorio de Pago',
@@ -420,6 +418,7 @@ export class Cobranzas {
             summary: 'Éxito',
             detail: 'Pago registrado correctamente',
           });
+          this.buscarFacturas();
           this.guardarhistorial(
             this.pagos().id_cliente,
             'Registro de Pago',

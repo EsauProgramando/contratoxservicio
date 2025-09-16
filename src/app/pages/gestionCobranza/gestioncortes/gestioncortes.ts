@@ -282,7 +282,7 @@ export class Gestioncortes {
             );
             console.log(this.obtenerdetallecorte());
             this.CorteModel().fecha_corte = this.formatDateForDB(
-              this.obtenerdetallecorte().fecha_corte
+              this.obtenerdetallecorte()?.fecha_corte
             );
 
             this.CorteModel().id_tipo = this.obtenerdetallecorte().id_tipo;
@@ -379,7 +379,7 @@ export class Gestioncortes {
           this.whatsappService.generarwhatsapPlantillaCortesPendientes(
             row.telefono,
             row.nombre_completo,
-            row.periodo,
+            row.periodo_mas_antiguo,
             row.saldo
           );
         window.open(url, '_blank');
@@ -585,16 +585,23 @@ export class Gestioncortes {
   limpiar_filtros() {
     this.CortesfiltroEnvio.set(new CortesfiltroEnvio());
   }
-  formatDateForDB(date: Date): string {
+  formatDateForDB(dateInput: any): string {
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+
+    if (isNaN(date.getTime())) {
+      throw new Error('Fecha inválida en formatDateForDB');
+    }
+
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes con dos dígitos
-    const day = String(date.getDate()).padStart(2, '0'); // Día con dos dígitos
-    const hours = String(date.getHours()).padStart(2, '0'); // Hora con dos dígitos
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutos con dos dígitos
-    const seconds = String(date.getSeconds()).padStart(2, '0'); // Segundos con dos dígitos
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
+
   guardarhistorial(
     id_cliente: number,
     accion: string,
