@@ -60,101 +60,97 @@
   </section>
 
   <!-- Tabla -->
-  <section>
-    <h2 class="text-lg font-semibold text-gray-700 mb-4">
+  <section class="p-4 bg-white rounded shadow-md">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">
       Servicios vencidos y próximos a corte
     </h2>
+
     <p-table
       [value]="CortesPendienteRequest()"
       [tableStyle]="{ 'max-width': '100%' }"
-      ngClass="p-datatable-striped p-datatable-sm"
+      class="p-datatable-striped p-datatable-sm"
     >
-      <ng-template #header>
+      <ng-template pTemplate="header">
         <tr>
           <th>Cliente</th>
           <th>DNI/RUC</th>
-          <th>Servicio / ID</th>
-          <th>Período</th>
+          <th>Servicio</th>
+          <th>Período más antiguo</th>
           <th class="text-right">Saldo (S/)</th>
-          <th>Vencimiento</th>
-          <th>Días</th>
+          <th class="text-right">Monto Facturado (S/)</th>
+          <th>F. Vencimiento más antigua</th>
           <th>Estado Factura</th>
-          <th>Estado Servicio</th>
+          <th>Estado Cliente</th>
+          <th>Nº Períodos Vencidos</th>
           <th>Acciones</th>
           <th>Corte</th>
           <th>Bitácora</th>
         </tr>
       </ng-template>
-      <ng-template #body let-row>
-        <tr class="hover:bg-gray-50">
-          <td>
-            {{ row.nombre_completo }}
-          </td>
-          <td>
-            {{ row.nrodocident }}
-          </td>
+
+      <ng-template pTemplate="body" let-row>
+        <tr class="hover:bg-gray-100">
+          <td>{{ row.nombre_completo }}</td>
+          <td>{{ row.nrodocident }}</td>
           <td>{{ row.desctipo }}</td>
-          <td>{{ row.periodo }}</td>
-          <td class="text-right">S/.{{ row.saldo }}</td>
-          <td>{{ row.fecha_vencimiento }}</td>
-          <td>{{ row.dias_mora }}</td>
+          <td>{{ row.periodo_mas_antiguo }}</td>
+          <td class="text-right">S/.{{ row.saldo_factura }}</td>
+          <td class="text-right">S/.{{ row.deuda_total }}</td>
+          <td>{{ row.fecha_venc_mas_antigua }}</td>
+          <td>{{ row.estado_factura }}</td>
+          <td>{{ row.estadocliente }}</td>
+          <td>{{ row.n_periodos_vencidos }}</td>
+
           <td>
-            <span
-              class="px-2 py-1 rounded-full text-xs font-semibold"
-              [ngClass]="{
-                'bg-yellow-100 text-yellow-800': row.estado === 'por-vencer',
-                'bg-red-100 text-red-800': row.estado === 'vencido',
-                'bg-blue-100 text-blue-800': row.estado === 'programado',
-                'bg-gray-200 text-gray-800': row.estado === 'cortado'
-              }"
-            >
-              {{ row.estado }}
-            </span>
+            <div class="flex gap-2 justify-center">
+              <button
+                pButton
+                icon="pi pi-whatsapp"
+                class="p-button-rounded p-button-success p-button-sm"
+                (click)="accionWhatsapp(row)"
+                   pTooltip="Enviar WhatsApp"
+              ></button>
+              <button
+                pButton
+                icon="pi pi-envelope"
+                class="p-button-rounded p-button-info p-button-sm"
+                (click)="accionEmail(row)"
+                    pTooltip="Enviar Email"
+              ></button>
+              <button
+                pButton
+                icon="pi pi-phone"
+                class="p-button-rounded p-button-warning p-button-sm"
+                (click)="accionLlamada(row)"
+                    pTooltip="Registrar llamada"
+              ></button>
+            </div>
           </td>
+
           <td>
-            {{ row.estadocliente }}
+            <div class="flex gap-2 justify-center">
+              <button
+                pButton
+                label="Programar"
+                class="p-button-sm"
+                (click)="abrirProgramar(row)"
+                [disabled]="row.estado === 'cortado'"
+              ></button>
+              <button
+                pButton
+                label="Cortar ahora"
+                class="p-button-sm p-button-danger"
+                (click)="abrirCortar(row)"
+                [disabled]="row.estado === 'cortado'"
+              ></button>
+            </div>
           </td>
-          <td class="space-x-1">
-            <button
-              pButton
-              icon="pi pi-whatsapp"
-              class="p-button-sm"
-              (click)="accionWhatsapp(row)"
-            ></button>
-            <button
-              pButton
-              icon="pi pi-envelope"
-              class="p-button-sm"
-              (click)="accionEmail(row)"
-            ></button>
-            <button
-              pButton
-              icon="pi pi-phone"
-              class="p-button-sm"
-              (click)="accionLlamada(row)"
-            ></button>
-          </td>
-          <td class="space-x-1">
-            <button
-              pButton
-              label="Programar"
-              class="p-button-sm"
-              (click)="abrirProgramar(row)"
-              [disabled]="row.estado === 'cortado'"
-            ></button>
-            <button
-              pButton
-              label="Cortar ahora"
-              class="p-button-sm p-button-danger"
-              (click)="abrirCortar(row)"
-              [disabled]="row.estado === 'cortado'"
-            ></button>
-          </td>
+
           <td>
             <button
               pButton
               label="Ver bitácora"
-              class="p-button-sm"
+              class="p-button-sm p-button-secondary"
               (click)="abrirBitacora(row)"
             ></button>
           </td>
