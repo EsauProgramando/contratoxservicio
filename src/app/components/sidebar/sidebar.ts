@@ -247,7 +247,22 @@ export class Sidebar {
       //     },
       //   ],
       // },
-
+      {
+        label: 'Control y Cofiguración',
+        icon: 'pi pi-share-alt', // configuración general
+        items: [
+          {
+            label: 'Orden de Trabajo',
+            icon: 'pi pi-hammer', // relacionado con direcciones/mapas
+            routerLink: './orden-trabajo',
+          },
+          {
+            label: 'Agencia Técnica',
+            icon: 'pi pi-calendar', // planes/servicios empresariales o residenciales
+            routerLink: './agencia-tecnica',
+          }
+        ],
+      },
       {
         label: 'Mantenimientos',
         icon: 'pi pi-cog', // configuración general

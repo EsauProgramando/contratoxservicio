@@ -20,4 +20,5 @@ export class CortesPendienteRequest {
   telefono: string = '';
   deuda_total: number = 0;
   monto_total: number = 0;
+  periodo:string=''
 }

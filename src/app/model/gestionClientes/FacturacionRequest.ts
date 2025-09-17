@@ -17,4 +17,8 @@ export class FacturacionRequest {
   fechareg: number = 0;
   desctipo: string = '';
   email: string = '';
+  nrodocident:string='';
+  tipodocident:number=0;
+  direccion:string='';
+  url_pdf:string=''
 }

@@ -43,6 +43,8 @@ import { EmailModel } from '../../../model/gmail/EmailModel';
 import Swal from 'sweetalert2';
 import { Historialservicio } from '../../../services/mantenimiento/historialservicio';
 import { HistorialServicioModel } from '../../../model/mantenimiento/HistorialServicioModel';
+import {creardocumentoModel} from '../../../model/documento/documento';
+import {DocumentoService} from '../../../services/documento/documento-service';
 @Component({
   selector: 'app-cobranzas',
   imports: [
@@ -86,6 +88,7 @@ export class Cobranzas {
   disabled = signal<boolean>(false);
   //pagos
   pagos = signal<PagosModel>(new PagosModel());
+  facturaEnvio = signal<creardocumentoModel>(new creardocumentoModel());
   abrimodelpagos: boolean = false;
   formErrors = {
     id_metodo: signal(false),
@@ -120,7 +123,8 @@ export class Cobranzas {
     private tipoServicioService: TipoServicioService,
     private pagosService: PagosService,
     private gmailService: GmailService,
-    private historialServicio: Historialservicio
+    private historialServicio: Historialservicio,
+    private documentoService:DocumentoService
   ) {}
   ngOnInit() {
     this.cargarTipoServicio();
@@ -279,6 +283,79 @@ export class Cobranzas {
       nombre_completo: factura.nombre_completo,
       codigo_factura: factura.codigo_factura,
     }));
+  }
+  generarDocumento(factura: FacturacionRequest) {
+    this.spinner.set(true);
+    this.facturaEnvio.update((prev) => ({
+      ...prev,
+      idContrato:factura.id_contrato,
+      tipoComprobante: factura.codigo_factura.substring(0,1)=='B'?'03':'01',
+      tipoDocumentoCliente:  factura.tipodocident==7?'6':factura.tipodocident==5?'1':'0',
+      numeroDocumentoCliente: factura.nrodocident,
+      nombreCliente:    factura.nombre_completo,
+      razonSocialCliente:     factura.nombre_completo,
+      direccionCliente:       factura.direccion
+    }));
+// console.log(factura,this.facturaEnvio(),'data')
+    this.documentoService.registrarDocumento(this.facturaEnvio()).subscribe({
+      next:(data)=>{
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Aviso de Usuario',
+          detail: 'Se creó el documento de envío',
+        });
+        if(factura.codigo_factura.substring(0,1)=='B'){
+
+          this.documentoService.getBoleta(factura.id_contrato).subscribe({
+            next:(data)=>{
+              this.spinner.set(false);
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Aviso de Usuario',
+                detail: 'Se creó el documento de envío',
+              });
+              this.buscarFacturas()
+            },error:(err)=>{
+
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Aviso de Usuario',
+                detail: 'Ocurrió un error al generar la boleta',
+              });
+              this.spinner.set(false);
+            }
+          })
+        }else {
+          this.documentoService.getFactura(factura.id_contrato).subscribe({
+            next:(data)=>{
+
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Aviso de Usuario',
+                detail: 'Se creó la factura con ÉXITO',
+              });
+              this.spinner.set(false);
+              this.buscarFacturas()
+            },error:(err)=>{
+
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Aviso de Usuario',
+                detail: 'Ocurrió un error al crear la factura',
+              });
+              this.spinner.set(false);
+            }
+          })
+        }
+      },error:(err)=>{
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Aviso de Usuario',
+          detail: err.error?.resultado || 'Ocurrió un error al crear el documento',
+        });
+        this.spinner.set(false);
+      }
+    })
   }
 
   verHistorial(factura: FacturacionRequest) {
@@ -491,5 +568,12 @@ export class Cobranzas {
     }
 
     return valido;
+  }
+  imprimirpdf(factura: FacturacionRequest) {
+    if (factura.url_pdf) {
+      window.open(factura.url_pdf, '_blank');
+    } else {
+      console.error('No existe URL de PDF en la factura');
+    }
   }
 }

@@ -163,6 +163,33 @@
               tooltipPosition="top"
               (click)="registrarPago(factura)"
             ></button>
+
+            } @else {
+              @if(!factura.url_pdf){
+
+              <button
+                pButton
+                type="button"
+                icon="pi pi-folder"
+                class="p-button-rounded p-button-warning p-button-sm"
+                pTooltip="Generar Factura"
+                tooltipPosition="top"
+                (click)="generarDocumento(factura)"
+              ></button>
+              }
+              @if(factura.url_pdf){
+
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-file-pdf"
+                  class="p-button-rounded p-button-danger p-button-sm"
+                  pTooltip="Imprimir pdf"
+                  tooltipPosition="top"
+                  (click)="imprimirpdf(factura)"
+                ></button>
+              }
+
             }
 
             <button

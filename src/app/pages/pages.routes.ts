@@ -71,5 +71,19 @@ export const pagesRoutes: Routes = [
         (m) => m.Gestionreaperturas
       ),
   },
+  {
+    path: 'orden-trabajo',
+    loadComponent: () =>
+      import('./control/orden-trabajo-component/orden-trabajo-component').then(
+        (m) => m.OrdenTrabajoComponent
+      ),
+  },
+  {
+    path: 'agencia-tecnica',
+    loadComponent: () =>
+      import('./control/agencia-tecnica-component/agencia-tecnica-component').then(
+        (m) => m.AgenciaTecnicaComponent
+      ),
+  },
   { path: '**', redirectTo: 'login' },
 ];
