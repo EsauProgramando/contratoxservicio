@@ -14,168 +14,170 @@
     <hr class="border-gray-300" />
   </header>
 
-<!--  &lt;!&ndash; Filtros &ndash;&gt;-->
-<!--  <section class="space-y-2">-->
-<!--    <h2 class="text-lg font-semibold text-gray-700">Filtros</h2>-->
-<!--    <div class="flex flex-wrap gap-4 items-end">-->
-<!--      <div class="flex flex-col">-->
-<!--        <label class="text-sm font-medium text-gray-600 mb-1">Buscar</label>-->
-<!--        <input-->
-<!--          [(ngModel)]="CortesfiltroEnvio().nombre_completo"-->
-<!--          type="text"-->
-<!--          placeholder="Cliente/Servicio/Dirección"-->
-<!--          class="p-inputtext p-component w-64 rounded-md shadow-sm"-->
-<!--        />-->
-<!--      </div>-->
-<!--      <div class="flex flex-col">-->
-<!--        <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>-->
-<!--&lt;!&ndash;        <select&ndash;&gt;-->
-<!--&lt;!&ndash;          [(ngModel)]="CortesfiltroEnvio().estado"&ndash;&gt;-->
-<!--&lt;!&ndash;          class="p-inputtext p-component w-48 rounded-md shadow-sm"&ndash;&gt;-->
-<!--&lt;!&ndash;        >&ndash;&gt;-->
-<!--&lt;!&ndash;          @for (item of estados; track $index) {&ndash;&gt;-->
-<!--&lt;!&ndash;            <option [value]="item.value">{{ item.label }}</option>&ndash;&gt;-->
-<!--&lt;!&ndash;          }&ndash;&gt;-->
-<!--&lt;!&ndash;        </select>&ndash;&gt;-->
-<!--          <p-select [options]="estados" [(ngModel)]="CortesfiltroEnvio().estado" optionLabel="name"  class="w-full md:w-56">-->
-<!--            <ng-template #selectedItem let-selectedOption>-->
-<!--              <div class="flex items-center gap-2">-->
-<!--                <p-tag [severity]="selectedOption.severity">{{ selectedOption.label }}</p-tag>-->
-<!--              </div>-->
-<!--            </ng-template>-->
-<!--            <ng-template let-option #item>-->
-<!--              <div class="flex items-center gap-2">-->
-<!--                <p-tag [severity]="option.severity">{{ option.label }}</p-tag>-->
-<!--              </div>-->
-<!--            </ng-template>-->
-<!--          </p-select>-->
+  <!-- Filtros -->
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold text-gray-700">Filtros</h2>
+    <div class="flex flex-wrap gap-4 items-end">
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Técnicos</label>
+        <!--        <select-->
+        <!--          [(ngModel)]="CortesfiltroEnvio().estado"-->
+        <!--          class="p-inputtext p-component w-48 rounded-md shadow-sm"-->
+        <!--        >-->
+        <!--          @for (item of estados; track $index) {-->
+        <!--            <option [value]="item.value">{{ item.label }}</option>-->
+        <!--          }-->
+        <!--        </select>-->
+        <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico" optionValue="idtecnico"  class="w-full md:w-56">
+          <ng-template #selectedItem let-selectedOption>
+            <div class="flex items-center gap-2">
+              {{ selectedOption.nombres + ' ' + selectedOption.apellidos }}
+            </div>
+          </ng-template>
+          <ng-template let-option #item>
+            <div class="flex items-center gap-2">
+              {{ option.nombres + ' ' + option.apellidos }}
+            </div>
+          </ng-template>
+        </p-select>
 
-<!--      </div>-->
+      </div>
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
+          <p-select [options]="estados" [(ngModel)]="OrdenTrabajofiltroEnvio().estado" optionLabel="name" optionValue="value"  class="w-full md:w-56">
+            <ng-template #selectedItem let-selectedOption>
+              <div class="flex items-center gap-2">
+                <p-tag [severity]="selectedOption.severity">{{ selectedOption.label }}</p-tag>
+              </div>
+            </ng-template>
+            <ng-template let-option #item>
+              <div class="flex items-center gap-2">
+                <p-tag [severity]="option.severity">{{ option.label }}</p-tag>
+              </div>
+            </ng-template>
+          </p-select>
 
-<!--      <div class="flex gap-2 mt-4">-->
-<!--        <button-->
-<!--          pButton-->
-<!--          label="Aplicar"-->
-<!--          class="p-button-sm p-button-primary"-->
-<!--          (click)="obtener_cortes_pendientes_filtro()"-->
-<!--        ></button>-->
-<!--        <button-->
-<!--          pButton-->
-<!--          label="Limpiar"-->
-<!--          class="p-button-sm p-button-secondary"-->
-<!--          (click)="limpiar_filtros()"-->
-<!--        ></button>-->
-<!--        <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">-->
-<!--          {{ Totalregistros }} registros-->
-<!--        </span>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </section>-->
+      </div>
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Fecha Inicial</label>
+        <p-datePicker [(ngModel)]="fechainicial" />
 
-<!--  &lt;!&ndash; Tabla &ndash;&gt;-->
-<!--  <section>-->
-<!--    <h2 class="text-lg font-semibold text-gray-700 mb-4">-->
-<!--      Servicios vencidos y próximos a corte-->
-<!--    </h2>-->
-<!--    <p-table-->
-<!--      [value]="CortesPendienteRequest()"-->
-<!--      [tableStyle]="{ 'max-width': '100%' }"-->
-<!--      ngClass="p-datatable-striped p-datatable-sm"-->
-<!--    >-->
-<!--      <ng-template #header>-->
-<!--        <tr>-->
-<!--          <th>Cliente</th>-->
-<!--          <th>DNI/RUC</th>-->
-<!--          <th>Servicio / ID</th>-->
-<!--          <th>Período</th>-->
-<!--          <th class="text-right">Saldo (S/)</th>-->
-<!--          <th>Vencimiento</th>-->
-<!--          <th>Días</th>-->
-<!--          <th>Estado Factura</th>-->
-<!--          <th>Estado Servicio</th>-->
-<!--          <th>Acciones</th>-->
-<!--          <th>Corte</th>-->
-<!--          <th>Bitácora</th>-->
-<!--        </tr>-->
-<!--      </ng-template>-->
-<!--      <ng-template #body let-row>-->
-<!--        <tr class="hover:bg-gray-50">-->
-<!--          <td>-->
-<!--            {{ row.nombre_completo }}-->
-<!--          </td>-->
-<!--          <td>-->
-<!--            {{ row.nrodocident }}-->
-<!--          </td>-->
-<!--          <td>{{ row.desctipo }}</td>-->
-<!--          <td>{{ row.periodo }}</td>-->
-<!--          <td class="text-right">S/.{{ row.saldo }}</td>-->
-<!--          <td>{{ row.fecha_vencimiento }}</td>-->
-<!--          <td>{{ row.dias_mora }}</td>-->
-<!--          <td>-->
-<!--            <span-->
-<!--              class="px-2 py-1 rounded-full text-xs font-semibold"-->
-<!--              [ngClass]="{-->
-<!--                'bg-yellow-100 text-yellow-800': row.estado === 'por-vencer',-->
-<!--                'bg-red-100 text-red-800': row.estado === 'vencido',-->
-<!--                'bg-blue-100 text-blue-800': row.estado === 'programado',-->
-<!--                'bg-gray-200 text-gray-800': row.estado === 'cortado'-->
-<!--              }"-->
-<!--            >-->
-<!--              {{ row.estado }}-->
-<!--            </span>-->
-<!--          </td>-->
-<!--          <td>-->
-<!--            {{ row.estadocliente }}-->
-<!--          </td>-->
-<!--          <td class="space-x-1">-->
-<!--            <button-->
-<!--              pButton-->
-<!--              icon="pi pi-whatsapp"-->
-<!--              class="p-button-sm"-->
-<!--              (click)="accionWhatsapp(row)"-->
-<!--            ></button>-->
-<!--            <button-->
-<!--              pButton-->
-<!--              icon="pi pi-envelope"-->
-<!--              class="p-button-sm"-->
-<!--              (click)="accionEmail(row)"-->
-<!--            ></button>-->
-<!--            <button-->
-<!--              pButton-->
-<!--              icon="pi pi-phone"-->
-<!--              class="p-button-sm"-->
-<!--              (click)="accionLlamada(row)"-->
-<!--            ></button>-->
-<!--          </td>-->
-<!--          <td class="space-x-1">-->
-<!--            <button-->
-<!--              pButton-->
-<!--              label="Programar"-->
-<!--              class="p-button-sm"-->
-<!--              (click)="abrirProgramar(row)"-->
-<!--              [disabled]="row.estado === 'cortado'"-->
-<!--            ></button>-->
-<!--            <button-->
-<!--              pButton-->
-<!--              label="Cortar ahora"-->
-<!--              class="p-button-sm p-button-danger"-->
-<!--              (click)="abrirCortar(row)"-->
-<!--              [disabled]="row.estado === 'cortado'"-->
-<!--            ></button>-->
-<!--          </td>-->
-<!--          <td>-->
-<!--            <button-->
-<!--              pButton-->
-<!--              label="Ver bitácora"-->
-<!--              class="p-button-sm"-->
-<!--              (click)="abrirBitacora(row)"-->
-<!--            ></button>-->
-<!--          </td>-->
-<!--        </tr>-->
-<!--      </ng-template>-->
-<!--    </p-table>-->
-<!--  </section>-->
-<!--</div>-->
+      </div>
+      <div class="flex flex-col">
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Fecha Final</label>
+          <p-datePicker [(ngModel)]="fechafinal" />
+
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-4">
+        <button
+          pButton
+          label="Aplicar"
+          class="p-button-sm p-button-primary"
+          (click)="cargarordenestrabajo()"
+        ></button>
+        <button
+          pButton
+          label="Limpiar"
+          class="p-button-sm p-button-secondary"
+          (click)="limpiar_filtros()"
+        ></button>
+        <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
+          {{ Totalregistros }} registros
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabla -->
+  <section>
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">
+      Lista de Órdenes de Trabajo
+    </h2>
+    <p-table
+      [value]="Listadoordenestrabajo()"
+      [tableStyle]="{ 'max-width': '100%' }"
+      ngClass="p-datatable-striped p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th>ID OT</th>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Dirección</th>
+          <th>Tipo</th>
+          <th>Fecha Agendada</th>
+          <th>Técnico</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr class="hover:bg-gray-50">
+          <td>
+            {{ row.idordentrabajo }}
+          </td>
+          <td>
+            {{ row.nombre_completo }}
+          </td>
+          <td>
+            {{ row.servicio }}
+          </td>
+          <td>{{ row.direccion }}</td>
+          <td>{{ row.tipo }}</td>
+          <td >{{ row.fechaorden }}</td>
+          <td>{{ row.estado }}</td>
+          <td class="space-x-1">
+            <button
+              pButton
+              icon="pi pi-whatsapp"
+              class="p-button-sm"
+              (click)="accionWhatsapp(row)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-envelope"
+              class="p-button-sm"
+              (click)="accionEmail(row)"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-phone"
+              class="p-button-sm"
+              (click)="accionLlamada(row)"
+            ></button>
+          </td>
+          <td class="space-x-1">
+            <button
+              pButton
+              label="Programar"
+              class="p-button-sm"
+              (click)="abrirProgramar(row)"
+              [disabled]="row.estado === 'cortado'"
+            ></button>
+            <button
+              pButton
+              label="Cortar ahora"
+              class="p-button-sm p-button-danger"
+              (click)="abrirCortar(row)"
+              [disabled]="row.estado === 'cortado'"
+            ></button>
+          </td>
+          <td>
+            <button
+              pButton
+              label="Ver bitácora"
+              class="p-button-sm"
+              (click)="abrirBitacora(row)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
 
 <!--&lt;!&ndash; MODAL: Programar corte &ndash;&gt;-->
 <!--<p-dialog-->

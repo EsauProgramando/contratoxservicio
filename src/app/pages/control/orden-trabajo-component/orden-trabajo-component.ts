@@ -37,6 +37,10 @@ import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPen
 import { BitacuraModel } from '../../../model/gestionCobranza/BitacuraModel';
 import { CorteModel } from '../../../model/gestionCobranza/CorteModel';
 import { CortesfiltroEnvio } from '../../../model/gestionCobranza/CortesfiltroEnvio';
+import {OrdentrabajoService} from '../../../services/ordentrabajo/ordentrabajo-service';
+import {TecnicosService} from '../../../services/mantenimiento/tecnicos-service';
+import {tecnicoModel} from '../../../model/mantenimiento/tecnicoModel';
+import {ordentrabajofiltroModel, ordentrabajoModel} from '../../../model/ordentrabajo/ordentrabajoModel';
 
 @Component({
   selector: 'app-orden-trabajo-component',
@@ -73,18 +77,22 @@ import { CortesfiltroEnvio } from '../../../model/gestionCobranza/CortesfiltroEn
 })
 export class OrdenTrabajoComponent {
   spinner = signal<boolean>(false);
-  OrdenTrabajo = signal<CortesfiltroEnvio>(new CortesfiltroEnvio());
+  OrdenTrabajofiltroEnvio=signal(new ordentrabajofiltroModel)
   CortesPendienteRequest = signal<CortesPendienteRequest[]>([]);
+  Listadotecnicos=signal<tecnicoModel[]>([])
+  Listadoordenestrabajo=signal<ordentrabajoModel[]>([])
   // Variables de filtro
   searchQuery: string = '';
   estado: string = '';
   ordenarPor: string = 'vencimiento';
   Totalregistros: number = 0;
   showModalBitacora: boolean = false;
+  fechainicial:Date=new Date()
+  fechafinal:Date=new Date()
   // Datos de ejemplo (reemplazar con datos reales)
   //array de de objetos del estado
   estados = [
-    { label: 'TODOS', value: 'TODOS',severity:'secondary' },
+    { label: 'TODOS', value: 'ALL',severity:'secondary' },
     { label: 'PENDIENTE', value: 'PENDIENTE',severity:'secondary' },
     { label: 'EN PROCESO', value: 'EN PROCESO',severity:'info' },
     { label: 'COMPLETADO', value: 'COMPLETADO',severity:'success' },
@@ -133,13 +141,36 @@ export class OrdenTrabajoComponent {
     private bitacuraService: BitacuraService,
     private gmailService: GmailService,
     private whatsappService: WhatsappService,
-    private historialServicio: Historialservicio
+    private historialServicio: Historialservicio,
+    private ordentrabajoService:OrdentrabajoService,
+    private tecnicoService:TecnicosService
   ) {}
 
   ngOnInit() {
     //poner valores por defecto a los filtros
-    this.OrdenTrabajo.set({ estado: 'POR_VENCER', nombre_completo: '' });
-    this.obtener_cortes_pendientes_filtro();
+    this.cargarordenestrabajo();
+    this.cargartecnicos()
+  }
+  cargartecnicos(){
+    this.tecnicoService.getlistatecnicos().subscribe({
+      next:(data)=>{
+        this.Listadotecnicos.set(data.data)
+        this.Listadotecnicos().unshift({
+          idtecnico:'ALL',
+          nombres:'TODOS',
+          apellidos:'',
+          especialidad:'TODOS'
+        })
+        this.OrdenTrabajofiltroEnvio().idtecnico='ALL'
+      }
+    })
+  }
+  cargarordenestrabajo(){
+    this.ordentrabajoService.getlistaordentrabajos().subscribe({
+      next:(data)=>{
+        this.Listadoordenestrabajo.set(data.data)
+      }
+    })
   }
   // Abrir modal programar corte
   abrirProgramar(row: CortesPendienteRequest) {
@@ -542,50 +573,50 @@ export class OrdenTrabajoComponent {
     this.showModalBitacora = false;
   }
 
-  obtener_cortes_pendientes_filtro() {
-    this.spinner.set(true);
-    this.CortesPendienteRequest.set([]);
-    this.cortesservice
-      .obtener_cortes_pendientes_filtro(this.OrdenTrabajo())
-      .subscribe({
-        next: (response) => {
-          if (response?.mensaje === 'EXITO') {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Éxito',
-              detail: 'Cortes pendientes obtenidos correctamente',
-            });
-            // Aquí puedes asignar los datos recibidos a una variable para mostrarlos en la tabla
-            console.log(response.data);
-            this.CortesPendienteRequest.set(response?.data || []);
-            console.log(this.CortesPendienteRequest());
-            //cuandos datos tiene el array
-            this.Totalregistros = response?.data?.length;
-          } else {
-            this.Totalregistros = 0;
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail:
-                response?.mensaje || 'Error al obtener los cortes pendientes',
-            });
-          }
-          this.spinner.set(false);
-        },
-        error: (err) => {
-          this.spinner.set(false);
-          this.CortesPendienteRequest.set([]);
-          this.Totalregistros = 0;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: err?.mensaje || 'Error en la comunicación con el servidor',
-          });
-        },
-      });
-  }
+  // obtener_cortes_pendientes_filtro() {
+  //   this.spinner.set(true);
+  //   this.CortesPendienteRequest.set([]);
+  //   this.cortesservice
+  //     .obtener_cortes_pendientes_filtro(this.OrdenTrabajo())
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response?.mensaje === 'EXITO') {
+  //           this.messageService.add({
+  //             severity: 'success',
+  //             summary: 'Éxito',
+  //             detail: 'Cortes pendientes obtenidos correctamente',
+  //           });
+  //           // Aquí puedes asignar los datos recibidos a una variable para mostrarlos en la tabla
+  //           console.log(response.data);
+  //           this.CortesPendienteRequest.set(response?.data || []);
+  //           console.log(this.CortesPendienteRequest());
+  //           //cuandos datos tiene el array
+  //           this.Totalregistros = response?.data?.length;
+  //         } else {
+  //           this.Totalregistros = 0;
+  //           this.messageService.add({
+  //             severity: 'error',
+  //             summary: 'Error',
+  //             detail:
+  //               response?.mensaje || 'Error al obtener los cortes pendientes',
+  //           });
+  //         }
+  //         this.spinner.set(false);
+  //       },
+  //       error: (err) => {
+  //         this.spinner.set(false);
+  //         this.CortesPendienteRequest.set([]);
+  //         this.Totalregistros = 0;
+  //         this.messageService.add({
+  //           severity: 'error',
+  //           summary: 'Error',
+  //           detail: err?.mensaje || 'Error en la comunicación con el servidor',
+  //         });
+  //       },
+  //     });
+  // }
   limpiar_filtros() {
-    this.OrdenTrabajo.set(new CortesfiltroEnvio());
+    // this.OrdenTrabajo.set(new CortesfiltroEnvio());
   }
   formatDateForDB(date: Date): string {
     const year = date.getFullYear();
