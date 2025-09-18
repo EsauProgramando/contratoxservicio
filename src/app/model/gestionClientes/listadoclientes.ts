@@ -21,4 +21,5 @@ export class ListadoClientes {
   descripcioncorta: string = '';
   destipodocident: string = '';
   tipodocidenabr: string = '';
+  nombreapellido:string=''
 }

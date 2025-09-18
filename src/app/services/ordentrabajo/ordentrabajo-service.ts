@@ -13,13 +13,16 @@ export class OrdentrabajoService {
   private baseUrl = `${environment.apiUrl}/orden-trabajo`;
 
   constructor(private http: HttpClient) {}
-  getdetalle_x_ordentrabajo(idordentrabajo:number): Observable<Response_Generico<ordentrabajoModel>> {
+  getdetalle_x_ordentrabajo(idordentrabajo:string): Observable<Response_Generico<ordentrabajoModel>> {
     return this.http.get<Response_Generico<ordentrabajoModel>>(`${this.baseUrl}/buscar/${idordentrabajo}`);
   }
   getlistaordentrabajos(): Observable<Response_Generico<ordentrabajoModel[]>> {
     return this.http.get<Response_Generico<ordentrabajoModel[]>>(`${this.baseUrl}/listado`);
   }
-  registrarordentrabajo(ordentrabajo:ordentrabajoModel,op:number): Observable<ResponsedocData> {
-    return this.http.post<ResponsedocData>(`${this.baseUrl}/registrar/${op}`, ordentrabajo);
+  registrarordentrabajo(ordentrabajo:ordentrabajoModel,op:number): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/registrar/${op}`, ordentrabajo);
+  }
+  gethistorial_x_ordentrabajo(idordentrabajo:string): Observable<Response_Generico<ordentrabajoModel[]>> {
+    return this.http.get<Response_Generico<ordentrabajoModel[]>>(`${this.baseUrl}/buscar-historial/${idordentrabajo}`);
   }
 }

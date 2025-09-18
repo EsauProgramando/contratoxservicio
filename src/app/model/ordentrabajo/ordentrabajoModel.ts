@@ -12,6 +12,8 @@ export class ordentrabajoModel {
   servicio:string='';
   direccion:string='';
   tipo:string='';
+  path_imagen:string='';
+  observacion:string='';
 }
 
 export class ordentrabajofiltroModel {
