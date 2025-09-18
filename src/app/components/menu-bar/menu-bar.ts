@@ -211,6 +211,19 @@ export class MenuBar {
               });
             },
           },
+          {
+            label: 'Bajas por Morosidad',
+            icon: 'pi pi-user-minus', // Icono de usuario con un signo menos
+            routerLink: './bajas-morosidad',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Bajas por Morosidad',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
 
           // {
           //   label: 'Registro Manual de Pagos',

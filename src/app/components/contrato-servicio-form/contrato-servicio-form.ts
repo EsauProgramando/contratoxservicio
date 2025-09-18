@@ -34,7 +34,6 @@ import { BuscarClientes } from '../../model/gestionClientes/buscarClientes';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ContratoModel } from '../../model/gestionClientes/contratoModel';
 import { Servicios_contratadosModel } from '../../model/gestionClientes/servicios_contratadosModel';
-import { ServicioContratadoRequest } from '../../model/gestionClientes/servicioContratadoRequest';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ContratosService } from '../../services/gestionClientes/contratos.service';

@@ -81,8 +81,15 @@ export const pagesRoutes: Routes = [
   {
     path: 'agencia-tecnica',
     loadComponent: () =>
-      import('./control/agencia-tecnica-component/agencia-tecnica-component').then(
-        (m) => m.AgenciaTecnicaComponent
+      import(
+        './control/agencia-tecnica-component/agencia-tecnica-component'
+      ).then((m) => m.AgenciaTecnicaComponent),
+  },
+  {
+    path: 'bajas-morosidad',
+    loadComponent: () =>
+      import('./gestionCobranza/bajas-morosidad/bajas-morosidad').then(
+        (m) => m.BajasMorosidad
       ),
   },
   { path: '**', redirectTo: 'login' },
