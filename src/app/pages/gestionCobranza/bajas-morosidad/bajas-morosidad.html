@@ -1,0 +1,559 @@
+@if (spinner){
+<app-carga></app-carga>
+}
+<p-toast></p-toast>
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
+  <!-- Header -->
+  <header class="space-y-2">
+    <h1 class="text-2xl font-bold text-gray-800">Gestión de Bajas</h1>
+    <p class="text-gray-600 text-sm">
+      Registro y control de bajas por morosidad: motivos, inhabilitación
+      indefinida, observaciones e intentos de contacto.
+    </p>
+    <hr class="border-gray-300" />
+  </header>
+
+  <!-- Filtros -->
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold text-gray-700">Filtros</h2>
+    <div class="flex flex-wrap gap-4 items-end">
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Buscar</label>
+        <input
+          [(ngModel)]="BusquedaMorosidad().nombre_completo"
+          type="text"
+          placeholder="Cliente"
+          class="p-inputtext p-component w-64 rounded-md shadow-sm"
+        />
+      </div>
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
+        <select
+          [(ngModel)]="BusquedaMorosidad().motivos"
+          class="p-inputtext p-component w-48 rounded-md shadow-sm"
+        >
+          @for (item of motivosbusqueda; track $index) {
+          <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
+        <select
+          [(ngModel)]="BusquedaMorosidad().estado"
+          class="p-inputtext p-component w-48 rounded-md shadow-sm"
+        >
+          @for (item of estadosbusqueda; track $index) {
+          <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex gap-2 mt-4">
+        <button
+          pButton
+          label="Aplicar"
+          class="p-button-sm p-button-primary"
+          (click)="buscarmorosidad()"
+        ></button>
+        <button
+          pButton
+          label="Limpiar"
+          class="p-button-sm p-button-secondary"
+          (click)="limpiar_filtros()"
+        ></button>
+        <p-button
+          label="Registrar Baja"
+          icon="pi pi-plus"
+          class="transition-all duration-300 hover:scale-105"
+          styleClass="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg"
+          (click)="openDialog()"
+        />
+        <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
+          {{ Totalregistros }} registros
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabla -->
+  <section class="p-4 bg-white rounded shadow-md">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">
+      Servicios vencidos y próximos a corte
+    </h2>
+
+    <p-table
+      [value]="ListadomorosidadRequest()"
+      [tableStyle]="{ 'max-width': '100%' }"
+      class="p-datatable-striped p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Cliente</th>
+          <th>DNI/RUC</th>
+          <th>Servicio</th>
+          <th>Fecha Rebaja</th>
+          <th>Motivos</th>
+          <th>Estado</th>
+          <th>Observaciones</th>
+          <th>Bitácora</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr class="hover:bg-gray-100">
+          <td>{{ row.nombre_completo }}</td>
+          <td>{{ row.nrodocident }}</td>
+          <td>{{ row.desctipo }}</td>
+          <td>{{ row.fecharebaja | date : "dd/MM/yyyy" }}</td>
+          <td>{{ row.motivo }}</td>
+          <td>
+            {{ row.estado }}
+          </td>
+          <td>{{ row.observacion }}</td>
+
+          <td>
+            <button
+              pButton
+              label="Ver bitácora"
+              class="p-button-sm p-button-secondary"
+              (click)="abrirBitacora(row)"
+            ></button>
+          </td>
+
+          <td>
+            @if (row.estado === 'INHABILITADO') {
+            <button
+              pButton
+              label="INDEFINIDO"
+              class="p-button-sm p-button-success mr-2"
+              (click)="cambiarestado(row, 'INDEFINIDO')"
+            ></button>
+            } @if (row.estado === 'INDEFINIDO') {
+            <button
+              pButton
+              label="INHABILITADO"
+              class="p-button-sm p-button-warning mr-2"
+              (click)="cambiarestado(row, 'INHABILITADO')"
+            ></button>
+            }
+
+            <!-- Detalle de Baja  -->
+            <button
+              pButton
+              label="Detalle"
+              class="p-button-sm p-button-info"
+              (click)="verDetalleBaja(row)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
+
+<p-dialog
+  header="Buscar Clientes"
+  [modal]="true"
+  [maximizable]="true"
+  [(visible)]="clientesDialog"
+  [style]="{ width: '80vw', overflow: 'hidden' }"
+  [breakpoints]="{ '960px': '80vw' }"
+>
+  <p-table
+    #dt
+    [value]="listaClientes()"
+    dataKey="id"
+    [rowHover]="true"
+    [rows]="10"
+    [paginator]="true"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Se encontraron {first} de {last} Total {totalRecords} Registros"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [filterDelay]="0"
+    [globalFilterFields]="['id', 'nombres', 'apellidos']"
+    [tableStyle]="{ 'max-width': '100%' }"
+    ngClass="p-datatable-striped p-datatable-sm"
+  >
+    <!-- Cabecera de la tabla -->
+    <ng-template #header>
+      <tr class="bg-green-200 text-green-900 text-sm font-semibold">
+        <th pSortableColumn="nombres" class="px-3 py-3">
+          Nombres <p-sortIcon field="nombres" />
+        </th>
+        <th pSortableColumn="apellidos" class="px-3 py-3">
+          Apellidos <p-sortIcon field="apellidos" />
+        </th>
+        <th pSortableColumn="destipodocident" class="px-3 py-3">
+          Tipo <p-sortIcon field="destipodocident" />
+        </th>
+        <th pSortableColumn="nrodocident" class="px-3 py-3">
+          Nro <p-sortIcon field="nrodocident" />
+        </th>
+        <th pSortableColumn="email" class="px-3 py-3">
+          Correo <p-sortIcon field="email" />
+        </th>
+        <th pSortableColumn="telefono" class="px-3 py-3">
+          Teléfono <p-sortIcon field="telefono" />
+        </th>
+        <th class="px-3 py-3">Acción</th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuerpo de la tabla -->
+    <ng-template #body let-cliente>
+      <tr
+        class="hover:bg-green-50 transition-colors duration-300"
+        (click)="selectCliente(cliente)"
+      >
+        <td>{{ cliente.nombres }}</td>
+        <td>{{ cliente.apellidos }}</td>
+        <td>{{ cliente.destipodocident }}</td>
+        <td>{{ cliente.nrodocident }}</td>
+        <td>{{ cliente.email }}</td>
+        <td>{{ cliente.telefono }}</td>
+
+        <td class="flex gap-2">
+          <!--boton seleccionar-->
+          <p-button
+            icon="pi pi-check"
+            severity="success"
+            [rounded]="true"
+            [outlined]="true"
+            pTooltip="Seleccionar cliente"
+            tooltipPosition="left"
+            (click)="selectCliente(cliente)"
+            styleClass="hover:scale-105 transition-transform"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Mensaje vacío -->
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="8" class="text-center text-gray-400 italic py-4">
+          No hay clientes disponibles.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+<p-dialog
+  header="Registrar Baja de Morosidad"
+  [modal]="true"
+  [maximizable]="true"
+  [(visible)]="morocidadDialog"
+  [style]="{ width: '50vw', overflow: 'hidden' }"
+  [breakpoints]="{ '960px': '80vw' }"
+>
+  <ng-template pTemplate="content">
+    <!-- Grid principal -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Dirección con botón -->
+      <div class="flex gap-1 items-end">
+        <div class="flex-grow">
+          <label class="block text-sm font-medium mb-1">Dirección</label>
+          <input
+            pInputText
+            readonly
+            [(ngModel)]="bajaMorosidadModel().cliente"
+            placeholder="Seleccione ubicación"
+            class="w-full h-9"
+          />
+        </div>
+        <button
+          pButton
+          icon="pi pi-search"
+          styleClass="p-button-rounded p-button-warning h-9"
+          (click)="openClientesDialog()"
+        ></button>
+      </div>
+
+      <!-- DNI/RUC -->
+      <div>
+        <label class="block text-sm font-medium mb-1">DNI/RUC</label>
+        <input
+          pInputText
+          [(ngModel)]="bajaMorosidadModel().nrodocident"
+          placeholder="DNI/RUC"
+          class="w-full"
+        />
+      </div>
+
+      <!-- Tipo de servicio -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Tipo de Servicio
+        </label>
+        <p-select
+          [options]="listaTpoServicioes_servicio()"
+          [(ngModel)]="bajaMorosidadModel().id_tipo"
+          optionLabel="descripcion"
+          optionValue="id_tipo"
+          placeholder="Seleccione"
+          class="w-full"
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Fecha de baja -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Fecha de Baja
+        </label>
+        <p-datepicker
+          [(ngModel)]="bajaMorosidadModel().fecharebaja"
+          name="fecharebaja"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          inputId="buttondisplay"
+          class="w-full !h-[42px] rounded-xl"
+        ></p-datepicker>
+      </div>
+
+      <!-- Motivo de baja -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Motivo de Baja
+        </label>
+        <p-select
+          [options]="motivos"
+          [(ngModel)]="bajaMorosidadModel().motivo"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione"
+          class="w-full"
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Inhabilitar por tiempo indefinido -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Inhabilitar por tiempo indefinido
+        </label>
+        <p-select
+          [options]="estados"
+          [(ngModel)]="bajaMorosidadModel().estado"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione"
+          class="w-full"
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Observación (ocupa siempre 2 columnas) -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Observación
+        </label>
+        <textarea
+          pInputTextarea
+          [(ngModel)]="bajaMorosidadModel().observacion"
+          rows="3"
+          class="w-full"
+          placeholder="Ingrese una observación (opcional)"
+        ></textarea>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        pButton
+        label="Guardar"
+        (click)="guardarBajaMorosidad()"
+        class="p-button-sm p-button-success"
+        [disabled]="bloquearboton()"
+      ></button>
+      <button
+        pButton
+        label="Cancelar"
+        (click)="morocidadDialog = false"
+        class="p-button-sm p-button-secondary"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- MODAL: Bitácora -->
+<p-dialog
+  header="Bitácora Preventiva"
+  [(visible)]="showModalBitacora"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <!-- Listado de bitácora -->
+    <section class="mb-6">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Registros</h3>
+      <div
+        class="max-h-64 overflow-y-auto border border-gray-300 rounded-lg shadow-sm"
+      >
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-100 text-gray-600 uppercase tracking-wider">
+            <tr>
+              <th class="px-4 py-2 text-left">Fecha</th>
+              <th class="px-4 py-2 text-left">Tipo</th>
+              <th class="px-4 py-2 text-left">Detalle / Mensaje</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let bit of listadoBitacora()">
+              <td class="px-4 py-2 text-gray-900">
+                {{ bit.fechareg | date : "dd/MM/yyyy HH:mm" }}
+              </td>
+              <td class="px-4 py-2 text-gray-900">{{ bit.bitacoraTipos }}</td>
+              <td class="px-4 py-2 text-gray-900">{{ bit.detalle }}</td>
+            </tr>
+            <tr *ngIf="listadoBitacora()?.length === 0">
+              <td colspan="3" class="px-4 py-2 text-center text-gray-500">
+                No hay registros de bitácora.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Formulario de registro -->
+    <section class="space-y-6">
+      <!-- Tipo -->
+      <div>
+        <label
+          for="bitTipo"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >Tipo</label
+        >
+        <p-select
+          [options]="bitacoraTipos"
+          [(ngModel)]="BitacuraModel().bitacoraTipos"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione tipo"
+          class="w-full max-w-sm"
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Detalle / Mensaje -->
+      <div>
+        <label
+          for="bitDetalle"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >Detalle / Mensaje</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="BitacuraModel().detalle"
+          pInputText
+          placeholder="Ej. Se envió WhatsApp, cliente indica que pagará hoy."
+          class="w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+        />
+      </div>
+    </section>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        pButton
+        label="Agregar registro"
+        (click)="agregarBitacora()"
+        class="p-button-sm p-button-success"
+        [disabled]="bloquearboton()"
+      ></button>
+      <button
+        pButton
+        label="Cerrar"
+        (click)="closeModalBitacora()"
+        class="p-button-sm p-button-secondary"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Detalle de Baja"
+  [(visible)]="detallebajaxmorosidad"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <div class="space-y-6 text-gray-800">
+      <!-- 🧾 Cuadro principal de datos -->
+      <div class="border border-gray-300 rounded-lg p-4 shadow-sm bg-white">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <span class="font-semibold">👤 Cliente:</span>
+            {{ detallebajasMorosidadmostrar().nombre_completo }} ({{
+              detallebajasMorosidadmostrar().nrodocident
+            }})
+          </div>
+          <div>
+            <span class="font-semibold">📡 Servicio:</span>
+            {{ detallebajasMorosidadmostrar().desctipo }} / S-{{
+              detallebajasMorosidadmostrar().id_baja
+            }}
+          </div>
+          <div>
+            <span class="font-semibold">📅 Fecha de baja:</span>
+            {{
+              detallebajasMorosidadmostrar().fecharebaja | date : "dd/MM/yyyy"
+            }}
+          </div>
+          <div>
+            <span class="font-semibold">❗ Motivo:</span>
+            {{ detallebajasMorosidadmostrar().motivo.replace("_", " ") }}
+          </div>
+          <div>
+            <span class="font-semibold">🚫 Estado:</span>
+            {{ detallebajasMorosidadmostrar().estado }}
+          </div>
+          <div>
+            <span class="font-semibold">📞 Contacto:</span>
+            {{ detallebajasMorosidadmostrar().email }} /
+            {{ detallebajasMorosidadmostrar().telefono }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 📝 Observaciones y Bitácora -->
+      <div
+        class="border border-gray-300 rounded-lg p-4 shadow-sm bg-white space-y-4"
+      >
+        <div>
+          <h3 class="text-md font-semibold mb-1">📝 Observaciones:</h3>
+          <p class="text-gray-700">
+            {{ detallebajasMorosidadmostrar().observacion }}
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-md font-semibold mb-2">📋 Bitácora:</h3>
+          <ul class="list-disc list-inside space-y-1 text-gray-700">
+            <li *ngFor="let bit of listadoBitacora()">
+              {{ bit.fechareg | date : "dd/MM/yyyy HH:mm" }} —
+              {{ bit.bitacoraTipos }} : {{ bit.detalle }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

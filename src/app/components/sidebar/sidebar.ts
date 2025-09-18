@@ -135,6 +135,11 @@ export class Sidebar {
             icon: 'pi pi-refresh', // Icono de refresco
             routerLink: './gestion-reaperturas',
           },
+          {
+            label: 'Bajas por Morosidad',
+            icon: 'pi pi-user-minus', // Icono de usuario con signo menos
+            routerLink: './bajas-morosidad',
+          },
           // {
           //   label: 'Registro Manual de Pagos',
           //   icon: 'pi pi-money-bill', // registro de pagos
@@ -260,7 +265,7 @@ export class Sidebar {
             label: 'Agencia Técnica',
             icon: 'pi pi-calendar', // planes/servicios empresariales o residenciales
             routerLink: './agencia-tecnica',
-          }
+          },
         ],
       },
       {
