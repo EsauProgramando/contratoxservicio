@@ -315,9 +315,9 @@ export class Cobranzas {
     // }))
     this.facturaEnvio.update((prev) => ({
       ...prev,
-      idContrato:factura.id_contrato,
+      codigoFactura:factura.codigo_factura,
       tipoComprobante: factura.codigo_factura.substring(0,1)=='B'?'03':'01',
-      tipoDocumentoCliente:  factura.tipodocident==7?'6':factura.tipodocident==5?'1':'0',
+      tipoDocumentoCliente:  factura.tipodocident==5?'1':factura.tipodocident==7?'6':'0',
       numeroDocumentoCliente: factura.nrodocident,
       nombreCliente:    factura.nombre_completo,
       razonSocialCliente:     factura.nombre_completo,
@@ -340,9 +340,9 @@ export class Cobranzas {
           summary: 'Aviso de Usuario',
           detail: 'Se creó el documento de envío',
         });
-        if(factura.codigo_factura.substring(0,1)=='B'){
+        if(this.facturaEnvio().tipoComprobante=='03'){
 
-          this.documentoService.getBoleta(factura.id_contrato).subscribe({
+          this.documentoService.getBoleta(factura.codigo_factura).subscribe({
             next:(data)=>{
               this.spinner.set(false);
               this.messageService.add({
@@ -362,7 +362,7 @@ export class Cobranzas {
             }
           })
         }else {
-          this.documentoService.getFactura(factura.id_contrato).subscribe({
+          this.documentoService.getFactura(factura.codigo_factura).subscribe({
             next:(data)=>{
 
               this.messageService.add({

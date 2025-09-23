@@ -1,5 +1,5 @@
 export class creardocumentoModel {
-  idContrato:             number=0;
+  codigoFactura:          string='';
   tipoComprobante:        string='';
   tipoDocumentoCliente:   string='';
   numeroDocumentoCliente: string='';

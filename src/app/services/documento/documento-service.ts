@@ -11,11 +11,11 @@ export class DocumentoService {
   private baseUrl = `${environment.apiUrl}/documentos`;
 
   constructor(private http: HttpClient) {}
-  getFactura(idContrato:number): Observable<respuestaFactura> {
-    return this.http.get<respuestaFactura>(`${this.baseUrl}/factura/${idContrato}`);
+  getFactura(codigo_factura:string): Observable<respuestaFactura> {
+    return this.http.get<respuestaFactura>(`${this.baseUrl}/factura/${codigo_factura}`);
   }
-  getBoleta(idContrato:number): Observable<respuestaFactura> {
-    return this.http.get<respuestaFactura>(`${this.baseUrl}/boleta/${idContrato}`);
+  getBoleta(codigo_factura:string): Observable<respuestaFactura> {
+    return this.http.get<respuestaFactura>(`${this.baseUrl}/boleta/${codigo_factura}`);
   }
   registrarDocumento(documento:creardocumentoModel): Observable<ResponsedocData> {
     return this.http.post<ResponsedocData>(`${this.baseUrl}/crear`, documento);

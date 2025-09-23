@@ -25,4 +25,7 @@ export class OrdentrabajoService {
   gethistorial_x_ordentrabajo(idordentrabajo:string): Observable<Response_Generico<ordentrabajoModel[]>> {
     return this.http.get<Response_Generico<ordentrabajoModel[]>>(`${this.baseUrl}/buscar-historial/${idordentrabajo}`);
   }
+  getlistaordentrabajos_x_estado_tecnico(estado:string,idtecnico:number): Observable<Response_Generico<ordentrabajoModel[]>> {
+    return this.http.get<Response_Generico<ordentrabajoModel[]>>(`${this.baseUrl}/buscar-x-estado-tecnico/${estado}/${idtecnico}`);
+  }
 }
