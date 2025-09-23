@@ -164,18 +164,9 @@
             ></button>
 
             } @else {
-              @if(!factura.url_pdf){
 
-              <button
-                pButton
-                type="button"
-                icon="pi pi-folder"
-                class="p-button-rounded p-button-warning p-button-sm"
-                pTooltip="Generar Factura"
-                tooltipPosition="top"
-                (click)="detallefactura(factura)"
-              ></button>
-              }
+
+
               @if(factura.url_pdf){
 
                 <button
@@ -186,6 +177,17 @@
                   pTooltip="Imprimir pdf"
                   tooltipPosition="top"
                   (click)="imprimirpdf(factura)"
+                ></button>
+              } @else {
+
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-folder"
+                  class="p-button-rounded p-button-warning p-button-sm"
+                  pTooltip="Generar Factura"
+                  tooltipPosition="top"
+                  (click)="detallefactura(factura)"
                 ></button>
               }
 
@@ -628,6 +630,7 @@
               pInputText
               [(ngModel)]="fila_select().monto"
               placeholder="0.00"
+              [step]="0.01"
               readonly
               class="w-full bg-gray-100 text-gray-500 pr-10 cursor-not-allowed"
             />

@@ -133,6 +133,7 @@ export class OrdenTrabajoComponent {
   CorteModel = signal<CorteModel>(new CorteModel());
   enviarOrdenTrabajo=signal<ordentrabajoModel>(new ordentrabajoModel())
   op:number=0
+  tipoenvio:string=''
   nombrecliente:ListadoClientes=new ListadoClientes()
   // Tipos de acción para la bitácora
   bitacoraTipos = [
@@ -323,9 +324,11 @@ export class OrdenTrabajoComponent {
     })
   }
   actualizarorden(){
+    this.enviarOrdenTrabajo().motivo=this.tipoenvio+' '+this.enviarOrdenTrabajo().motivo
     this.spinner.set(true)
     this.abrirasignar=false
     this.abrirreprogramar=false
+    this.abrircierre=false
     console.log(this.enviarOrdenTrabajo())
     this.ordentrabajoService.registrarordentrabajo(this.enviarOrdenTrabajo(),this.op).subscribe({
       next:(data)=>{
@@ -340,6 +343,7 @@ export class OrdenTrabajoComponent {
           this.enviarOrdenTrabajo.set(new ordentrabajoModel())
           this.nombrecliente=new ListadoClientes()
           this.cargarordenestrabajo()
+          this.tipoenvio=''
 
         }else {
           this.abrirnuevaot=true
@@ -409,18 +413,21 @@ export class OrdenTrabajoComponent {
     this.enviarOrdenTrabajo().id_cliente=this.nombrecliente.id
   }
   asignartecnico(row:ordentrabajoModel){
+    this.tipoenvio='ASIGNAR'
     this.enviarOrdenTrabajo.set(new ordentrabajoModel())
     this.op=2
     this.abrirasignar=true
     this.enviarOrdenTrabajo.set({ ...row })
   }
   reprogramar(row:ordentrabajoModel){
+    this.tipoenvio='REPROGRAMAR'
     this.enviarOrdenTrabajo.set(new ordentrabajoModel())
     this.op=2
     this.abrirreprogramar=true
     this.enviarOrdenTrabajo.set({ ...row })
   }
   cerrarot(row:ordentrabajoModel){
+    this.tipoenvio='CIERRE'
     this.enviarOrdenTrabajo.set(new ordentrabajoModel())
     this.op=2
     this.abrircierre=true

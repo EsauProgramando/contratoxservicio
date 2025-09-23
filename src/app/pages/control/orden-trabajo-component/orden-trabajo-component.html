@@ -148,12 +148,16 @@
             <p-button icon="pi pi-user-edit" [rounded]="true" [outlined]="true"
                       pTooltip="Asignar técnico" tooltipPosition="left" severity="warn"
                       (click)="asignartecnico(row)"/>
-            <p-button icon="pi pi-cog" [rounded]="true" [outlined]="true"
-                      pTooltip="Reprogramar OT" tooltipPosition="left" severity="info"
-                      (click)="reprogramar(row)"/>
-            <p-button icon="pi pi-sign-out" [rounded]="true" [outlined]="true"
-                      pTooltip="Cerrar OT" tooltipPosition="left" severity="danger"
-                      (click)="cerrarot(row)"/>
+
+            @if(row.estado!='COMPLETADO' && row.estado!='CANCELADO'){
+              <p-button icon="pi pi-cog" [rounded]="true" [outlined]="true"
+                        pTooltip="Reprogramar OT" tooltipPosition="left" severity="info"
+                        (click)="reprogramar(row)"/>
+              <p-button icon="pi pi-sign-out" [rounded]="true" [outlined]="true"
+                        pTooltip="Cerrar OT" tooltipPosition="left" severity="danger"
+                        (click)="cerrarot(row)"/>
+
+            }
             <p-button icon="pi pi-calendar" [rounded]="true" [outlined]="true"
                       pTooltip="Historial OT" tooltipPosition="left" severity="info"
                       (click)="historialot(row)"/>
@@ -516,7 +520,7 @@
           >
             Estado Final
           </label>
-          <p-select [options]="estadoscierre" [(ngModel)]="OrdenTrabajofiltroEnvio().estado" optionLabel="name"
+          <p-select [options]="estadoscierre" [(ngModel)]="enviarOrdenTrabajo().estado" optionLabel="name"
                     optionValue="value"  class="w-full" appendTo="body">
             <ng-template #selectedItem let-selectedOption>
               <div class="flex items-center gap-2">
@@ -595,19 +599,20 @@
         <div
           class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50"
         >
-          <i class="pi pi-sign-out text-indigo-600 text-xl"></i>
+          <i class="pi pi-calendar text-indigo-600 text-xl"></i>
         </div>
         <h2 class="text-xl font-semibold text-gray-800">Historial de OT - {{this.enviarOrdenTrabajo().idordentrabajo}}</h2>
       </div>
     </ng-template>
 
     <ng-template pTemplate="content">
-      <p-table [value]="listaHistorialOT()" [paginator]="true" [rows]="10">
+      <p-table [value]="listaHistorialOT()"
+               [scrollable]="true" scrollHeight="400px">
         <ng-template pTemplate="header">
-          <tr>
-            <th>Fecha</th>
-            <th>FechaOT</th>
-            <th>Descripción</th>
+          <tr class="bg-gray-100 text-gray-600 uppercase tracking-wider ">
+            <th class="back-head">Fecha</th>
+            <th class="back-head">FechaOT</th>
+            <th class="back-head">Descripción</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
