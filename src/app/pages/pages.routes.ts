@@ -92,5 +92,19 @@ export const pagesRoutes: Routes = [
         (m) => m.BajasMorosidad
       ),
   },
+  {
+    path: 'seguimiento-morocidad',
+    loadComponent: () =>
+      import(
+        './gestionCobranza/seguimiento-morocidad/seguimiento-morocidad'
+      ).then((m) => m.SeguimientoMorocidad),
+  },
+  {
+    path: 'retencion-negociacion-cliente',
+    loadComponent: () =>
+      import(
+        './gestionCobranza/retencion-negociacion-cliente/retencion-negociacion-cliente'
+      ).then((m) => m.RetencionNegociacionCliente),
+  },
   { path: '**', redirectTo: 'login' },
 ];
