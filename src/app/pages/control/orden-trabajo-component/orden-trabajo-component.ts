@@ -203,7 +203,9 @@ export class OrdenTrabajoComponent {
   }
   cargarordenestrabajo(){
     this.spinner.set(true)
-    this.ordentrabajoService.getlistaordentrabajos().subscribe({
+    this.OrdenTrabajofiltroEnvio().fechainicial=this.formatDateForDB(this.fechainicial)
+    this.OrdenTrabajofiltroEnvio().fechafinal=this.formatDateForDB(this.fechafinal)
+    this.ordentrabajoService.getlistaordentrabajos(this.OrdenTrabajofiltroEnvio()).subscribe({
       next:(data)=>{
 
         this.messageService.add({
@@ -248,16 +250,6 @@ export class OrdenTrabajoComponent {
 
   limpiar_filtros() {
     // this.OrdenTrabajo.set(new CortesfiltroEnvio());
-  }
-  formatDateForDB(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes con dos dígitos
-    const day = String(date.getDate()).padStart(2, '0'); // Día con dos dígitos
-    const hours = String(date.getHours()).padStart(2, '0'); // Hora con dos dígitos
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutos con dos dígitos
-    const seconds = String(date.getSeconds()).padStart(2, '0'); // Segundos con dos dígitos
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 
   cargarclientes(){
@@ -461,7 +453,7 @@ export class OrdenTrabajoComponent {
   }
   getSeverity(product: ordentrabajoModel) {
     switch (product.estado) {
-      case 'ACTIVO':
+      case 'COMPLETADO':
         return 'success';
 
       case 'CANCELADO':
@@ -494,5 +486,18 @@ export class OrdenTrabajoComponent {
 
       reader.readAsDataURL(file); // lee como DataURL para mantener metadata y tipo
     }
+  }
+  private formatDateForDB(date: Date): string {
+    if (!date) return '';
+    const pad = (n: number) => n < 10 ? '0' + n : n;
+
+    const yyyy = date.getFullYear();
+    const MM = pad(date.getMonth() + 1);
+    const dd = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    const ss = pad(date.getSeconds());
+
+    return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
   }
 }

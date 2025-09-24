@@ -1,3 +1,9 @@
+@if (spinner()){
+  <app-carga></app-carga>
+}
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
 <!-- Header -->
 <header class="space-y-2">
   <h1 class="text-2xl font-bold text-green-600">Agenda Técnica - Calendario de Instalaciones </h1>
@@ -6,32 +12,119 @@
 <!--  </p>-->
   <hr class="border-gray-300" />
 </header>
-<!--<full-calendar [options]="calendarOptions">-->
-<!--  <ng-template #eventContent let-arg>-->
-<!--    <i class="pi pi-clipboard" style="color: green"></i>-->
-<!--&lt;!&ndash;    <b class="mx-1">{{arg.timeText}}</b>&ndash;&gt;-->
-<!--&lt;!&ndash;    <p-button [label]="arg.event.title"   [severity]="getSeverityButton(arg.event.title)"  />&ndash;&gt;-->
-<!--    <p-button-->
-<!--      [label]="arg.event.title"-->
-<!--      [severity]="getSeverityButton(arg.event.title)">-->
-<!--    </p-button>-->
 
-<!--    &lt;!&ndash; datos extra &ndash;&gt;-->
-<!--    <small>{{ arg.event.extendedProps?.servicio }}</small>-->
-<!--  </ng-template>-->
-<!--</full-calendar>-->
-<full-calendar [options]="calendarOptions">
-  <ng-template #fcEventContent let-arg>
-    <i class="pi pi-clipboard" style="color: green"></i>
-    <p-button
-      [label]="arg.event.title"
-      [severity]="getSeverityButton(arg.event.title)">
-    </p-button>
-    <div class="text-xs text-gray-600">
-      <small>Servicio: {{ arg.event.extendedProps?.servicio }}</small><br>
-      <small>Motivo: {{ arg.event.extendedProps?.motivo }}</small><br>
-      <small>Dirección: {{ arg.event.extendedProps?.direccion }}</small><br>
-      <small>Obs: {{ arg.event.extendedProps?.observacion }}</small>
+<!-- Filtros -->
+<section class="space-y-2">
+  <h2 class="text-lg font-semibold text-gray-700">Filtros</h2>
+  <div class="flex flex-wrap gap-4 items-end">
+    <div class="flex flex-col">
+      <label class="text-sm font-medium text-gray-600 mb-1">Técnicos</label>
+      <!--        <select-->
+      <!--          [(ngModel)]="CortesfiltroEnvio().estado"-->
+      <!--          class="p-inputtext p-component w-48 rounded-md shadow-sm"-->
+      <!--        >-->
+      <!--          @for (item of estados; track $index) {-->
+      <!--            <option [value]="item.value">{{ item.label }}</option>-->
+      <!--          }-->
+      <!--        </select>-->
+      <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico" optionValue="idtecnico"  class="w-full md:w-56">
+        <ng-template #selectedItem let-selectedOption>
+          <div class="flex items-center gap-2">
+            {{ selectedOption.nombres + ' ' + selectedOption.apellidos }}
+          </div>
+        </ng-template>
+        <ng-template let-option #item>
+          <div class="flex items-center gap-2">
+            {{ option.nombres + ' ' + option.apellidos }}
+          </div>
+        </ng-template>
+      </p-select>
+
+    </div>
+    <div class="flex flex-col">
+      <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
+      <p-select [options]="estados" [(ngModel)]="OrdenTrabajofiltroEnvio().estado" optionLabel="name" optionValue="value"  class="w-full md:w-56">
+        <ng-template #selectedItem let-selectedOption>
+          <div class="flex items-center gap-2">
+            <p-tag [severity]="selectedOption.severity">{{ selectedOption.label }}</p-tag>
+          </div>
+        </ng-template>
+        <ng-template let-option #item>
+          <div class="flex items-center gap-2">
+            <p-tag [severity]="option.severity">{{ option.label }}</p-tag>
+          </div>
+        </ng-template>
+      </p-select>
+
+    </div>
+
+    <div class="flex gap-2 mt-4">
+      <button
+        pButton
+        label="Aplicar"
+        class="p-button-sm p-button-primary"
+        (click)="cargarfechas(OrdenTrabajofiltroEnvio().estado,OrdenTrabajofiltroEnvio().idtecnico);cargarresumen()"
+      ></button>
+      <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
+          {{ listafechas.length }} registros
+        </span>
+    </div>
+  </div>
+</section>
+<div class="grid md:grid-cols-4 sm:grid-cols-1 gap-4">
+  <div class="col-span-3 mt-2">
+    <full-calendar [options]="calendarOptions">
+<!--      <ng-template #fcEventContent let-arg>-->
+<!--        <i class="pi pi-clipboard" style="color: green"></i>-->
+<!--        <p-button-->
+<!--          [label]="arg.event.title"-->
+<!--          [severity]="getSeverityButton(arg.event.title)">-->
+<!--        </p-button>-->
+<!--      </ng-template>-->
+    </full-calendar>
+  </div>
+  <div class="col">
+    @for (item of this.Listadoresumentec();track item.id_tecnico){
+
+      <div class="card p-2">
+        <p-panel [toggleable]="true">
+          <ng-template #header>
+            <div class="flex items-center gap-2">
+              <i class="pi pi-user text-indigo-600 text-xl"></i>
+              <span class="font-bold italic text-gray-600">{{ item.tecnico }}</span>
+            </div>
+          </ng-template>
+          <ng-template #icons>
+
+            <p-button icon="pi pi-bell" [rounded]="true" [severity]="getSeverity(item.estado)"
+                      [outlined]="true" [label]="item.cantidad.toString()" (click)="cargarfechas(item.estado,item.id_tecnico)"
+                      pTooltip="Ver fechas" tooltipPosition="left"/>
+            <!--          <p-menu #menu id="config_menu" [model]="items" [popup]="true" />-->
+          </ng-template>
+          <div class="flex items-center justify-between">
+            <p-tag [severity]="getSeverity(item.estado)" [value]="item.estado"></p-tag>
+          </div>
+        </p-panel>
+    </div>
+    }
+  </div>
+</div>
+</div>
+<p-toast />
+<p-confirmDialog #cd>
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded">
+      <div
+        class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20"
+      >
+        <i class="pi pi-question !text-5xl"></i>
+      </div>
+      <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button label="Save" (click)="onAccept()" styleClass="w-32"></p-button>
+        <p-button label="Cancel" [outlined]="true" (onClick)="onReject()" styleClass="w-32"></p-button>
+      </div>
     </div>
   </ng-template>
-</full-calendar>
+</p-confirmDialog>
