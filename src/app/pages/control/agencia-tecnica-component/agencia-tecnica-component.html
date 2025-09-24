@@ -27,7 +27,7 @@
       <!--            <option [value]="item.value">{{ item.label }}</option>-->
       <!--          }-->
       <!--        </select>-->
-      <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico" optionValue="idtecnico"  class="w-full md:w-56">
+      <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico" optionValue="idtecnico"  class="w-full md:w-56" >
         <ng-template #selectedItem let-selectedOption>
           <div class="flex items-center gap-2">
             {{ selectedOption.nombres + ' ' + selectedOption.apellidos }}
@@ -41,33 +41,43 @@
       </p-select>
 
     </div>
-    <div class="flex flex-col">
-      <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
-      <p-select [options]="estados" [(ngModel)]="OrdenTrabajofiltroEnvio().estado" optionLabel="name" optionValue="value"  class="w-full md:w-56">
-        <ng-template #selectedItem let-selectedOption>
-          <div class="flex items-center gap-2">
-            <p-tag [severity]="selectedOption.severity">{{ selectedOption.label }}</p-tag>
-          </div>
-        </ng-template>
-        <ng-template let-option #item>
-          <div class="flex items-center gap-2">
-            <p-tag [severity]="option.severity">{{ option.label }}</p-tag>
-          </div>
-        </ng-template>
-      </p-select>
+<!--    <div class="flex flex-col">-->
+<!--      <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>-->
+<!--      <p-select [options]="estados" [(ngModel)]="OrdenTrabajofiltroEnvio().estado" optionLabel="name"-->
+<!--                optionValue="value"  class="w-full md:w-56" (click)="cambioestadofiltro()">-->
+<!--        <ng-template #selectedItem let-selectedOption>-->
+<!--          <div class="flex items-center gap-2">-->
+<!--            <p-tag [severity]="selectedOption.severity">{{ selectedOption.label }}</p-tag>-->
+<!--          </div>-->
+<!--        </ng-template>-->
+<!--        <ng-template let-option #item>-->
+<!--          <div class="flex items-center gap-2">-->
+<!--            <p-tag [severity]="option.severity">{{ option.label }}</p-tag>-->
+<!--          </div>-->
+<!--        </ng-template>-->
+<!--      </p-select>-->
 
-    </div>
+<!--    </div>-->
 
     <div class="flex gap-2 mt-4">
       <button
         pButton
         label="Aplicar"
         class="p-button-sm p-button-primary"
-        (click)="cargarfechas(OrdenTrabajofiltroEnvio().estado,OrdenTrabajofiltroEnvio().idtecnico);cargarresumen()"
+        (click)="cargarfechas(OrdenTrabajofiltroEnvio().estado,OrdenTrabajofiltroEnvio().idtecnico);cargarresumen(OrdenTrabajofiltroEnvio().estado,OrdenTrabajofiltroEnvio().idtecnico)"
       ></button>
       <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
           {{ listafechas.length }} registros
         </span>
+    </div>
+    <div class="flex flex-wrap gap-4">
+      @for (estado of estados; track estado.label) {
+        <div class="flex items-center gap-2">
+          <p-radioButton [inputId]="estado.value"  [(ngModel)]="estadoSeleccionado" [value]="estado.value" (click)="cambioestado(estado)"/>
+          <label [for]="estado.value"> <p-tag [severity]="estado.severity">{{ estado.label }}</p-tag></label>
+
+        </div>
+      }
     </div>
   </div>
 </section>
@@ -84,29 +94,95 @@
     </full-calendar>
   </div>
   <div class="col">
-    @for (item of this.Listadoresumentec();track item.id_tecnico){
-
-      <div class="card p-2">
-        <p-panel [toggleable]="true">
-          <ng-template #header>
-            <div class="flex items-center gap-2">
-              <i class="pi pi-user text-indigo-600 text-xl"></i>
-              <span class="font-bold italic text-gray-600">{{ item.tecnico }}</span>
-            </div>
-          </ng-template>
-          <ng-template #icons>
-
-            <p-button icon="pi pi-bell" [rounded]="true" [severity]="getSeverity(item.estado)"
-                      [outlined]="true" [label]="item.cantidad.toString()" (click)="cargarfechas(item.estado,item.id_tecnico)"
-                      pTooltip="Ver fechas" tooltipPosition="left"/>
-            <!--          <p-menu #menu id="config_menu" [model]="items" [popup]="true" />-->
-          </ng-template>
+    <p-card header="Resumen">
+      <p-table #dt [value]="Listadoresumentec()"  dataKey="tecnico" rowGroupMode="subheader"
+               groupRowsBy="tecnico" [tableStyle]="{'min-width': '7rem'}"
+               [globalFilterFields]="['tecnico']">
+        <ng-template #caption>
           <div class="flex items-center justify-between">
-            <p-tag [severity]="getSeverity(item.estado)" [value]="item.estado"></p-tag>
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+            </p-iconfield>
           </div>
-        </p-panel>
-    </div>
-    }
+        </ng-template>
+        <ng-template #header>
+          <tr>
+            <th style="width:60%">Estado</th>
+            <th style="width:40%">Cantidad</th>
+          </tr>
+        </ng-template>
+        <ng-template #groupheader let-customer let-rowIndex="rowIndex" let-expanded="expanded">
+          <tr>
+            <td colspan="2">
+              <button
+                type="button"
+                pButton
+                pRipple
+                [pRowToggler]="customer"
+                text
+                rounded
+                plain
+                class="mr-2"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+              </button>
+
+              <!--              <p-overlayBadge [value]="calculateCustomerTotal(customer.tecnico).toString()" class="font-bold ml-2 text-gra">-->
+              <!--                {{customer.tecnico}}-->
+              <!--              </p-overlayBadge>-->
+              <p-chip [label]="customer.tecnico" icon="pi pi-user" class="cursor-pointer" (click)="cargarfechas('ALL',customer.id_tecnico)">
+                <p-badge
+                  [value]="calculateCustomerTotal(customer.tecnico)"
+                  severity="danger">
+                </p-badge>
+              </p-chip>
+            </td>
+          </tr>
+        </ng-template>
+        <!--        <ng-template #groupfooter let-customer>-->
+        <!--          <tr class="p-rowgroup-footer">-->
+        <!--            <td colspan="4" style="text-align: right">Total Ordenes</td>-->
+        <!--            <td>{{calculateCustomerTotal(customer.tecnico)}}</td>-->
+        <!--          </tr>-->
+        <!--        </ng-template>-->
+        <ng-template #expandedrow let-customer>
+          <tr>
+            <td>
+              <p-tag [severity]="getSeverity(customer.estado)" [value]="customer.estado"></p-tag>
+            </td>
+            <td>
+              <p-button icon="pi pi-bell" [rounded]="true" [severity]="getSeverity(customer.estado)"
+                        [outlined]="true" [label]="customer.cantidad.toString()" (click)="cargarfechas(customer.estado,customer.id_tecnico)"
+                        pTooltip="Ver fechas" tooltipPosition="left"/>
+            </td>
+            <td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+<!--    @for (item of this.Listadoresumentec();track item.id_tecnico){-->
+
+<!--      <div class="card p-2">-->
+<!--        <p-panel [toggleable]="true">-->
+<!--          <ng-template #header>-->
+<!--            <div class="flex items-center gap-2">-->
+<!--              <i class="pi pi-user text-indigo-600 text-xl"></i>-->
+<!--              <span class="font-bold italic text-gray-600">{{ item.tecnico }}</span>-->
+<!--            </div>-->
+<!--          </ng-template>-->
+<!--          <ng-template #icons>-->
+
+<!--            <p-button icon="pi pi-bell" [rounded]="true" [severity]="getSeverity(item.estado)"-->
+<!--                      [outlined]="true" [label]="item.cantidad.toString()" (click)="cargarfechas(item.estado,item.id_tecnico)"-->
+<!--                      pTooltip="Ver fechas" tooltipPosition="left"/>-->
+<!--            &lt;!&ndash;          <p-menu #menu id="config_menu" [model]="items" [popup]="true" />&ndash;&gt;-->
+<!--          </ng-template>-->
+<!--          <div class="flex items-center justify-between">-->
+<!--            <p-tag [severity]="getSeverity(item.estado)" [value]="item.estado"></p-tag>-->
+<!--          </div>-->
+<!--        </p-panel>-->
+<!--    </div>-->
+<!--    }-->
   </div>
 </div>
 </div>
