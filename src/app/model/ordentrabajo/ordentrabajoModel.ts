@@ -12,11 +12,19 @@ export class ordentrabajoModel {
   servicio:string='';
   direccion:string='';
   tipo:string='';
+  path_imagen:string='';
+  observacion:string='';
+}
+export class requestOrden {
+  id_tecnico:     string='';
+  estado:string='';
+  fechainicial:string='';
+  fechafinal:string='';
 }
 
 export class ordentrabajofiltroModel {
   fechainicial:       string='';
   fechafinal:     string='';
   estado:         string='ALL';
-  idtecnico:     string='';
+  idtecnico:     string='ALL';
 }

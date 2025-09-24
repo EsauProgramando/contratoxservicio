@@ -22,7 +22,6 @@
       </label>
       <input
         id="nombre_completo"
-        type="text"
         [(ngModel)]="searchValue"
         placeholder="Ej. Juan Pérez"
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -165,18 +164,9 @@
             ></button>
 
             } @else {
-              @if(!factura.url_pdf){
 
-              <button
-                pButton
-                type="button"
-                icon="pi pi-folder"
-                class="p-button-rounded p-button-warning p-button-sm"
-                pTooltip="Generar Factura"
-                tooltipPosition="top"
-                (click)="generarDocumento(factura)"
-              ></button>
-              }
+
+
               @if(factura.url_pdf){
 
                 <button
@@ -187,6 +177,17 @@
                   pTooltip="Imprimir pdf"
                   tooltipPosition="top"
                   (click)="imprimirpdf(factura)"
+                ></button>
+              } @else {
+
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-folder"
+                  class="p-button-rounded p-button-warning p-button-sm"
+                  pTooltip="Generar Factura"
+                  tooltipPosition="top"
+                  (click)="detallefactura(factura)"
                 ></button>
               }
 
@@ -253,7 +254,6 @@
             >
             <div class="relative">
               <input
-                type="text"
                 id="codigo_factura"
                 name="codigo_factura"
                 [(ngModel)]="pagos().codigo_factura"
@@ -276,7 +276,6 @@
             >
             <div class="relative">
               <input
-                type="text"
                 id="nombre_completo"
                 name="nombre_completo"
                 [(ngModel)]="pagos().nombre_completo"
@@ -375,7 +374,6 @@
               >Número de Operación</label
             >
             <input
-              type="text"
               id="numero_operacion"
               name="numero_operacion"
               [(ngModel)]="pagos().numero_operacion"
@@ -469,3 +467,210 @@
     </p-table>
   </ng-template>
 </p-dialog>
+@if (abrirdetallefactura){
+<p-dialog
+  [(visible)]="abrirdetallefactura"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  (onHide)="cerrarModal()"
+>
+  <!-- HEADER personalizado -->
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3">
+      <div
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+      >
+        <i class="pi pi-wallet text-red-600 text-xl"></i>
+      </div>
+      <h2 class="text-xl font-semibold text-red-600">Selección de Boleta o Factura</h2>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <div class="p-2">
+        <!-- Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <!-- Factura -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Tipo de Comprobante
+            </label>
+            <p-select
+              [options]="tipocomprobante"
+              [(ngModel)]="facturaEnvio().tipoComprobante"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              placeholder="Selecciona tipo"
+              class="w-full"
+              (ngModelChange)="cambiocomprobante()"
+            >
+              <ng-template #selectedItem let-opt>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-receipt text-green-600"></i>
+                  <span>{{ opt.label }}</span>
+                </div>
+              </ng-template>
+              <ng-template let-opt pTemplate="item">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-receipt text-green-600"></i>
+                  <span>{{ opt.label }}</span>
+                </div>
+              </ng-template>
+            </p-select>
+          </div>
+
+          <!-- Cliente -->
+          @if(facturaEnvio().tipoComprobante=='03'){
+            <div pAnimateOnScroll
+                 enterClass="animate-enter fade-in-10 slide-in-from-r-8 animate-duration-1000"
+                 leaveClass="animate-leave fade-out-0">
+              <label
+                for="nombre_completo"
+                class="block text-sm font-medium text-gray-700"
+              >Cliente</label
+              >
+              <div class="relative">
+                <input
+                  pInputText
+                  name="nombre_completo"
+                  [(ngModel)]="fila_select().nombre_completo"
+                  placeholder="Nombre del cliente"
+                  readonly
+                  class="w-full bg-gray-100 text-gray-500 pr-10 cursor-not-allowed"
+                />
+                <i
+                  class="pi pi-lock absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                ></i>
+              </div>
+            </div>
+          } @else {
+            <div pAnimateOnScroll
+                 enterClass="animate-enter fade-in-10 slide-in-from-r-8 animate-duration-1000"
+                 leaveClass="animate-leave fade-out-0">
+              <label
+                class="block text-sm font-medium text-gray-700"
+              >Razón Social</label
+              >
+              <div class="relative">
+                <input
+                  pInputText
+                  name="nombre_completo"
+                  [(ngModel)]="facturaEnvio().razonSocialCliente"
+                  placeholder="Nombre del cliente"
+                  class="w-full"
+                />
+              </div>
+            </div>
+
+          }
+
+          <!-- Método de Pago -->
+          <div  >
+            <label class="block text-sm font-medium">Tipo de Documento</label>
+            <div class="relative">
+              <!-- Ícono decorativo -->
+              <i
+                class="pi pi-credit-card absolute left-3 top-1/2 -translate-y-1/2 text-primary"
+              ></i>
+
+              <p-select
+                [options]="tipodocumento"
+                [(ngModel)]="facturaEnvio().tipoDocumentoCliente"
+                name="id_metodo"
+                optionLabel="label"
+                optionValue="value"
+                appendTo="body"
+                placeholder="Selecciona tipo"
+                class="w-full"
+              >
+                <ng-template #selectedItem let-opt>
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-paypal text-green-600"></i>
+                    <span>{{ opt.label }}</span>
+                  </div>
+                </ng-template>
+                <ng-template let-opt pTemplate="item">
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-paypal text-green-600"></i>
+                    <span>{{ opt.label }}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+            </div>
+          </div>
+
+          <!-- Nro de documento -->
+          <div>
+            <label
+              for="numero_operacion"
+              class="block text-sm font-medium text-gray-700"
+            >Nro Documento <i class="pi pi-info-circle" style="color: red;font-size: 0.7rem"></i></label
+            >
+            <input
+              pInputText
+              name="numero_operacion"
+              [(ngModel)]="facturaEnvio().numeroDocumentoCliente"
+              class="w-full"
+              [invalid]="formErrorsFactura.numeroDocumentoCliente()"
+            />
+          </div>
+
+          <!-- Monto -->
+          <div>
+            <label
+              for="monto_pagado"
+              class="block text-sm font-medium text-gray-700"
+            >Monto Pagado (S/.)</label
+            >
+            <input
+              type="number"
+              pInputText
+              [(ngModel)]="fila_select().monto"
+              placeholder="0.00"
+              [step]="0.01"
+              readonly
+              class="w-full bg-gray-100 text-gray-500 pr-10 cursor-not-allowed"
+            />
+          </div>
+
+          <!-- N° Operación -->
+          <div>
+            <label
+              for="numero_operacion"
+              class="block text-sm font-medium text-gray-700"
+            >Dirección <i class="pi pi-info-circle" style="color: red;font-size: 0.7rem"></i></label
+            >
+            <input
+              pInputText
+              name="numero_operacion"
+              [(ngModel)]="facturaEnvio().direccionCliente"
+              placeholder="Ej. Jr. Ricardo Palma N° #"
+              class="w-full"
+              [invalid]="formErrorsFactura.direccionCliente()"
+            />
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex justify-end gap-1 pt-2">
+          <button
+            type="button"
+            (click)="cerrarModal()"
+            pButton
+            label="Cancelar"
+            class="p-button-outlined p-button-secondary"
+          ></button>
+          <button
+            (click)="generarDocumento(fila_select())"
+            [disabled]="disabled()"
+            pButton
+            label="Guardar"
+            class="p-button-success"
+          ></button>
+        </div>
+    </div>
+  </ng-template>
+</p-dialog>}

@@ -36,12 +36,21 @@ import Swal from 'sweetalert2';
 import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPendienteRequest';
 import { BitacuraModel } from '../../../model/gestionCobranza/BitacuraModel';
 import { CorteModel } from '../../../model/gestionCobranza/CorteModel';
-import { CortesfiltroEnvio } from '../../../model/gestionCobranza/CortesfiltroEnvio';
 import {OrdentrabajoService} from '../../../services/ordentrabajo/ordentrabajo-service';
 import {TecnicosService} from '../../../services/mantenimiento/tecnicos-service';
 import {tecnicoModel} from '../../../model/mantenimiento/tecnicoModel';
 import {ordentrabajofiltroModel, ordentrabajoModel} from '../../../model/ordentrabajo/ordentrabajoModel';
-
+import { AutoCompleteModule} from 'primeng/autocomplete';
+import {ClientesService} from '../../../services/gestionClientes/clientes.service';
+import {ListadoClientes} from '../../../model/gestionClientes/listadoclientes';
+import {TipoServicio} from '../../mantenimiento/tipo-servicio/tipo-servicio';
+import {TipoServicioService} from '../../../services/mantenimiento/tipo-servicio.service';
+import {TipoServicioModel} from '../../../model/mantenimiento/tiposervicioModel';
+import {CheckboxModule} from 'primeng/checkbox';
+interface AutoCompleteCompleteEvent {
+  originalEvent: Event;
+  query: string;
+}
 @Component({
   selector: 'app-orden-trabajo-component',
   templateUrl: './orden-trabajo-component.html',
@@ -70,6 +79,8 @@ import {ordentrabajofiltroModel, ordentrabajoModel} from '../../../model/ordentr
   CargaComponent,
   DatePickerModule,
   TextareaModule,
+  AutoCompleteModule,
+  CheckboxModule
 ],
   providers: [ConfirmationService, DialogService, MessageService],
   standalone: true,
@@ -77,6 +88,12 @@ import {ordentrabajofiltroModel, ordentrabajoModel} from '../../../model/ordentr
 })
 export class OrdenTrabajoComponent {
   spinner = signal<boolean>(false);
+  abrirnuevaot:boolean=false;
+  abrirasignar:boolean=false
+  abrirreprogramar:boolean=false
+  abrircierre:boolean=false
+  abrirhistorial:boolean=false
+  checked:boolean=false
   OrdenTrabajofiltroEnvio=signal(new ordentrabajofiltroModel)
   CortesPendienteRequest = signal<CortesPendienteRequest[]>([]);
   Listadotecnicos=signal<tecnicoModel[]>([])
@@ -91,6 +108,7 @@ export class OrdenTrabajoComponent {
   fechafinal:Date=new Date()
   // Datos de ejemplo (reemplazar con datos reales)
   //array de de objetos del estado
+  listaHistorialOT=signal<ordentrabajoModel[]>([])
   estados = [
     { label: 'TODOS', value: 'ALL',severity:'secondary' },
     { label: 'PENDIENTE', value: 'PENDIENTE',severity:'secondary' },
@@ -98,14 +116,25 @@ export class OrdenTrabajoComponent {
     { label: 'COMPLETADO', value: 'COMPLETADO',severity:'success' },
     { label: 'CANCELADO', value: 'CANCELADO',severity:'danger' },
   ];
+  estadoscierre = [
+    { label: 'COMPLETADO', value: 'COMPLETADO',severity:'success' },
+    { label: 'CANCELADO', value: 'CANCELADO',severity:'danger' },
+  ];
   obtenerdetallecorte = signal<any>(new CortesServicioRequest());
   BitacuraModel = signal<BitacuraModel>(new BitacuraModel());
   listadoBitacora = signal<BitacuraModel[]>([]);
+  listadoClientes=signal<ListadoClientes[]>([]);
+  listadoTiposervicio=signal<TipoServicioModel[]>([])
+  clientes:ListadoClientes[]=[]
   // Variables para el modal de bitácora
   bitTipo: string = 'WhatsApp';
   bitDetalle: string = '';
   bloquearboton = signal<boolean>(false);
   CorteModel = signal<CorteModel>(new CorteModel());
+  enviarOrdenTrabajo=signal<ordentrabajoModel>(new ordentrabajoModel())
+  op:number=0
+  tipoenvio:string=''
+  nombrecliente:ListadoClientes=new ListadoClientes()
   // Tipos de acción para la bitácora
   bitacoraTipos = [
     { label: 'WhatsApp', value: 'WhatsApp' },
@@ -117,7 +146,11 @@ export class OrdenTrabajoComponent {
   // Modal controls
   showModalProgramar: boolean = false;
   showModalCortar: boolean = false;
-
+  formErrors = {
+    nombre_completo: signal(false),
+    direccion: signal(false),
+    fechaorden: signal(false)
+  };
   // Variables del modal
   progFecha: string = '';
   progTipo: string = 'remoto';
@@ -143,13 +176,16 @@ export class OrdenTrabajoComponent {
     private whatsappService: WhatsappService,
     private historialServicio: Historialservicio,
     private ordentrabajoService:OrdentrabajoService,
-    private tecnicoService:TecnicosService
+    private tecnicoService:TecnicosService,
+    private clienteSerice:ClientesService,
+    private tiposervicioServicio:TipoServicioService
   ) {}
 
   ngOnInit() {
     //poner valores por defecto a los filtros
     this.cargarordenestrabajo();
     this.cargartecnicos()
+    this.cargarclientes()
   }
   cargartecnicos(){
     this.tecnicoService.getlistatecnicos().subscribe({
@@ -166,346 +202,32 @@ export class OrdenTrabajoComponent {
     })
   }
   cargarordenestrabajo(){
-    this.ordentrabajoService.getlistaordentrabajos().subscribe({
+    this.spinner.set(true)
+    this.OrdenTrabajofiltroEnvio().fechainicial=this.formatDateForDB(this.fechainicial)
+    this.OrdenTrabajofiltroEnvio().fechafinal=this.formatDateForDB(this.fechafinal)
+    this.ordentrabajoService.getlistaordentrabajos(this.OrdenTrabajofiltroEnvio()).subscribe({
       next:(data)=>{
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Aviso de usuario',
+          detail: 'Se encontraron coincidencias',
+        });
         this.Listadoordenestrabajo.set(data.data)
+        this.spinner.set(false)
+        this.Totalregistros = this.Listadoordenestrabajo().length;
+      },error:(err)=>{
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Advertencia',
+          detail: 'Ocurrió un problema al cargar las órdenes de trabajo',
+        });
+        this.spinner.set(false)
       }
     })
   }
-  // Abrir modal programar corte
-  abrirProgramar(row: CortesPendienteRequest) {
-    this.CorteModel.set(new CorteModel());
-    this.CorteModel().id_cliente = row.id_cliente;
-    this.CorteModel().id_tipo = row.id_tipo;
-    this.CorteModel().id_factura = row.id_factura;
-    this.CorteModel().id_estado = 5; // programado
-    if (
-      row.id_corte !== null &&
-      row.id_corte !== undefined &&
-      row.id_corte !== 0
-    ) {
-      this.CorteModel().id_corte = row.id_corte;
-      this.CorteModel().op = 2; // 1 para actualizar
 
-      this.cortesservice.obtener_cortes_por_id(row.id_corte).subscribe({
-        next: (response) => {
-          if (response?.mensaje === 'EXITO') {
-            this.obtenerdetallecorte.set(
-              response?.data || new CortesServicioRequest()
-            );
-            console.log(this.obtenerdetallecorte());
-            this.CorteModel().fecha_corte = this.formatDateForDB(
-              this.obtenerdetallecorte().fecha_corte
-            );
-            this.CorteModel().id_tipo = this.obtenerdetallecorte().id_tipo;
-            this.CorteModel().responsable_corte =
-              this.obtenerdetallecorte().responsable_corte;
-            this.CorteModel().motivo_corte =
-              this.obtenerdetallecorte().motivo_corte;
-            this.CorteModel().observaciones =
-              this.obtenerdetallecorte().observaciones;
-            console.log(this.CorteModel());
-
-            this.showModalProgramar = true;
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail:
-                response?.mensaje || 'Error al obtener los detalles del corte',
-            });
-          }
-        },
-      });
-    } else {
-      this.CorteModel().op = 1; // 1 para actualizar
-      this.showModalProgramar = true;
-    }
-  }
-
-  // Guardar programación de corte
-  guardarProgramar() {
-    //validar fecha corte
-
-    if (!this.CorteModel().fecha_corte) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'La fecha de corte es requerida.',
-      });
-      return;
-    }
-    if (this.CorteModel().id_tipo == 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'El tipo de corte es requerido.',
-      });
-      return;
-    }
-    if (!this.CorteModel().observaciones) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'El motivo de programación es requerido.',
-      });
-      return;
-    }
-    this.CorteModel().estado_corte = 2; //2 para programado
-    this.CorteModel().fecha_corte = this.formatDateForDB(
-      new Date(this.CorteModel().fecha_corte)
-    );
-    console.log(this.CorteModel());
-    this.cortesservice
-      .registrarcorte_servicio(this.CorteModel(), this.CorteModel().op)
-      .subscribe({
-        next: (response) => {
-          if (response?.mensaje === 'EXITO') {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Corte realizado',
-              detail: 'El reprogramación ha sido realizada exitosamente.',
-            });
-            this.guardarhistorial(
-              this.CorteModel().id_cliente,
-              'Corte de Servicio Programado',
-              `Se programó un corte de servicio por el motivo: ${
-                this.CorteModel().observaciones
-              } para la fecha: ${this.CorteModel().fecha_corte}.`,
-              'Programado'
-            );
-            this.showModalProgramar = false;
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: response?.mensaje || 'Error al realizar el corte',
-            });
-          }
-        },
-      });
-  }
-
-  // Cerrar modal programar corte
-  closeModalProgramar() {
-    this.showModalProgramar = false;
-  }
-
-  // Abrir modal cortar ahora
-  abrirCortar(row: CortesPendienteRequest) {
-    this.CorteModel.set(new CorteModel());
-    this.CorteModel().id_cliente = row.id_cliente;
-    this.CorteModel().id_tipo = row.id_tipo;
-    this.CorteModel().id_factura = row.id_factura;
-    this.CorteModel().id_estado = 2; //cortado
-    console.log(row, 'corte');
-    if (
-      row.id_corte !== null &&
-      row.id_corte !== undefined &&
-      row.id_corte !== 0
-    ) {
-      this.CorteModel().id_corte = row.id_corte;
-      this.CorteModel().op = 2; // 1 para actualizar
-
-      this.cortesservice.obtener_cortes_por_id(row.id_corte).subscribe({
-        next: (response) => {
-          if (response?.mensaje === 'EXITO') {
-            this.obtenerdetallecorte.set(
-              response?.data || new CortesServicioRequest()
-            );
-            console.log(this.obtenerdetallecorte());
-            this.CorteModel().fecha_corte = this.formatDateForDB(
-              this.obtenerdetallecorte().fecha_corte
-            );
-
-            this.CorteModel().id_tipo = this.obtenerdetallecorte().id_tipo;
-            this.CorteModel().responsable_corte =
-              this.obtenerdetallecorte().responsable_corte;
-            this.CorteModel().motivo_corte =
-              this.obtenerdetallecorte().motivo_corte;
-            this.CorteModel().observaciones =
-              this.obtenerdetallecorte().observaciones;
-            console.log(this.CorteModel());
-            this.showModalCortar = true;
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail:
-                response?.mensaje || 'Error al obtener los detalles del corte',
-            });
-          }
-        },
-      });
-    } else {
-      this.CorteModel().op = 1; // 1 para actualizar
-      this.showModalCortar = true;
-    }
-  }
-
-  // Guardar corte ahora
-  guardarCorte() {
-    //validar id_tipo
-    if (this.CorteModel().id_tipo == 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'El tipo de corte es requerido.',
-      });
-      return;
-    }
-    this.CorteModel().estado_corte = 1; //corte inmediato
-    this.CorteModel().fecha_corte = this.formatDateForDB(new Date());
-    this.cortesservice
-      .registrarcorte_servicio(this.CorteModel(), this.CorteModel().op)
-      .subscribe({
-        next: (response) => {
-          if (response?.mensaje === 'EXITO') {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Corte realizado',
-              detail: 'El corte ha sido realizado exitosamente.',
-            });
-            this.guardarhistorial(
-              this.CorteModel().id_cliente,
-              'Corte de Servicio',
-              `Se realizó un corte de servicio por el motivo: ${
-                this.CorteModel().observaciones
-              }.`,
-              'Cortado'
-            );
-            this.showModalCortar = false;
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: response?.mensaje || 'Error al realizar el corte',
-            });
-          }
-        },
-      });
-  }
-
-  // Cerrar modal cortar ahora
-  closeModalCortar() {
-    this.showModalCortar = false;
-  }
-
-  // Acción WhatsApp
-  accionWhatsapp(row: CortesPendienteRequest) {
-    Swal.fire({
-      title: 'Confirmar envío de WhatsApp',
-      html: `¿Está seguro de enviar un mensaje por WhatsApp al cliente <strong>${row.nombre_completo}</strong> con el teléfono <strong>${row.telefono}</strong>?`,
-      showCancelButton: true,
-      confirmButtonText: 'Enviar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.spinner.set(true);
-        this.guardarhistorial(
-          row.id_cliente,
-          'WhatsApp Enviado',
-          `Se envió un mensaje por WhatsApp al número ${row.telefono} del módulo de gestión de cortes.`,
-          'Activo'
-        );
-        const url =
-          this.whatsappService.generarwhatsapPlantillaCortesPendientes(
-            row.telefono,
-            row.nombre_completo,
-            row.periodo,
-            row.saldo
-          );
-        window.open(url, '_blank');
-
-        this.spinner.set(false);
-      }
-    });
-  }
-
-  // Acción Email
-  accionEmail(row: CortesPendienteRequest) {
-    if (!row.email || row.email.trim() === '') {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'El cliente no tiene un correo electrónico registrado.',
-      });
-      return;
-    }
-    this.emailModel().to = row.email;
-    this.emailModel().subject = 'Recordatorio de Pago - Servicio Contratado';
-    this.emailModel().body = `Estimado/a ${row.nombre_completo},<br><br>Le recordamos que su servicio contratado está pendiente de pago. Por favor, realice el pago a la brevedad para evitar inconvenientes.<br><br>Gracias por su atención.<br><br>Atentamente,<br>Su Empresa`;
-    Swal.fire({
-      title: 'Confirmar envío de email',
-      html: `¿Está seguro de enviar un email a <strong>${row.email}</strong>?`,
-      showCancelButton: true,
-      confirmButtonText: 'Enviar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.spinner.set(true);
-        this.gmailService.mensajesimple(this.emailModel()).subscribe({
-          next: (rest) => {
-            this.spinner.set(false);
-            if (rest?.response == 'EXITO') {
-              Swal.fire({
-                title: 'Éxito',
-                text: 'Recordatorio de pago enviado.',
-                icon: 'success',
-              });
-              this.guardarhistorial(
-                row.id_cliente,
-                'Email Enviado',
-                `Se envió un recordatorio de pago al correo ${row.email} del modulo de gestión de cortes.`,
-                'Activo'
-              );
-            } else {
-              Swal.fire({
-                title: 'Error',
-                text: 'No se pudo enviar el recordatorio de pago.',
-                icon: 'error',
-              });
-            }
-          },
-          error: (error) => {
-            this.spinner.set(false);
-            Swal.fire({
-              title: 'Error',
-              text: 'No se pudo enviar el recordatorio de pago.',
-              icon: 'error',
-            });
-          },
-        });
-      }
-    });
-  }
-
-  // Acción Llamada
-  accionLlamada(row: CortesPendienteRequest) {
-    // Si el cliente no tiene teléfono
-    if (!row.telefono || row.telefono.trim() === '') {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'El cliente no tiene un número de teléfono registrado.',
-      });
-      return;
-    }
-    this.guardarhistorial(
-      row.id_cliente,
-      'Llamada Iniciada',
-      `Se inició una llamada telefónica al número ${row.telefono} del módulo de gestión de cortes.`,
-      'Activo'
-    );
-    // Aquí es donde intentamos hacer la llamada telefónica usando el protocolo tel:
-    window.location.href = `tel:${row.telefono}`; // Esto abrirá el marcador de teléfono con el número
-  }
-  abrirBitacora(data: any) {
-    this.showModalBitacora = true;
-    this.BitacuraModel().id_cliente = data.id_cliente;
-    this.listadoBitacora.set([]);
-    this.listadodbitacora();
-  }
 
   listadodbitacora() {
     this.bitacuraService
@@ -525,141 +247,257 @@ export class OrdenTrabajoComponent {
         },
       });
   }
-  onFileChange() {}
-  // Agregar un nuevo registro a la bitácora
-  agregarBitacora() {
-    if (!this.BitacuraModel().detalle.trim()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'El detalle de la bitácora no puede estar vacío.',
-      });
-      return;
-    }
-    this.bloquearboton.set(true);
-    this.BitacuraModel().responsable = 'Usuario Actual';
-    this.bitacuraService.registrarBitacora(this.BitacuraModel(), 1).subscribe({
-      next: (response) => {
-        if (response?.mensaje === 'EXITO') {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Bitácora registrada exitosamente.',
-          });
-          this.bloquearboton.set(false);
-          this.listadodbitacora();
-          this.BitacuraModel.set(new BitacuraModel());
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: response?.mensaje || 'Error al registrar la bitácora',
-          });
-        }
-      },
-      error: (err) => {
-        this.bloquearboton.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err?.mensaje || 'Error al registrar la bitácora',
-        });
-      },
-    });
-  }
 
-  // Cerrar modal de bitácora
-  closeModalBitacora() {
-    this.showModalBitacora = false;
-  }
-
-  // obtener_cortes_pendientes_filtro() {
-  //   this.spinner.set(true);
-  //   this.CortesPendienteRequest.set([]);
-  //   this.cortesservice
-  //     .obtener_cortes_pendientes_filtro(this.OrdenTrabajo())
-  //     .subscribe({
-  //       next: (response) => {
-  //         if (response?.mensaje === 'EXITO') {
-  //           this.messageService.add({
-  //             severity: 'success',
-  //             summary: 'Éxito',
-  //             detail: 'Cortes pendientes obtenidos correctamente',
-  //           });
-  //           // Aquí puedes asignar los datos recibidos a una variable para mostrarlos en la tabla
-  //           console.log(response.data);
-  //           this.CortesPendienteRequest.set(response?.data || []);
-  //           console.log(this.CortesPendienteRequest());
-  //           //cuandos datos tiene el array
-  //           this.Totalregistros = response?.data?.length;
-  //         } else {
-  //           this.Totalregistros = 0;
-  //           this.messageService.add({
-  //             severity: 'error',
-  //             summary: 'Error',
-  //             detail:
-  //               response?.mensaje || 'Error al obtener los cortes pendientes',
-  //           });
-  //         }
-  //         this.spinner.set(false);
-  //       },
-  //       error: (err) => {
-  //         this.spinner.set(false);
-  //         this.CortesPendienteRequest.set([]);
-  //         this.Totalregistros = 0;
-  //         this.messageService.add({
-  //           severity: 'error',
-  //           summary: 'Error',
-  //           detail: err?.mensaje || 'Error en la comunicación con el servidor',
-  //         });
-  //       },
-  //     });
-  // }
   limpiar_filtros() {
     // this.OrdenTrabajo.set(new CortesfiltroEnvio());
   }
-  formatDateForDB(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes con dos dígitos
-    const day = String(date.getDate()).padStart(2, '0'); // Día con dos dígitos
-    const hours = String(date.getHours()).padStart(2, '0'); // Hora con dos dígitos
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutos con dos dígitos
-    const seconds = String(date.getSeconds()).padStart(2, '0'); // Segundos con dos dígitos
 
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  cargarclientes(){
+    this.clienteSerice.getClientes().subscribe({
+      next:(data)=>{
+        const clientes = data.data.map((c: any) => ({
+          ...c,
+          nombreapellido: `${c.nombres} ${c.apellidos}`
+        }));
+
+        this.listadoClientes.set(clientes);
+      }
+    })
+    this.tiposervicioServicio.getTipoServicio().subscribe({
+      next:(data)=>{
+        this.listadoTiposervicio.set(data.data)
+      }
+    })
   }
-  guardarhistorial(
-    id_cliente: number,
-    accion: string,
-    descripcion: string,
-    estado_servicio: string
-  ) {
-    this.historialServicioModel().id_cliente = id_cliente;
-    this.historialServicioModel().tipo_accion = accion;
-    this.historialServicioModel().fecha_accion = new Date().toISOString();
-    this.historialServicioModel().descripcion = descripcion;
-    this.historialServicioModel().estado_servicio = estado_servicio;
-    this.historialServicio
-      .registrarHistorialServicio(this.historialServicioModel())
-      .subscribe({
-        next: (response) => {
-          if (response?.mensaje == 'EXITO') {
-            console.log('Historial de servicio guardado');
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: response?.mensaje,
-            });
-          }
-        },
-        error: (error) => {
+  search(event: AutoCompleteCompleteEvent) {
+    const query = event.query.toUpperCase();
+    this.clientes = this.listadoClientes().filter(p =>
+      p.nombreapellido?.toUpperCase().includes(query)
+    );
+  }
+  guardarorden(){
+    if (!this.validarForm()) {
+    return;
+  }
+    this.spinner.set(true)
+    this.abrirnuevaot=false
+    console.log(this.enviarOrdenTrabajo())
+    this.ordentrabajoService.registrarordentrabajo(this.enviarOrdenTrabajo(),this.op).subscribe({
+      next:(data)=>{
+
+        this.spinner.set(false)
+        if(data.mensaje=='EXITO'){
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Se registró correctamente la orden trabajo',
+          });
+          this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+          this.nombrecliente=new ListadoClientes()
+          this.cargarordenestrabajo()
+
+        }else {
+          this.abrirnuevaot=true
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Error al cargar el historial de servicios',
+            detail: 'Error al registrar la orden de trabajo',
           });
-        },
+        }
+      },error:(err)=>{
+        this.spinner.set(false)
+        this.abrirnuevaot=true
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al registrar la orden de trabajo',
+        });
+      }
+    })
+  }
+  actualizarorden(){
+    this.enviarOrdenTrabajo().motivo=this.tipoenvio+' '+this.enviarOrdenTrabajo().motivo
+    this.spinner.set(true)
+    this.abrirasignar=false
+    this.abrirreprogramar=false
+    this.abrircierre=false
+    console.log(this.enviarOrdenTrabajo())
+    this.ordentrabajoService.registrarordentrabajo(this.enviarOrdenTrabajo(),this.op).subscribe({
+      next:(data)=>{
+
+        this.spinner.set(false)
+        if(data.mensaje=='EXITO'){
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Se registró correctamente la orden trabajo',
+          });
+          this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+          this.nombrecliente=new ListadoClientes()
+          this.cargarordenestrabajo()
+          this.tipoenvio=''
+
+        }else {
+          this.abrirnuevaot=true
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al registrar la orden de trabajo',
+          });
+        }
+      },error:(err)=>{
+        this.spinner.set(false)
+        this.abrirnuevaot=true
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al registrar la orden de trabajo',
+        });
+      }
+    })
+  }
+  validarForm(): boolean {
+    let valido = true;
+
+    // validar fecha
+    if (!this.nombrecliente || !this.enviarOrdenTrabajo().nombre_completo) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Debe ingresar el nombre del cliente',
       });
+      this.formErrors.nombre_completo.set(true);
+      valido = false;
+    } else {
+      this.formErrors.nombre_completo.set(false);
+    }
+
+    // validar monto
+    if (!this.enviarOrdenTrabajo().direccion) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Debe ingresar la dirección',
+      });
+      this.formErrors.direccion.set(true);
+      valido = false;
+    } else {
+      this.formErrors.direccion.set(false);
+    }
+
+    // validar método de pago
+    // validar monto
+    if (!this.enviarOrdenTrabajo().fechaorden) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Debe ingresar la fecha',
+      });
+      this.formErrors.fechaorden.set(true);
+      valido = false;
+    } else {
+      this.formErrors.fechaorden.set(false);
+    }
+    return valido;
+  }
+  cambionombre(){
+    this.enviarOrdenTrabajo().nombre_completo=this.nombrecliente.nombres+' '+this.nombrecliente.apellidos
+    this.enviarOrdenTrabajo().id_cliente=this.nombrecliente.id
+  }
+  asignartecnico(row:ordentrabajoModel){
+    this.tipoenvio='ASIGNAR'
+    this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+    this.op=2
+    this.abrirasignar=true
+    this.enviarOrdenTrabajo.set({ ...row })
+  }
+  reprogramar(row:ordentrabajoModel){
+    this.tipoenvio='REPROGRAMAR'
+    this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+    this.op=2
+    this.abrirreprogramar=true
+    this.enviarOrdenTrabajo.set({ ...row })
+  }
+  cerrarot(row:ordentrabajoModel){
+    this.tipoenvio='CIERRE'
+    this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+    this.op=2
+    this.abrircierre=true
+    this.enviarOrdenTrabajo.set({ ...row })
+    this.OrdenTrabajofiltroEnvio().estado='COMPLETADO'
+  }
+  historialot(row:ordentrabajoModel){
+    this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+    this.enviarOrdenTrabajo.set({ ...row })
+    this.listaHistorialOT.set([])
+    this.spinner.set(true)
+    this.ordentrabajoService.gethistorial_x_ordentrabajo(row.idordentrabajo).subscribe({
+      next:(data)=>{
+        this.abrirhistorial=true
+        this.listaHistorialOT.set(data.data)
+        this.spinner.set(false)
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Se cargó correctamente el historial de la OT',
+        });
+      },error:(err)=>{
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Ocurrió un problema al cargar el historial de la OT',
+        });
+        this.spinner.set(false)
+      }
+    })
+  }
+  getSeverity(product: ordentrabajoModel) {
+    switch (product.estado) {
+      case 'COMPLETADO':
+        return 'success';
+
+      case 'CANCELADO':
+        return 'danger';
+
+      case 'EN PROCESO':
+        return 'info';
+      case 'PENDIENTE':
+        return 'secondary';
+
+      default:
+        return null;
+    }
+  }
+  cambioproceso(){
+    this.enviarOrdenTrabajo().estado=this.checked?'EN PROCESO':'PENDIENTE'
+  }
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+
+      // reader.onload = () => {
+      //   const base64 = reader.result as string; // esto incluye "data:mime/type;base64,..."
+      //   this.pagos.update((prev) => ({
+      //     ...prev,
+      //     adjunto_boleta: base64,
+      //   }));
+      // };
+
+      reader.readAsDataURL(file); // lee como DataURL para mantener metadata y tipo
+    }
+  }
+  private formatDateForDB(date: Date): string {
+    if (!date) return '';
+    const pad = (n: number) => n < 10 ? '0' + n : n;
+
+    const yyyy = date.getFullYear();
+    const MM = pad(date.getMonth() + 1);
+    const dd = pad(date.getDate());
+    const hh = pad(date.getHours());
+    const mm = pad(date.getMinutes());
+    const ss = pad(date.getSeconds());
+
+    return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
   }
 }

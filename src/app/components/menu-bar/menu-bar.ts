@@ -541,7 +541,7 @@ export class MenuBar {
             routerLink: './orden-trabajo',
           },
           {
-            label: 'Agencia Técnica',
+            label: 'Agenda Técnica',
             icon: 'pi pi-calendar', // planes/servicios empresariales o residenciales
             routerLink: './agencia-tecnica',
           },
