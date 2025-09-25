@@ -1,6 +1,7 @@
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
-import { Component, signal } from '@angular/core';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Component, signal,ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -23,25 +24,17 @@ import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
-import { Cortesservice } from '../../../services/gestionCobranza/cortes.service';
 import { CargaComponent } from '../../../components/carga/carga.component';
-import { CortesfiltroEnvio } from '../../../model/gestionCobranza/CortesfiltroEnvio';
 import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPendienteRequest';
-import { CortesServicioRequest } from '../../../model/gestionCobranza/CortesServicioRequest';
 import { BitacuraService } from '../../../services/mantenimiento/bitacura.service';
 import { BitacuraModel } from '../../../model/gestionCobranza/BitacuraModel';
-import { CorteModel } from '../../../model/gestionCobranza/CorteModel';
 import { GmailService } from '../../../services/gmail/gmail.service';
 import { EmailModel } from '../../../model/gmail/EmailModel';
 import Swal from 'sweetalert2';
 import { WhatsappService } from '../../../services/whatsapp/whatsapp.service';
-import { Historialservicio } from '../../../services/mantenimiento/historialservicio';
-import { HistorialServicioModel } from '../../../model/mantenimiento/HistorialServicioModel';
 import { BajaMorocidadService } from '../../../services/gestionCobranza/baja-morocidad.service';
 import { BajaMorosidadModel } from '../../../model/gestionCobranza/BajaMorosidadModel';
 import { ClientesService } from '../../../services/gestionClientes/clientes.service';
-import { ListadoClientes } from '../../../model/gestionClientes/listadoclientes';
-import { TipoServicioModel } from '../../../model/mantenimiento/tiposervicioModel';
 import { TipoServicioService } from '../../../services/mantenimiento/tipo-servicio.service';
 import { BusquedaMorosidad } from '../../../model/gestionCobranza/BusquedaMorosidad';
 import { ListadomorosidadRequest } from '../../../model/gestionCobranza/ListadomorosidadRequest';
@@ -51,7 +44,13 @@ import { Clientes_morosidad_extModel } from '../../../model/gestionCobranza/Clie
 import { Clientes_morosidad_ext } from '../../../model/gestionCobranza/Clientes_morosidad_ext';
 import { Detalle_facturas_moraModel } from '../../../model/gestionCobranza/Detalle_facturas_moraModel';
 import { Detalle_facturas_mora } from '../../../model/gestionCobranza/Detalle_facturas_mora';
-
+import { Historico_mora_6mRequest } from '../../../model/gestionCobranza/Historico_mora_6mRequest';
+export interface MoraItem {
+  periodo: string;
+  deuda_mora_soles: number;
+  pct_morosos: number | null;
+}
+Chart.register(...registerables);
 @Component({
   selector: 'app-seguimiento-morocidad',
   imports: [
@@ -85,6 +84,10 @@ import { Detalle_facturas_mora } from '../../../model/gestionCobranza/Detalle_fa
   providers: [ConfirmationService, DialogService, MessageService],
 })
 export class SeguimientoMorocidad {
+    @Input() data: MoraItem[] = [];
+  @ViewChild('chartCanvas', { static: true }) chartCanvas!: ElementRef<HTMLCanvasElement>;
+
+  private chart!: Chart;
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
@@ -124,6 +127,7 @@ export class SeguimientoMorocidad {
   );
   cargarbitacora: boolean = false;
   showModalBitacora: boolean = false;
+  Historico_mora_6mRequest = signal<Historico_mora_6mRequest[]>([]);
   bitacoraTipos = [
     { label: 'WhatsApp', value: 'WhatsApp' },
     { label: 'Email', value: 'Email' },
@@ -135,10 +139,13 @@ export class SeguimientoMorocidad {
     { label: 'VENCIDO', value: 'VENCIDO' },
     { label: 'MOROSO CRONICO', value: 'MOROSO_CRONICO' },
   ];
+
   //variables gmail
   emailModel = signal<EmailModel>(new EmailModel());
   ngOnInit() {
+
     this.sp_kpis_mora_total(1);
+    this.listarHistoricoMora6m();
     this.Clientes_morosidad_extModel().solo_con_saldo = 1;
     this.Clientes_morosidad_extModel().estado = 'TODOS';
   }
@@ -175,7 +182,74 @@ export class SeguimientoMorocidad {
       },
     });
   }
+  initChart() {
+    const labels = this.Historico_mora_6mRequest().map(item => item.periodo);
+    const deuda = this.Historico_mora_6mRequest().map(item => item.deuda_mora_soles);
+    const pct = this.Historico_mora_6mRequest().map(item => item.pct_morosos || 0);
 
+    const config: ChartConfiguration = {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Deuda en mora (S/)',
+            data: deuda,
+            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 1,
+            type: 'bar'
+          },
+          {
+            label: '% de morosos',
+            data: pct,
+            type: 'line',
+            fill: false,
+            borderColor: 'rgba(255, 99, 132, 1)',
+            tension: 0.4,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    };
+
+    if (this.chart) this.chart.destroy(); // Evita duplicar el gráfico
+    this.chart = new Chart(this.chartCanvas.nativeElement, config);
+  }
+  listarHistoricoMora6m() {
+    this.spinner.set(true);
+    this.SeguimientoMorosidadService.sp_historico_mora_6m().subscribe({
+      next: (response) => {
+        this.spinner.set(false);
+        if (response?.mensaje === 'EXITO') {
+          if (response.data) {
+            this.Historico_mora_6mRequest.set(response.data);
+               this.initChart();
+          } else {
+            this.Historico_mora_6mRequest.set([]);
+          }
+        }
+      },
+      error: (error) => {
+        this.spinner.set(false);
+        this.Historico_mora_6mRequest.set([]);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al obtener los datos',
+        });
+      },
+    });
+  }
   // Acción
   accionEmail(row: Clientes_morosidad_ext) {
     if (!row.email || row.email.trim() === '') {
