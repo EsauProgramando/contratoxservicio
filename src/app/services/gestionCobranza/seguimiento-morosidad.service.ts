@@ -45,4 +45,10 @@ export class SeguimientoMorosidadService {
       enviodata
     );
   }
+  sp_historico_mora_6m(): Observable<Response_Generico<any>> {
+    return this.http.get<Response_Generico<any>>(
+      `${this.baseUrl}/sp_historico_mora_6m`
+    );
+  }
+
 }
