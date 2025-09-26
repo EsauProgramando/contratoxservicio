@@ -140,6 +140,16 @@ export class Sidebar {
             icon: 'pi pi-user-minus', // Icono de usuario con signo menos
             routerLink: './bajas-morosidad',
           },
+          {
+            label: 'Seguimiento Morocidad',
+            icon: 'pi pi-eye', // Icono de ojo para seguimiento
+            routerLink: './seguimiento-morocidad',
+          },
+          {
+            label: 'Retencion Negociacion Cliente',
+            icon: 'pi pi-handshake',
+            routerLink: './retencion-negociacion-cliente',
+          },
           // {
           //   label: 'Registro Manual de Pagos',
           //   icon: 'pi pi-money-bill', // registro de pagos

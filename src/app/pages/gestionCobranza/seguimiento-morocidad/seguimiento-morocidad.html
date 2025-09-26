@@ -1,0 +1,370 @@
+@if (spinner()){
+<app-carga></app-carga>
+}
+<p-toast></p-toast>
+
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
+  <!-- Header -->
+  <header class="space-y-2">
+    <h1 class="text-2xl font-bold text-gray-800">Seguimiento de Morosidad</h1>
+    <p class="text-gray-600 text-sm">
+      Monitoreo de clientes con deuda y tendencias de mora (últimos 6 meses).
+    </p>
+
+    <hr class="border-gray-300" />
+  </header>
+
+  <!-- Filtros -->
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold text-gray-700">Filtros</h2>
+    <div class="flex flex-wrap gap-4 items-end">
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Buscar</label>
+        <input
+          [(ngModel)]="Clientes_morosidad_extModel().nombre_completo"
+          type="text"
+          placeholder="Cliente"
+          class="p-inputtext p-component w-64 rounded-md shadow-sm"
+        />
+      </div>
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Estado</label>
+        <select
+          [(ngModel)]="Clientes_morosidad_extModel().estado"
+          class="p-inputtext p-component w-48 rounded-md shadow-sm"
+        >
+          @for (item of estados; track $index) {
+          <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex gap-2 mt-4">
+        <button
+          pButton
+          label="Aplicar"
+          class="p-button-sm p-button-primary"
+          (click)="buscarSeguimiento()"
+        ></button>
+        <button
+          pButton
+          label="Limpiar"
+          class="p-button-sm p-button-secondary"
+          (click)="limpiar_filtros()"
+        ></button>
+
+        <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
+          {{ Totalregistros }} registros
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="space-y-4 mt-6">
+    <!-- Mostrar los KPIs -->
+    <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <!-- Clientes Totales -->
+        <div class="bg-gray-50 p-4 rounded-md shadow-sm">
+          <h3 class="text-sm font-medium text-gray-600">Clientes Totales</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            {{ Sp_kpis_mora_total().clientes_totales }}
+          </p>
+        </div>
+
+        <!-- Clientes Morosos -->
+        <div class="bg-gray-50 p-4 rounded-md shadow-sm">
+          <h3 class="text-sm font-medium text-gray-600">Clientes Morosos</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            {{ Sp_kpis_mora_total().clientes_morosos }}
+          </p>
+        </div>
+
+        <!-- Porcentaje de Mora -->
+        <div class="bg-gray-50 p-4 rounded-md shadow-sm">
+          <h3 class="text-sm font-medium text-gray-600">% de Mora (Cartera)</h3>
+          <p class="text-2xl font-bold text-gray-800">
+            {{ Sp_kpis_mora_total().pct_mora_cartera }}%
+          </p>
+        </div>
+
+        <!-- Deuda Total en Mora -->
+        <div class="bg-gray-50 p-4 rounded-md shadow-sm">
+          <h3 class="text-sm font-medium text-gray-600">
+            Deuda Total en Mora (S/)
+          </h3>
+          <p class="text-2xl font-bold text-gray-800">
+            {{ Sp_kpis_mora_total().deuda_total_mora_soles }}
+          </p>
+        </div>
+      </div>
+    </div>
+      <h2 class="text-xl font-bold text-gray-800 mb-6">
+      Histórico de la mora (6 meses)
+    </h2>
+  </section>
+<div class="chart-container w-full max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
+  <canvas #chartCanvas></canvas>
+</div>
+
+
+
+  <section class="p-4 bg-white rounded shadow-md">
+    <h2 class="text-lg font-semibold text-gray-700">Clientes en seguimiento de morosidad</h2>
+
+    <p-table
+      [value]="Clientes_morosidad_ext()"
+      [tableStyle]="{ 'max-width': '100%' }"
+      class="p-datatable-striped p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Cliente</th>
+          <th>DNI/RUC</th>
+          <th>Servicio</th>
+          <th>Deuda Actual(S/)</th>
+          <th>Último pago</th>
+          <th>Dias en Mora</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+          <th>Bitácora</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr class="hover:bg-gray-100">
+          <td>{{ row.nombre_completo }}</td>
+          <td>{{ row.nrodocident }}</td>
+          <td>{{ row.desctipo }}</td>
+          <td>{{ row.deuda_actual_soles }}</td>
+          <td>{{ row.ultimo_pago }}</td>
+          <td>{{ row.dias_en_mora }}</td>
+          <td>{{ row.estado }}</td>
+
+          <td>
+            <div class="flex gap-2 justify-center">
+              <!--VER DETALLE-->
+
+              <button
+                pButton
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-info p-button-sm"
+                (click)="verDetalle(row)"
+              ></button>
+              <button
+                pButton
+                icon="pi pi-whatsapp"
+                class="p-button-rounded p-button-success p-button-sm"
+                (click)="accionWhatsapp(row)"
+                pTooltip="Enviar WhatsApp"
+              ></button>
+              <button
+                pButton
+                icon="pi pi-envelope"
+                class="p-button-rounded p-button-info p-button-sm"
+                (click)="accionEmail(row)"
+                pTooltip="Enviar Email"
+              ></button>
+              <button
+                pButton
+                icon="pi pi-phone"
+                class="p-button-rounded p-button-warning p-button-sm"
+                (click)="accionLlamada(row)"
+                pTooltip="Registrar llamada"
+              ></button>
+            </div>
+          </td>
+
+          <td>
+            <button
+              pButton
+              label="Ver bitácora"
+              class="p-button-sm p-button-secondary"
+              (click)="abrirBitacora(row)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
+<!-- MODAL: Bitácora -->
+<p-dialog
+  header="Bitácora Preventiva"
+  [(visible)]="showModalBitacora"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <!-- Listado de bitácora -->
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-gray-700 mb-4">Registros</h3>
+      <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-md">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Fecha
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Tipo
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Detalle / Mensaje
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let bit of listadoBitacora()">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ bit.fechareg | date : "dd/MM/yyyy HH:mm" }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ bit.bitacoraTipos }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ bit.detalle }}
+              </td>
+            </tr>
+            <tr *ngIf="listadoBitacora()?.length === 0">
+              <td
+                colspan="3"
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
+              >
+                No hay registros de bitácora.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <!-- Tipo -->
+      <div>
+        <label
+          for="bitTipo"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Tipo
+        </label>
+        <p-select
+          [options]="bitacoraTipos"
+          [(ngModel)]="BitacuraModel().bitacoraTipos"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione tipo"
+          class="w-full md:w-56"
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Detalle / Mensaje -->
+      <div>
+        <label
+          for="bitDetalle"
+          class="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Detalle / Mensaje
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="BitacuraModel().detalle"
+          pInputText
+          placeholder="Ej. Se envió WhatsApp, cliente indica que pagará hoy."
+          class="w-full p-inputtext p-component rounded-md shadow-sm"
+        />
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        pButton
+        label="Agregar registro"
+        (click)="agregarBitacora()"
+        class="p-button-sm p-button-success"
+        [disabled]="bloquearboton()"
+      ></button>
+      <button
+        pButton
+        label="Cerrar"
+        (click)="closeModalBitacora()"
+        class="p-button-sm p-button-secondary"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+<!--detalle seguimiento-->
+
+<p-dialog
+  header="Histórico de pagos vencidos"
+  [(visible)]="abridetalle"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <!-- Contenedor principal del historial -->
+    <div class="overflow-auto bg-white rounded-md shadow-sm p-4">
+      <table
+        class="min-w-full table-auto border-collapse border border-gray-300 rounded-md shadow-sm"
+      >
+        <thead
+          class="bg-gray-200 text-gray-700 text-sm font-semibold uppercase tracking-wide"
+        >
+          <tr>
+            <th class="px-4 py-3 border-b border-gray-400 text-left">Mes</th>
+            <th class="px-4 py-3 border-b border-gray-400 text-left">
+              Días vencidos
+            </th>
+            <th class="px-4 py-3 border-b border-gray-400 text-left">
+              Monto (S/)
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let factura of Detalle_facturas_mora()"
+            class="hover:bg-gray-50 transition-colors"
+          >
+            <td
+              class="px-4 py-3 border-b border-gray-300 text-sm text-gray-600"
+            >
+              {{ factura.periodo }}
+            </td>
+            <td
+              class="px-4 py-3 border-b border-gray-300 text-sm text-gray-600"
+            >
+              {{ factura.dias_mora }}
+            </td>
+            <td
+              class="px-4 py-3 border-b border-gray-300 text-sm text-gray-600"
+            >
+              {{ factura.monto | currency : "S/ " }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+</p-dialog>

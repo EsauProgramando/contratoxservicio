@@ -226,6 +226,32 @@ export class MenuBar {
               });
             },
           },
+          {
+            label: 'Seguimiento Morocidad',
+            icon: 'pi pi-eye', // Icono de ojo
+            routerLink: './seguimiento-morocidad',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Seguimiento de Morosidad',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
+          {
+            label: 'Retencion Negociacion Cliente',
+            icon: 'pi pi-briefcase', // Icono de maletín
+            routerLink: './retencion-negociacion-cliente',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Retención y Negociación',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
 
           // {
           //   label: 'Registro Manual de Pagos',
@@ -520,7 +546,7 @@ export class MenuBar {
             label: 'Agenda Técnica',
             icon: 'pi pi-calendar', // planes/servicios empresariales o residenciales
             routerLink: './agencia-tecnica',
-          }
+          },
         ],
       },
       {
