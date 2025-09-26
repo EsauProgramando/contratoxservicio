@@ -3,4 +3,5 @@ export class TipoServicioModel {
   descripcion: string = '';
   estareg: number = 1;
   es_servicio: boolean = false;
+  op: number = 1;
 }

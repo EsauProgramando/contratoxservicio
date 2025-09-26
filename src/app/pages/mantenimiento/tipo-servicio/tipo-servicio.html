@@ -1,11 +1,15 @@
 @if (spinner()){
 <app-carga></app-carga>
 }
-<div class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200">
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
   <p-fieldset>
     <!-- Encabezado -->
     <ng-template #header>
-      <div class="flex items-center gap-4 px-6 py-4 bg-blue-100 rounded-t-xl border-b border-blue-300">
+      <div
+        class="flex items-center gap-4 px-6 py-4 bg-blue-100 rounded-t-xl border-b border-blue-300"
+      >
         <img
           src="assets/images/cottage-cheese.gif"
           alt="Icono Tipos de Servicio"
@@ -36,9 +40,13 @@
     >
       <!-- Buscador y botón -->
       <ng-template #caption>
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4">
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4"
+        >
           <p-iconfield iconPosition="left" class="w-full md:w-auto">
-            <p-inputicon><i class="pi pi-search text-blue-600"></i></p-inputicon>
+            <p-inputicon
+              ><i class="pi pi-search text-blue-600"></i
+            ></p-inputicon>
             <input
               pInputText
               type="text"
@@ -49,21 +57,28 @@
             />
           </p-iconfield>
 
-          <!-- <p-button
+          <p-button
             label="Nuevo Tipo"
             icon="pi pi-plus"
             class="transition-all duration-300 hover:scale-105"
             styleClass="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
             (click)="openTipoDialog()"
-          /> -->
+          />
         </div>
       </ng-template>
 
       <!-- Cabecera de la tabla -->
       <ng-template #header>
         <tr class="bg-blue-200 text-blue-900 text-sm font-semibold">
-          <th pSortableColumn="id_tipo" class="px-3 py-3">Código <p-sortIcon field="id_tipo" /></th>
-          <th pSortableColumn="descripcion" class="px-3 py-3">Descripción <p-sortIcon field="descripcion" /></th>
+          <th pSortableColumn="id_tipo" class="px-3 py-3">
+            Código <p-sortIcon field="id_tipo" />
+          </th>
+          <th pSortableColumn="descripcion" class="px-3 py-3">
+            Descripción <p-sortIcon field="descripcion" />
+          </th>
+          <th pSortableColumn="es_servicio" class="px-3 py-3">
+            Es Servicio <p-sortIcon field="es_servicio" />
+          </th>
           <th class="px-3 py-3">Estado</th>
           <th class="px-3 py-3">Acción</th>
         </tr>
@@ -74,6 +89,7 @@
         <tr class="hover:bg-blue-50 transition-colors duration-300">
           <td>{{ tipo.id_tipo }}</td>
           <td>{{ tipo.descripcion }}</td>
+          <td>{{ tipo.es_servicio ? "Sí" : "No" }}</td>
           <td>
             <p-tag
               [value]="tipo.estareg === 1 ? 'Activo' : 'Inactivo'"
@@ -121,3 +137,54 @@
     </p-table>
   </p-fieldset>
 </div>
+<p-dialog
+  [header]="
+    this.tipoServicioModel().op === 1
+      ? 'Nuevo Tipo de Servicio'
+      : 'Editar Tipo de Servicio'
+  "
+  [(visible)]="tiposervicioDialog"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <div class="field">
+      <label for="descripcion">Descripción</label>
+      <input
+        id="descripcion"
+        type="text"
+        [(ngModel)]="tipoServicioModel().descripcion"
+        placeholder="Ingrese la descripción"
+        class="w-full p-inputtext p-component"
+      />
+    </div>
+    <div class="field">
+      <label for="es_servicio">Es Servicio</label>
+      <p-checkbox
+        [(ngModel)]="tipoServicioModel().es_servicio"
+        [binary]="true"
+      />
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3 p-2 border-t border-gray-200 bg-gray-50">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-ban"
+        styleClass="p-button-secondary p-button-outlined shadow-sm hover:shadow-md transition-all"
+        (click)="tiposervicioDialog = false"
+      ></p-button>
+
+      <p-button
+        label="Guardar"
+        icon="pi pi-save"
+        styleClass="p-button-success shadow-sm hover:shadow-md transition-all"
+        (click)="save()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

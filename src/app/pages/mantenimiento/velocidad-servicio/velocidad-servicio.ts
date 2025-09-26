@@ -27,6 +27,7 @@ import { TipoServicioService } from '../../../services/mantenimiento/tipo-servic
 import { TipoServicioModel } from '../../../model/mantenimiento/tiposervicioModel';
 import { VelocidadServicioModel } from '../../../model/mantenimiento/velocidadservicio';
 import { VelocidadServicioService } from '../../../services/mantenimiento/velocidad-servicio.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-velocidad-servicio',
@@ -59,7 +60,9 @@ export class VelocidadServicio {
   spinner = signal<boolean>(false);
   listaVelocidad = signal<VelocidadServicioModel[]>([]);
   searchValue: string = '';
-  velocidadDialog = signal<boolean>(false);
+  velocidadDialog: boolean = false;
+  velocidadModel = signal<VelocidadServicioModel>(new VelocidadServicioModel());
+
   constructor(
     private velocidadServicioService: VelocidadServicioService,
     private messageService: MessageService,
@@ -96,9 +99,125 @@ export class VelocidadServicio {
     });
   }
   openVelocidadDialog() {
-    this.velocidadDialog.set(true);
+    this.velocidadDialog = true;
+    this.velocidadModel.set(new VelocidadServicioModel());
   }
-  editVelocidad(dato: VelocidadServicioModel) {}
-  deleteVelocidad(dato: VelocidadServicioModel) {}
-  activarVelocidad(dato: VelocidadServicioModel) {}
+  editVelocidad(dato: VelocidadServicioModel) {
+    this.velocidadModel.set({ ...dato, op: 2 });
+    this.velocidadDialog = true;
+  }
+  deleteVelocidad(dato: VelocidadServicioModel) {
+    Swal.fire({
+      title: '¿Está seguro de eliminar la velocidad de servicio?',
+      text: 'No podrá revertir esta acción',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.velocidadServicioService
+          .registrarVelocidadServicio({ ...dato, op: 3 }, 3)
+          .subscribe({
+            next: (response) => {
+              if (response?.mensaje == 'EXITO') {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Éxito',
+                  detail: 'Velocidad de servicio eliminada correctamente',
+                });
+                this.cargarVelocidadServicio();
+              } else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Error al eliminar el tipo de servicio',
+                });
+              }
+            },
+            error: (error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al eliminar la velocidad de servicio',
+              });
+            },
+          });
+      }
+    });
+  }
+  activarVelocidad(dato: VelocidadServicioModel) {
+    Swal.fire({
+      title: '¿Está seguro de activar la velocidad de servicio?',
+      text: 'No podrás revertir esto',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, activarlo',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.velocidadServicioService
+          .registrarVelocidadServicio({ ...dato, op: 4 }, 4)
+          .subscribe({
+            next: (response) => {
+              if (response?.mensaje == 'EXITO') {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Éxito',
+                  detail: 'Velocidad de servicio activada correctamente',
+                });
+                this.cargarVelocidadServicio();
+              } else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Error al activar la velocidad de servicio',
+                });
+              }
+            },
+            error: (error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al activar la velocidad de servicio',
+              });
+            },
+          });
+      }
+    });
+  }
+  save() {
+    this.velocidadServicioService
+      .registrarVelocidadServicio(
+        this.velocidadModel(),
+        this.velocidadModel().op
+      )
+      .subscribe({
+        next: (response) => {
+          if (response?.mensaje == 'EXITO') {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Velocidad de servicio guardada correctamente',
+            });
+            this.cargarVelocidadServicio();
+            this.velocidadDialog = false;
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje,
+            });
+          }
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al guardar velocidad de servicio',
+          });
+        },
+      });
+  }
 }
