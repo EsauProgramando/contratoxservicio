@@ -26,6 +26,7 @@ import { IndexListadoContrato } from '../../../model/gestionClientes/indexListad
 import { PlanServicioModel } from '../../../model/mantenimiento/planservicioModel';
 import { PlanServicioService } from '../../../services/mantenimiento/plan-servicio.service';
 import { ToastModule } from 'primeng/toast';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-plan-servicio',
@@ -59,12 +60,17 @@ export class PlanServicio {
   spinner = signal<boolean>(false);
   searchValue: string = '';
   listaPlanServicio = signal<PlanServicioModel[]>([]);
-  planDialog = signal<boolean>(false);
+  planServicioModel = signal<PlanServicioModel>(new PlanServicioModel());
+  planDialog: boolean = false;
   constructor(
     private planServicioService: PlanServicioService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
+  estado = [
+    { label: 'Activo', value: 1 },
+    { label: 'Inactivo', value: 0 },
+  ];
   ngOnInit() {
     this.cargarPlanServicio();
   }
@@ -98,9 +104,154 @@ export class PlanServicio {
     });
   }
   openPlanDialog() {
-    this.planDialog.set(true);
+    this.planDialog = true;
+    this.planServicioModel.set(new PlanServicioModel());
+    this.planServicioModel().op = 1;
   }
-  editPlan(data: PlanServicioModel) {}
-  deletePlan(data: PlanServicioModel) {}
-  activarPlan(data: PlanServicioModel) {}
+  editPlan(data: PlanServicioModel) {
+    this.planDialog = true;
+    // Cargar datos en el formulario de edición
+    this.planServicioModel.set(data);
+    this.planServicioModel().op = 2;
+  }
+  deletePlan(data: PlanServicioModel) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar el plan de servicio "${data.descripcion}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.spinner.set(true);
+        // Lógica para eliminar el plan de servicio
+        data.estareg = 0; // Suponiendo que 0 es inactivo
+        data.op = 3; // Operación de eliminación
+        this.planServicioService
+          .registrarPlanServicio(data, data.op)
+          .subscribe({
+            next: (response) => {
+              this.spinner.set(false);
+              if (response?.mensaje == 'EXITO') {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Éxito',
+                  detail: 'Plan de servicio eliminado exitosamente.',
+                });
+                this.cargarPlanServicio();
+              } else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: response?.mensaje,
+                });
+              }
+            },
+            error: (error) => {
+              this.spinner.set(false);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al eliminar el plan de servicio.',
+              });
+            },
+          });
+      }
+    });
+  }
+  activarPlan(data: PlanServicioModel) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas activar el plan de servicio "${data.descripcion}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, activar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.spinner.set(true);
+        // Lógica para activar el plan de servicio
+        data.estareg = 1; // Suponiendo que 1 es activo
+        data.op = 4;
+        this.planServicioService
+          .registrarPlanServicio(data, data.op)
+          .subscribe({
+            next: (response) => {
+              this.spinner.set(false);
+              if (response?.mensaje == 'EXITO') {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Éxito',
+                  detail: 'Plan de servicio activado exitosamente.',
+                });
+                this.cargarPlanServicio();
+              } else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: response?.mensaje,
+                });
+              }
+            },
+            error: (error) => {
+              this.spinner.set(false);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al activar el plan de servicio.',
+              });
+            },
+          });
+      }
+    });
+  }
+
+  save() {
+    if (this.planServicioModel().descripcion.trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'La descripción es obligatoria.',
+      });
+      return;
+    }
+    this.spinner.set(true);
+    this.planServicioService
+      .registrarPlanServicio(
+        this.planServicioModel(),
+        this.planServicioModel().op
+      )
+      .subscribe({
+        next: (response) => {
+          this.spinner.set(false);
+          if (response?.mensaje == 'EXITO') {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail:
+                this.planServicioModel().op == 1
+                  ? 'Plan de servicio creado exitosamente.'
+                  : 'Plan de servicio actualizado exitosamente.',
+            });
+            this.planDialog = false;
+            this.cargarPlanServicio();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje,
+            });
+          }
+        },
+        error: (error) => {
+          this.spinner.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al guardar el plan de servicio.',
+          });
+        },
+      });
+  }
 }

@@ -446,7 +446,7 @@ export class Cobranzas {
           //agregar un valor mas que seria 0 es igual a TODOS
           // ✅ o con update (usa el valor anterior)
           this.listaTpoServicioes_servicio.update((prev) => [
-            { descripcion: 'TODOS', es_servicio: true, estareg: 1, id_tipo: 0 },
+            { descripcion: 'TODOS', es_servicio: true, estareg: 1, id_tipo: 0, op:1 },
             ...prev,
           ]);
         } else {

@@ -2,11 +2,15 @@
 <app-carga></app-carga>
 }
 
-<div class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200">
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
   <p-fieldset>
     <!-- Encabezado -->
     <ng-template #header>
-      <div class="flex items-center gap-4 px-6 py-4 bg-purple-100 rounded-t-xl border-b border-purple-300">
+      <div
+        class="flex items-center gap-4 px-6 py-4 bg-purple-100 rounded-t-xl border-b border-purple-300"
+      >
         <img
           src="assets/images/cottage-cheese.gif"
           alt="Icono Lista de Planes"
@@ -37,9 +41,13 @@
     >
       <!-- Buscador y botón -->
       <ng-template #caption>
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4">
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-2 py-4"
+        >
           <p-iconfield iconPosition="left" class="w-full md:w-auto">
-            <p-inputicon><i class="pi pi-search text-purple-600"></i></p-inputicon>
+            <p-inputicon
+              ><i class="pi pi-search text-purple-600"></i
+            ></p-inputicon>
             <input
               pInputText
               type="text"
@@ -50,21 +58,25 @@
             />
           </p-iconfield>
 
-          <!-- <p-button
+          <p-button
             label="Nuevo Plan"
             icon="pi pi-plus"
             class="transition-all duration-300 hover:scale-105"
             styleClass="px-4 py-2 text-white bg-purple-600 hover:bg-purple-700 rounded-lg"
             (click)="openPlanDialog()"
-          /> -->
+          />
         </div>
       </ng-template>
 
       <!-- Cabecera de la tabla -->
       <ng-template #header>
         <tr class="bg-purple-200 text-purple-900 text-sm font-semibold">
-          <th pSortableColumn="id_plan" class="px-3 py-3">Código <p-sortIcon field="id_plan" /></th>
-          <th pSortableColumn="descripcion" class="px-3 py-3">Descripción <p-sortIcon field="descripcion" /></th>
+          <th pSortableColumn="id_plan" class="px-3 py-3">
+            Código <p-sortIcon field="id_plan" />
+          </th>
+          <th pSortableColumn="descripcion" class="px-3 py-3">
+            Descripción <p-sortIcon field="descripcion" />
+          </th>
           <th class="px-3 py-3">Estado</th>
           <th class="px-3 py-3">Acción</th>
         </tr>
@@ -122,3 +134,50 @@
     </p-table>
   </p-fieldset>
 </div>
+<!-- MODAL: Bitácora -->
+<p-dialog
+  [header]="
+    this.planServicioModel().op === 1
+      ? 'Nuevo Plan de Servicio'
+      : 'Editar Plan de Servicio'
+  "
+  [(visible)]="planDialog"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <div>
+      <label class="block text-sm font-medium mb-1"
+        >Descripción <span class="text-red-500">*</span></label
+      >
+      <input
+        pInputText
+        [(ngModel)]="planServicioModel().descripcion"
+        placeholder="Ingrese descripción"
+        class="w-full"
+      />
+    </div>
+
+  </ng-template>
+    <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3 p-2 border-t border-gray-200 bg-gray-50">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-ban"
+        styleClass="p-button-secondary p-button-outlined shadow-sm hover:shadow-md transition-all"
+        (click)="planDialog = false"
+      ></p-button>
+
+      <p-button
+        label="Guardar"
+        icon="pi pi-save"
+        styleClass="p-button-success shadow-sm hover:shadow-md transition-all"
+        (click)="save()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
