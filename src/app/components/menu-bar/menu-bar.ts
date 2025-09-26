@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import {AuthServices} from '../../auth/auth-services';
 @Component({
   selector: 'app-menu-bar',
   templateUrl: './menu-bar.html',
@@ -17,7 +18,8 @@ import Swal from 'sweetalert2';
 })
 export class MenuBar {
   items: MenuItem[] | undefined;
-  constructor(private messageService: MessageService, private router: Router) {}
+  constructor(private messageService: MessageService, private router: Router,
+              private authService: AuthServices) {}
 
   ngOnInit() {
     this.items = [
@@ -620,8 +622,8 @@ export class MenuBar {
       cancelButtonColor: '#3085d6',
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.removeItem('loggedIn'); // o limpiar todo
-        this.router.navigate(['/login']); // redirige al login
+        this.authService.logout(); // 🔹 Limpia el token de sessionStorage
+        this.router.navigate(['/login']); // 🔹 Redirige al login
         Swal.fire(
           '¡Sesión cerrada!',
           'Has cerrado sesión correctamente.',

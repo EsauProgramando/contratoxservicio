@@ -24,10 +24,21 @@ import {TooltipModule} from 'primeng/tooltip';
 import {ListadoClientes} from '../../../model/gestionClientes/listadoclientes';
 import {ToastModule} from 'primeng/toast';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {TableModule} from 'primeng/table';
+import {OverlayModule} from 'primeng/overlay';
+import {OverlayBadgeModule} from 'primeng/overlaybadge';
+import {BadgeModule} from 'primeng/badge';
+import {ChipModule} from 'primeng/chip';
+import {IconFieldModule} from 'primeng/iconfield';
+import {InputIconModule} from 'primeng/inputicon';
+import {InputTextModule} from 'primeng/inputtext';
+import {CardModule} from 'primeng/card';
+import {RadioButtonModule} from 'primeng/radiobutton';
 @Component({
   selector: 'app-agencia-tecnica-component',
   imports: [ButtonModule, FullCalendarModule, DatePicker, Select, Tag, FormsModule, PanelModule,
-    AvatarModule, CargaComponent,TooltipModule,ToastModule,ConfirmDialogModule],
+    AvatarModule, CargaComponent,TooltipModule,ToastModule,ConfirmDialogModule,TableModule,BadgeModule,ChipModule,IconFieldModule,
+  InputIconModule,InputTextModule,CardModule,RadioButtonModule],
   templateUrl: './agencia-tecnica-component.html',
   standalone: true,
   styleUrl: './agencia-tecnica-component.scss'
@@ -36,6 +47,7 @@ export class AgenciaTecnicaComponent {
   spinner = signal<boolean>(false);
   listafechas:ordentrabajoModel[]=[]
   Listadoresumentec=signal<tecnicoresumenModel[]>([])
+  estadoSeleccionado:string='ALL'
 
   calendarOptions: any = {
     initialView: 'dayGridMonth', // Vista mensual
@@ -85,7 +97,7 @@ export class AgenciaTecnicaComponent {
     //poner valores por defecto a los filtros
     this.cargarfechas('ALL','ALL');
     this.cargartecnicos()
-    this.cargarresumen()
+    this.cargarresumen('ALL','ALL')
   }
   handleDateSelect(selectInfo: DateSelectArg) {
     // const title = prompt('Please enter a new title for your event');
@@ -159,9 +171,9 @@ export class AgenciaTecnicaComponent {
       }
     })
   }
-  cargarresumen(){
+  cargarresumen(estado:string,idtecnico:string){
     this.spinner.set(true)
-    this.ordentrabajoService.getlistaordentrabajos_resumen_x_estado_tecnico(this.OrdenTrabajofiltroEnvio().estado,this.OrdenTrabajofiltroEnvio().idtecnico).subscribe({
+    this.ordentrabajoService.getlistaordentrabajos_resumen_x_estado_tecnico(estado,idtecnico).subscribe({
       next:(data)=>{
         this.Listadoresumentec.set(data.data)
 
@@ -312,5 +324,26 @@ export class AgenciaTecnicaComponent {
         info.revert()
       },
     });
+  }
+  calculateCustomerTotal(tecnico: string) {
+    let total = 0;
+
+    if (this.Listadoresumentec()) {
+      for (let item of this.Listadoresumentec()) {
+        if (item.tecnico === tecnico) {
+          total+=item.cantidad;
+        }
+      }
+    }
+
+    return total;
+  }
+  cambioestado(estado:any){
+    this.OrdenTrabajofiltroEnvio().estado=estado.value
+    // this.cargarfechas(estado.value,'ALL')
+    // this.cargarresumen(estado.value,this.OrdenTrabajofiltroEnvio().idtecnico)
+  }
+  cambioestadofiltro(){
+    this.estadoSeleccionado=this.OrdenTrabajofiltroEnvio().estado
   }
 }
