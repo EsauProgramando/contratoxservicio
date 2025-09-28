@@ -8,8 +8,10 @@ import Aura from '@primeuix/themes/aura';
 import {provideHttpClient, withInterceptors, withInterceptorsFromDi} from '@angular/common/http';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {AuthInterceptor} from './auth/auth-interceptor';
+import {DialogService} from 'primeng/dynamicdialog';
 export const appConfig: ApplicationConfig = {
   providers: [
+    ConfirmationService, DialogService, MessageService,
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
