@@ -5,6 +5,18 @@ import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
 import { InputTextModule } from 'primeng/inputtext';
 import { RouterModule } from '@angular/router';
+import {jwtDecode} from 'jwt-decode';
+import {CardModule} from 'primeng/card';
+interface JwtPayload {
+  sub: string;
+  iduser: number;
+  nombres: string;
+  apellidos: string;
+  dni: string;
+  rol: string;
+  iat: number;
+  exp: number;
+}
 @Component({
   selector: 'app-home',
   imports: [
@@ -15,6 +27,7 @@ import { RouterModule } from '@angular/router';
     AvatarModule,
     InputTextModule,
     RouterModule,
+    CardModule
   ],
   templateUrl: './home.html',
   standalone: true,
@@ -22,7 +35,12 @@ import { RouterModule } from '@angular/router';
 })
 export class Home {
   items: { label?: string; icon?: string; separator?: boolean }[] = [];
+  usuario!: JwtPayload;
   ngOnInit() {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      this.usuario = jwtDecode<JwtPayload>(token);
+    }
     this.items = [
       {
         label: 'Refresh',

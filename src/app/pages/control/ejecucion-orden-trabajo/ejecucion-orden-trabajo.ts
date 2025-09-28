@@ -23,8 +23,18 @@ import {TooltipModule} from 'primeng/tooltip';
 import {CargaComponent} from '../../../components/carga/carga.component';
 import {DatePickerModule} from 'primeng/datepicker';
 import {TextareaModule} from 'primeng/textarea';
+import {AutoCompleteCompleteEvent, AutoCompleteModule} from 'primeng/autocomplete';
+import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmationService, MessageService} from 'primeng/api';
+import {
+  ejecucionordentrabajoModel, materialesModel,
+  ordentrabajofiltroModel,
+  ordentrabajoModel, tipomaterialModel
+} from '../../../model/ordentrabajo/ordentrabajoModel';
+import {tecnicoModel} from '../../../model/mantenimiento/tecnicoModel';
 import {CortesServicioRequest} from '../../../model/gestionCobranza/CortesServicioRequest';
+import {ListadoClientes} from '../../../model/gestionClientes/listadoclientes';
+import {TipoServicioModel} from '../../../model/mantenimiento/tiposervicioModel';
 import {EmailModel} from '../../../model/gmail/EmailModel';
 import {HistorialServicioModel} from '../../../model/mantenimiento/HistorialServicioModel';
 import {Cortesservice} from '../../../services/gestionCobranza/cortes.service';
@@ -32,60 +42,52 @@ import {BitacuraService} from '../../../services/mantenimiento/bitacura.service'
 import {GmailService} from '../../../services/gmail/gmail.service';
 import {WhatsappService} from '../../../services/whatsapp/whatsapp.service';
 import {Historialservicio} from '../../../services/mantenimiento/historialservicio';
-import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPendienteRequest';
-import { BitacuraModel } from '../../../model/gestionCobranza/BitacuraModel';
-import { CorteModel } from '../../../model/gestionCobranza/CorteModel';
 import {OrdentrabajoService} from '../../../services/ordentrabajo/ordentrabajo-service';
 import {TecnicosService} from '../../../services/mantenimiento/tecnicos-service';
-import {tecnicoModel} from '../../../model/mantenimiento/tecnicoModel';
-import {ordentrabajofiltroModel, ordentrabajoModel} from '../../../model/ordentrabajo/ordentrabajoModel';
-import { AutoCompleteModule} from 'primeng/autocomplete';
 import {ClientesService} from '../../../services/gestionClientes/clientes.service';
-import {ListadoClientes} from '../../../model/gestionClientes/listadoclientes';
-import {TipoServicio} from '../../mantenimiento/tipo-servicio/tipo-servicio';
 import {TipoServicioService} from '../../../services/mantenimiento/tipo-servicio.service';
-import {TipoServicioModel} from '../../../model/mantenimiento/tiposervicioModel';
-import {CheckboxModule} from 'primeng/checkbox';
-interface AutoCompleteCompleteEvent {
-  originalEvent: Event;
-  query: string;
-}
+import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPendienteRequest';
+import {PanelModule} from 'primeng/panel';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {TipomaterialServices} from '../../../services/mantenimiento/tipomaterial-services';
+
 @Component({
-  selector: 'app-orden-trabajo-component',
-  templateUrl: './orden-trabajo-component.html',
+  selector: 'app-ejecucion-orden-trabajo',
   imports: [
-  TableModule,
-  ButtonModule,
-  TagModule,
-  ProgressBarModule,
-  FormsModule,
-  IconFieldModule,
-  InputIconModule,
-  InputTextModule,
-  SelectModule,
-  RatingModule,
-  FieldsetModule,
-  AvatarModule,
-  DialogModule,
-  ConfirmDialogModule,
-  ImageModule,
-  FloatLabelModule,
-  FileUploadModule,
-  CommonModule,
-  ToastModule,
-  DynamicDialogModule,
-  TooltipModule,
-  CargaComponent,
-  DatePickerModule,
-  TextareaModule,
-  AutoCompleteModule,
-  CheckboxModule
-],
-  providers: [ConfirmationService, DialogService, MessageService],
+    TableModule,
+    ButtonModule,
+    TagModule,
+    ProgressBarModule,
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    SelectModule,
+    RatingModule,
+    FieldsetModule,
+    AvatarModule,
+    DialogModule,
+    ConfirmDialogModule,
+    ImageModule,
+    FloatLabelModule,
+    FileUploadModule,
+    CommonModule,
+    ToastModule,
+    DynamicDialogModule,
+    TooltipModule,
+    CargaComponent,
+    DatePickerModule,
+    TextareaModule,
+    AutoCompleteModule,
+    CheckboxModule,
+    PanelModule,
+    InputNumberModule
+  ],
   standalone: true,
-  styleUrl: './orden-trabajo-component.scss'
+  templateUrl: './ejecucion-orden-trabajo.html',
+  styleUrl: './ejecucion-orden-trabajo.scss'
 })
-export class OrdenTrabajoComponent {
+export class EjecucionOrdenTrabajo {
   spinner = signal<boolean>(false);
   abrirnuevaot:boolean=false;
   abrirasignar:boolean=false
@@ -93,10 +95,14 @@ export class OrdenTrabajoComponent {
   abrircierre:boolean=false
   abrirhistorial:boolean=false
   checked:boolean=false
-  OrdenTrabajofiltroEnvio=signal(new ordentrabajofiltroModel)
+  OrdenTrabajofiltroEnvio=signal(new ejecucionordentrabajoModel())
+  OrdenTrabajomaterial=signal(new materialesModel())
   CortesPendienteRequest = signal<CortesPendienteRequest[]>([]);
   Listadotecnicos=signal<tecnicoModel[]>([])
-  Listadoordenestrabajo=signal<ordentrabajoModel[]>([])
+  Listadotipomaterial=signal<tipomaterialModel[]>([])
+  idtipomaterial:number=1
+  ordentrabajoselected:ordentrabajoModel=new ordentrabajoModel()
+  listafechas=signal<ordentrabajoModel[]>([])
   // Variables de filtro
   searchQuery: string = '';
   estado: string = '';
@@ -120,8 +126,8 @@ export class OrdenTrabajoComponent {
     { label: 'CANCELADO', value: 'CANCELADO',severity:'danger' },
   ];
   obtenerdetallecorte = signal<any>(new CortesServicioRequest());
-  BitacuraModel = signal<BitacuraModel>(new BitacuraModel());
-  listadoBitacora = signal<BitacuraModel[]>([]);
+  // BitacuraModel = signal<BitacuraModel>(new BitacuraModel());
+  // listadoBitacora = signal<BitacuraModel[]>([]);
   listadoClientes=signal<ListadoClientes[]>([]);
   listadoTiposervicio=signal<TipoServicioModel[]>([])
   clientes:ListadoClientes[]=[]
@@ -129,7 +135,7 @@ export class OrdenTrabajoComponent {
   bitTipo: string = 'WhatsApp';
   bitDetalle: string = '';
   bloquearboton = signal<boolean>(false);
-  CorteModel = signal<CorteModel>(new CorteModel());
+  // CorteModel = signal<CorteModel>(new CorteModel());
   enviarOrdenTrabajo=signal<ordentrabajoModel>(new ordentrabajoModel())
   op:number=0
   tipoenvio:string=''
@@ -177,12 +183,13 @@ export class OrdenTrabajoComponent {
     private ordentrabajoService:OrdentrabajoService,
     private tecnicoService:TecnicosService,
     private clienteSerice:ClientesService,
-    private tiposervicioServicio:TipoServicioService
+    private tiposervicioServicio:TipoServicioService,
+    private tipomaterialService:TipomaterialServices
   ) {}
 
   ngOnInit() {
     //poner valores por defecto a los filtros
-    this.cargarordenestrabajo();
+    this.cargartipomaterial()
     this.cargartecnicos()
     this.cargarclientes()
   }
@@ -190,62 +197,42 @@ export class OrdenTrabajoComponent {
     this.tecnicoService.getlistatecnicos().subscribe({
       next:(data)=>{
         this.Listadotecnicos.set(data.data)
-        this.Listadotecnicos().unshift({
-          idtecnico:'ALL',
-          nombres:'TODOS',
-          apellidos:'',
-          especialidad:'TODOS'
-        })
-        this.OrdenTrabajofiltroEnvio().idtecnico='ALL'
       }
     })
   }
-  cargarordenestrabajo(){
-    this.spinner.set(true)
-    this.OrdenTrabajofiltroEnvio().fechainicial=this.formatDateForDB(this.fechainicial)
-    this.OrdenTrabajofiltroEnvio().fechafinal=this.formatDateForDB(this.fechafinal)
-    this.ordentrabajoService.getlistaordentrabajos(this.OrdenTrabajofiltroEnvio()).subscribe({
+  cargartipomaterial(){
+    this.tipomaterialService.getlistatipomaterials().subscribe({
       next:(data)=>{
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Aviso de usuario',
-          detail: 'Se encontraron coincidencias',
-        });
-        this.Listadoordenestrabajo.set(data.data)
-        this.spinner.set(false)
-        this.Totalregistros = this.Listadoordenestrabajo().length;
-      },error:(err)=>{
-
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Advertencia',
-          detail: 'Ocurrió un problema al cargar las órdenes de trabajo',
-        });
-        this.spinner.set(false)
+        this.Listadotipomaterial.set(data.data)
       }
     })
   }
-
-
-  listadodbitacora() {
-    this.bitacuraService
-      .buscarBitacoraPoridcliente(this.BitacuraModel().id_cliente)
-      .subscribe({
-        next: (response) => {
-          if (response?.mensaje === 'EXITO') {
-            this.listadoBitacora.set(response?.data || []);
-            console.log(this.listadoBitacora());
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: response?.mensaje || 'Error al obtener la bitácora',
-            });
-          }
-        },
-      });
-  }
+  // cargarordenestrabajo(){
+  //   this.spinner.set(true)
+  //   this.OrdenTrabajofiltroEnvio().fechainicial=this.formatDateForDB(this.fechainicial)
+  //   this.OrdenTrabajofiltroEnvio().fechafinal=this.formatDateForDB(this.fechafinal)
+  //   this.ordentrabajoService.getlistaordentrabajos(this.OrdenTrabajofiltroEnvio()).subscribe({
+  //     next:(data)=>{
+  //
+  //       this.messageService.add({
+  //         severity: 'success',
+  //         summary: 'Aviso de usuario',
+  //         detail: 'Se encontraron coincidencias',
+  //       });
+  //       this.Listadoordenestrabajo.set(data.data)
+  //       this.spinner.set(false)
+  //       this.Totalregistros = this.Listadoordenestrabajo().length;
+  //     },error:(err)=>{
+  //
+  //       this.messageService.add({
+  //         severity: 'error',
+  //         summary: 'Advertencia',
+  //         detail: 'Ocurrió un problema al cargar las órdenes de trabajo',
+  //       });
+  //       this.spinner.set(false)
+  //     }
+  //   })
+  // }
 
   limpiar_filtros() {
     // this.OrdenTrabajo.set(new CortesfiltroEnvio());
@@ -276,8 +263,8 @@ export class OrdenTrabajoComponent {
   }
   guardarorden(){
     if (!this.validarForm()) {
-    return;
-  }
+      return;
+    }
     this.spinner.set(true)
     this.abrirnuevaot=false
     console.log(this.enviarOrdenTrabajo())
@@ -293,7 +280,7 @@ export class OrdenTrabajoComponent {
           });
           this.enviarOrdenTrabajo.set(new ordentrabajoModel())
           this.nombrecliente=new ListadoClientes()
-          this.cargarordenestrabajo()
+          // this.cargarordenestrabajo()
 
         }else {
           this.abrirnuevaot=true
@@ -333,7 +320,7 @@ export class OrdenTrabajoComponent {
           });
           this.enviarOrdenTrabajo.set(new ordentrabajoModel())
           this.nombrecliente=new ListadoClientes()
-          this.cargarordenestrabajo()
+          // this.cargarordenestrabajo()
           this.tipoenvio=''
 
         }else {
@@ -498,5 +485,29 @@ export class OrdenTrabajoComponent {
     const ss = pad(date.getSeconds());
 
     return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
+  }
+  cambiotecnico(){
+    this.cargarfechas('ALL',this.OrdenTrabajofiltroEnvio().idtecnico)
+  }
+  cargarfechas(estado:string,idtecnico:string){
+    this.spinner.set(true)
+    this.ordentrabajoService.getlistaordentrabajos_x_estado_tecnico(estado,idtecnico).subscribe({
+      next:(data)=>{
+        this.listafechas.set(data.data)
+
+        this.spinner.set(false)
+      },error:(err)=>{
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Aviso de usuario',
+          detail: 'Ocurrió un problema al cargar las fechas',
+        });
+        this.spinner.set(false)
+      }
+    })
+  }
+  agregarmaterial(){
+    this.OrdenTrabajofiltroEnvio().materiales.unshift(this.OrdenTrabajomaterial())
+    this.OrdenTrabajomaterial.set(new materialesModel())
   }
 }

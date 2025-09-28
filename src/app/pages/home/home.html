@@ -1,52 +1,22 @@
-<div class="grid justify-content-center mt-10">
-  <div class="col-12 md:col-6 lg:col-4">
-    <div class="card p-6 shadow-2 border-round-lg bg-white">
-      <!-- Cabecera con avatar y nombre -->
-      <div class="flex align-items-center gap-4 mb-4">
-        <!-- <p-avatar
-          image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png"
-          shape="circle"
-          size="xlarge"
-          class="border-2 border-blue-500"
-        /> -->
-        <div>
-          <h2 class="m-0 text-2xl font-bold text-blue-700">Amy Elsner</h2>
-          <p class="text-sm text-gray-500">Bienvenida a tu panel de control</p>
-        </div>
-      </div>
+<div class="grid justify-content-center mt-5">
+  <div class="col">
+    <div class="flex items-center justify-center">
+      <p-card class="backdrop-blur-md shadow-lg shadow-blue-500/50 rounded-xl"
+              [style]="{ width: '50rem', overflow: 'hidden' }">
+        <ng-template #header>
+          <img alt="Card" class="w-80 mx-auto mt-2 rounded" src="assets/images/logo.png"/>
+        </ng-template>
+        <ng-template #title>
+          <span class="flex items-center justify-center text-green-600 text-xl" style="font-size: 2rem">Software de Gestión de Servicios de Internet</span>
+        </ng-template>
+        <ng-template #subtitle> Panel de Administración </ng-template>
+        <p>
+          ¡Hola {{usuario.nombres}} {{usuario.apellidos}} ! Este panel te permite gestionar tus tareas, revisar reportes
+          y mantener todo bajo control. Mantente al día con tus notificaciones y
+          accede rápidamente a tus configuraciones.
+        </p>
+      </p-card>
 
-      <!-- Contenido principal -->
-      <p class="text-justify mb-5 text-gray-600">
-        ¡Hola Amy! Este panel te permite gestionar tus tareas, revisar reportes
-        y mantener todo bajo control. Mantente al día con tus notificaciones y
-        accede rápidamente a tus configuraciones.
-      </p>
-
-      <!-- Botones de acción -->
-      <div class="flex justify-content-between gap-3 mb-4">
-        <p-button
-          label="Ver Perfil"
-          icon="pi pi-user"
-          class="p-button-rounded p-button-outlined p-button-info"
-        />
-        <p-button
-          label="Notificaciones"
-          icon="pi pi-bell"
-          severity="info"
-          class="p-button-rounded"
-        />
-        <p-button
-          label="Configuración"
-          icon="pi pi-cog"
-          [severity]="'success'"
-          class="p-button-rounded"
-        />
-      </div>
-
-      <!-- Pie con última actualización -->
-      <div class="text-right text-sm text-gray-400 italic">
-        Última actualización: hace 2 horas
-      </div>
     </div>
   </div>
 </div>

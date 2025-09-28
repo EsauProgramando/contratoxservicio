@@ -547,25 +547,101 @@ export class MenuBar {
             icon: 'pi pi-calendar', // planes/servicios empresariales o residenciales
             routerLink: './agencia-tecnica',
           },
+          {
+            label: 'Ejecución Orden Trabajo',
+            icon: 'pi pi-verified', // planes/servicios empresariales o residenciales
+            routerLink: './ejecucion-orden',
+          },
+        ],
+      },
+      {
+        label: 'Gestión de Inventario',
+        icon: 'pi pi-pen-to-square', // configuración general
+        items: [
+          {
+            label: 'Proveedores',
+            icon: 'pi pi-user', // relacionado con direcciones/mapas
+            // routerLink: './orden-trabajo',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Planes de Servicio',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
+          {
+            label: 'Listado de Articulos',
+            icon: 'pi pi-calendar', // planes/servicios empresariales o residenciales
+            // routerLink: './agencia-tecnica',
+                command: () => {
+                  this.messageService.add({
+                    severity: 'info',
+                    summary: 'Planes de Servicio',
+                    detail: 'Funcionalidad en desarrollo',
+                    life: 3000,
+                  });
+                },
+          },
+          {
+            label: 'Historial de Requerimientos',
+            icon: 'pi pi-bell', // planes/servicios empresariales o residenciales
+            // routerLink: './ejecucion-orden',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Planes de Servicio',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
+          {
+            label: 'Solicitud de Requerimiento',
+            icon: 'pi pi-pencil', // planes/servicios empresariales o residenciales
+            // routerLink: './agencia-tecnica',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Planes de Servicio',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
+          {
+            label: 'Ordenes de Compras',
+            icon: 'pi pi-lightbulb', // planes/servicios empresariales o residenciales
+            // routerLink: './ejecucion-orden',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Planes de Servicio',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+            },
+          },
         ],
       },
       {
         label: 'Mantenimientos',
         icon: 'pi pi-cog', // configuración general
         items: [
-          {
-            label: 'Calles',
-            icon: 'pi pi-map',
-            routerLink: './calles',
-            command: () => {
-              this.messageService.add({
-                severity: 'info',
-                summary: 'Mantenimiento de Calles',
-                detail: 'Funcionalidad en desarrollo',
-                life: 3000,
-              });
-            },
-          },
+          // {
+          //   label: 'Calles',
+          //   icon: 'pi pi-map',
+          //   routerLink: './calles',
+          //   command: () => {
+          //     this.messageService.add({
+          //       severity: 'info',
+          //       summary: 'Mantenimiento de Calles',
+          //       detail: 'Funcionalidad en desarrollo',
+          //       life: 3000,
+          //     });
+          //   },
+          // },
           {
             label: 'Plan por Servicio',
             icon: 'pi pi-briefcase', // planes/servicios empresariales o residenciales
