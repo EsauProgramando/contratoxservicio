@@ -1,0 +1,348 @@
+@if (spinner()){
+  <app-carga></app-carga>
+}
+<p-toast></p-toast>
+<div
+  class="p-4 sm:p-6 lg:p-8 bg-white rounded-xl shadow-lg border border-gray-200"
+>
+  <!-- Header -->
+  <header class="space-y-2">
+    <h1 class="text-2xl font-bold text-green-600">Ejecución de Instalación </h1>
+    <p class="text-gray-600 text-sm">
+      Completa el formulario durante la instalación. Puedes activar el servicio, adjuntar evidencias y cerrar la OT.
+    </p>
+    <hr class="border-gray-300" />
+  </header>
+
+  <section>
+    <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-4">
+      <div class="col">
+        <div class="flex flex-col ">
+          <label class="text-sm font-medium text-gray-600 mb-1">Técnicos</label>
+          <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico"
+                    optionValue="idtecnico"
+                    class="w-full" placeholder="Seleccionar Técnico"
+                    (ngModelChange)="cambiotecnico()">
+            <ng-template #selectedItem let-selectedOption>
+              <div class="flex items-center gap-2">
+                {{ selectedOption.nombres + ' ' + selectedOption.apellidos }}
+              </div>
+            </ng-template>
+            <ng-template let-option #item>
+              <div class="flex items-center gap-2">
+                {{ option.nombres + ' ' + option.apellidos }}
+              </div>
+            </ng-template>
+          </p-select>
+
+        </div>
+      </div>
+      <div class="col">
+        <div class="flex flex-col ">
+          <label class="text-sm font-medium text-gray-600 mb-1">Orden de trabajo Asignadas:</label>
+          <p-select [options]="listafechas()"
+                    [(ngModel)]="ordentrabajoselected"
+                    class="w-full" placeholder="Detalle de la orden de trabajo"
+                    >
+            <ng-template #selectedItem let-selectedOption>
+              <div class="flex items-center gap-2">
+                {{ selectedOption.idordentrabajo + '-' + selectedOption.tecnico+'-' + selectedOption.fechaorden }}
+              </div>
+            </ng-template>
+            <ng-template let-option #item>
+              <div class="flex items-center gap-2">
+                {{ option.idordentrabajo + '-' + option.tecnico+'-' + option.fechaorden }}
+              </div>
+            </ng-template>
+          </p-select>
+
+        </div>
+      </div>
+
+      <div class="col">
+        @if(ordentrabajoselected && ordentrabajoselected.estado){
+
+        <div class="colum gap-1 mt-2">
+          <p-tag severity="secondary" style="font-size: 0.7rem" [value]="ordentrabajoselected.tecnico+' • '+ordentrabajoselected.servicio+' • '+ordentrabajoselected.direccion+' • '+ordentrabajoselected.tipo" />
+          <p-tag severity="secondary"  style="font-size: 0.7rem"  [value]="ordentrabajoselected.estado" />
+          <p-tag severity="success"  style="font-size: 0.7rem"  [value]="ordentrabajoselected.servicio" />
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
+      <div class="md:col-span-6 mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">1) Materiales / Equipos usados</span>
+            </div>
+          </ng-template>
+          <section>
+            <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-4">
+              <div class="col">
+                <div class="flex flex-col ">
+                  <label class="text-sm font-medium text-gray-600 mb-1">Tipo</label>
+                  <p-select [options]="Listadotipomaterial()" [(ngModel)]="idtipomaterial"
+                            optionValue="idtipomaterial"
+                            class="w-full" >
+                    <ng-template #selectedItem let-selectedOption>
+                      <div class="flex items-center gap-2">
+                        {{  selectedOption.destipo }}
+                      </div>
+                    </ng-template>
+                    <ng-template let-option #item>
+                      <div class="flex items-center gap-2">
+                        {{ option.destipo }}
+                      </div>
+                    </ng-template>
+                  </p-select>
+
+                </div>
+              </div>
+              <div class="col">
+                <div class="flex flex-col ">
+                  <label class="text-sm font-medium text-gray-600 mb-1">Marca / Modelo:</label>
+                  <input
+                    pInputText
+                    [(ngModel)]="OrdenTrabajomaterial().marca"
+                    placeholder="Ej: Huawei HG8145X6"
+                    class="w-full p-inputtext p-component rounded-md shadow-sm"
+                  />
+
+                </div>
+              </div>
+              <div class="col">
+                <div class="flex flex-col ">
+                  <label class="text-sm font-medium text-gray-600 mb-1">Serie / MAC:</label>
+                  <input
+                    pInputText
+                    [(ngModel)]="OrdenTrabajomaterial().serie"
+                    placeholder="Ej: 98:AB:CD:12:34:36"
+                    class="w-full p-inputtext p-component rounded-md shadow-sm"
+                  />
+
+                </div>
+              </div>
+              <div class="col">
+                <div class="flex flex-col ">
+                  <label class="text-sm font-medium text-gray-600 mb-1">Cantidad:</label>
+                  <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt"
+                                 inputId="minmaxfraction" mode="decimal"
+                                 [min]="0"
+                                 [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+                </div>
+              </div>
+              <div class="col">
+                <div class="flex flex-col ">
+                  <label class="text-sm font-medium text-gray-600 mb-1">Nota:</label>
+                  <input
+                    pInputText
+                    [(ngModel)]="OrdenTrabajomaterial().nota"
+                    placeholder="Ej: 98:AB:CD:12:34:36"
+                    class="w-full p-inputtext p-component rounded-md shadow-sm"
+                  />
+
+                </div>
+              </div>
+              <div class="col">
+                <div class="flex flex-col items-center justify-center">
+                  <p-button label="Agregar" icon="pi pi-plus" severity="success" (click)="agregarmaterial()"/>
+                </div>
+              </div>
+            </div>
+          </section>
+          <div class="mt-2">
+            <p-table [value]="OrdenTrabajofiltroEnvio().materiales"
+                     showGridlines
+                     stripedRows
+                     size="small"
+                     [tableStyle]="{ 'min-width': '30rem' }">
+              <ng-template #header>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Marca</th>
+                  <th>Serie/MAC</th>
+                  <th>Cantidad</th>
+                  <th>Nota</th>
+                  <th>Acción</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-material>
+                <tr>
+                  <td>{{ material.tipo }}</td>
+                  <td>{{ material.marca }}</td>
+                  <td>{{ material.serie }}</td>
+                  <td>{{ material.cantidad }}</td>
+                  <td>{{ material.nota }}</td>
+                  <td>
+                    <p-button icon="pi pi-trash" [rounded]="true" severity="danger"
+                              pTooltip="Eliminar Material" tooltipPosition="left"
+                              [outlined]="true" />
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+          </div>
+        </p-panel>
+      </div>
+      <div class="md:col-span-5 mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">Resumen / Historial</span>
+            </div>
+          </ng-template>
+          <p class="m-0">
+            Lorem ipsum dolor sit amet...
+          </p>
+        </p-panel>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
+      <div class="md:col-span-6 mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">2) Evidencias y Geolocalización (opcional)</span>
+            </div>
+          </ng-template>
+          <p class="m-0">
+            Lorem ipsum dolor sit amet...
+          </p>
+        </p-panel>
+      </div>
+      <div class="md:col-span-5 mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">3) Señal y Pruebas</span>
+            </div>
+          </ng-template>
+          <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
+            <div class="col">
+              <div class="flex flex-col ">
+                <label class="text-sm font-medium text-gray-600 ">Potencia óptica (dBm) [FTTH]</label>
+                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="flex flex-col ">
+                <label class="text-sm font-medium text-gray-600 ">RSSI (dBm) [Wireless]</label>
+                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().rssi" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+              </div>
+            </div>
+            <div class="col-span-2">
+              <div class="flex flex-col ">
+                <label class="text-sm font-medium text-gray-600 ">SNR (dB) [Wireless]</label>
+                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().snr" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="flex flex-col ">
+                <label class="text-sm font-medium text-gray-600 ">Speedtest (Desc Mbps)</label>
+                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().descmbps" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="flex flex-col ">
+                <label class="text-sm font-medium text-gray-600 ">Speedtest (Sub Mbps)</label>
+                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().subbps" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="flex flex-col ">
+                <label class="text-sm font-medium text-gray-600 ">Ping</label>
+                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().ping" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="flex flex-col items-center justify-center">
+                <p-button label="Simular test" severity="success" />
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="flex ">
+                <label class="text-sm font-medium text-gray-600  mx-1">Ping gateway</label>
+                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().pinggateway" [binary]="true" />
+              </div>
+            </div>
+            <div class="col">
+              <div class="flex ">
+                <label class="text-sm font-medium text-gray-600  mx-1">Navegación web</label>
+                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().navegacionweb" [binary]="true" />
+              </div>
+            </div>
+            <div class="col">
+              <div class="flex ">
+                <label class="text-sm font-medium text-gray-600  mx-1">Speedtest</label>
+                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().speedtest" [binary]="true" />
+              </div>
+            </div>
+            <div class="col">
+              <div class="flex ">
+                <label class="text-sm font-medium text-gray-600  mx-1">IPTV</label>
+                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().iptv" [binary]="true" />
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="flex ">
+                <label class="text-sm font-medium text-gray-600  mx-1">VoIP</label>
+                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().voip" [binary]="true" />
+              </div>
+            </div>
+          </div>
+
+
+        </p-panel>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
+      <div class="md:col-span-6 mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">4) Observaciones del técnico</span>
+            </div>
+          </ng-template>
+          <p-floatlabel variant="on">
+            <textarea pTextarea id="over_label" [(ngModel)]="OrdenTrabajofiltroEnvio().observaciones"
+                      rows="5" cols="30" style="resize: none" class="h-full w-full"
+            placeholder="Ej. ONT instalada en sala; potencia -19.8dBm; router en modo bridge"></textarea>
+            <label>Redactar Observación verificada</label>
+          </p-floatlabel>
+        </p-panel>
+      </div>
+      <div class="md:col-span-5 mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">5) Firma digital del cliente (opcional)</span>
+            </div>
+          </ng-template>
+          <p class="m-0">
+            Lorem ipsum dolor sit amet...
+          </p>
+        </p-panel>
+      </div>
+    </div>
+  </section>
+</div>

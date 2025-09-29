@@ -4,6 +4,17 @@ import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import {UsuariosServices} from '../../auth/usuarios-services';
 import {loginUser} from '../../model/auth/usuariosModel';
+import { jwtDecode } from 'jwt-decode';
+interface JwtPayload {
+  sub: string;
+  iduser: number;
+  nombres: string;
+  apellidos: string;
+  dni: string;
+  rol: string;
+  iat: number;
+  exp: number;
+}
 @Component({
   selector: 'app-login',
   imports: [FormsModule, RouterModule],
@@ -25,6 +36,14 @@ export class Login {
       next:(data)=>{
         sessionStorage.setItem('token',data.token)
         sessionStorage.setItem('tipotoken',data.type)
+        const decoded = jwtDecode<JwtPayload>(data.token);
+
+        // Guardamos datos del usuario en sessionStorage
+        sessionStorage.setItem('iduser', decoded.iduser.toString());
+        sessionStorage.setItem('nombres', decoded.nombres);
+        sessionStorage.setItem('apellidos', decoded.apellidos);
+        sessionStorage.setItem('dni', decoded.dni);
+        sessionStorage.setItem('rol', decoded.rol);
         this.router.navigate(['/home']);
       },
       error:(err)=>{

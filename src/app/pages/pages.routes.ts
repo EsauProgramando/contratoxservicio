@@ -86,6 +86,13 @@ export const pagesRoutes: Routes = [
       ).then((m) => m.AgenciaTecnicaComponent),
   },
   {
+    path: 'ejecucion-orden',
+    loadComponent: () =>
+      import(
+        './control/ejecucion-orden-trabajo/ejecucion-orden-trabajo'
+        ).then((m) => m.EjecucionOrdenTrabajo),
+  },
+  {
     path: 'bajas-morosidad',
     loadComponent: () =>
       import('./gestionCobranza/bajas-morosidad/bajas-morosidad').then(
