@@ -88,9 +88,9 @@ export const pagesRoutes: Routes = [
   {
     path: 'ejecucion-orden',
     loadComponent: () =>
-      import(
-        './control/ejecucion-orden-trabajo/ejecucion-orden-trabajo'
-        ).then((m) => m.EjecucionOrdenTrabajo),
+      import('./control/ejecucion-orden-trabajo/ejecucion-orden-trabajo').then(
+        (m) => m.EjecucionOrdenTrabajo
+      ),
   },
   {
     path: 'bajas-morosidad',
@@ -100,7 +100,7 @@ export const pagesRoutes: Routes = [
       ),
   },
   {
-    path: 'seguimiento-morocidad',
+    path: 'seguimiento-morosidad',
     loadComponent: () =>
       import(
         './gestionCobranza/seguimiento-morocidad/seguimiento-morocidad'
