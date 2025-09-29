@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Response_Generico } from '../../model/responseGeneric';
 import { FacturacionRequest } from '../../model/gestionClientes/FacturacionRequest';
 import { FacturacionEnvio } from '../../model/gestionClientes/facturacionEnvio';
+import { ActuatulizarFacturaModel } from '../../model/gestionClientes/ActuatulizarFacturaModel';
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +26,16 @@ export class FacturacionService {
   ): Observable<Response_Generico<FacturacionRequest[]>> {
     return this.http.post<Response_Generico<FacturacionRequest[]>>(
       `${this.baseUrl}/buscar_facturas`,
+      factura
+    );
+  }
+
+  //actualizar_factura
+  actualizar_factura(
+    factura: ActuatulizarFacturaModel
+  ): Observable<Response_Generico<any>> {
+    return this.http.post<Response_Generico<any>>(
+      `${this.baseUrl}/actualizar_factura`,
       factura
     );
   }

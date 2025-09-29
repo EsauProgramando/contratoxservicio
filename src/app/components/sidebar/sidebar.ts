@@ -150,6 +150,11 @@ export class Sidebar {
             icon: 'pi pi-handshake',
             routerLink: './retencion-negociacion-cliente',
           },
+          {
+            label: 'Validación de Vauchers',
+            icon: 'pi pi-eye', // validación/aprobación
+            routerLink: './validacion-vauchers',
+          },
           // {
           //   label: 'Registro Manual de Pagos',
           //   icon: 'pi pi-money-bill', // registro de pagos

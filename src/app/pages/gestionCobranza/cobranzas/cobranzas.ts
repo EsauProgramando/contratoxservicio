@@ -43,9 +43,9 @@ import { EmailModel } from '../../../model/gmail/EmailModel';
 import Swal from 'sweetalert2';
 import { Historialservicio } from '../../../services/mantenimiento/historialservicio';
 import { HistorialServicioModel } from '../../../model/mantenimiento/HistorialServicioModel';
-import {creardocumentoModel} from '../../../model/documento/documento';
-import {DocumentoService} from '../../../services/documento/documento-service';
-import {AnimateOnScrollModule} from 'primeng/animateonscroll';
+import { creardocumentoModel } from '../../../model/documento/documento';
+import { DocumentoService } from '../../../services/documento/documento-service';
+import { AnimateOnScrollModule } from 'primeng/animateonscroll';
 @Component({
   selector: 'app-cobranzas',
   imports: [
@@ -73,7 +73,7 @@ import {AnimateOnScrollModule} from 'primeng/animateonscroll';
     CargaComponent,
     DatePickerModule,
     TextareaModule,
-    AnimateOnScrollModule
+    AnimateOnScrollModule,
   ],
   templateUrl: './cobranzas.html',
   styleUrl: './cobranzas.scss',
@@ -88,7 +88,7 @@ export class Cobranzas {
   ref: DynamicDialogRef | undefined;
   listaTpoServicioes_servicio = signal<TipoServicioModel[]>([]);
   disabled = signal<boolean>(false);
-  fila_select=signal<FacturacionRequest>(new FacturacionRequest())
+  fila_select = signal<FacturacionRequest>(new FacturacionRequest());
   //pagos
   pagos = signal<PagosModel>(new PagosModel());
   facturaEnvio = signal<creardocumentoModel>(new creardocumentoModel());
@@ -101,9 +101,9 @@ export class Cobranzas {
   };
   formErrorsFactura = {
     numeroDocumentoCliente: signal(false),
-    direccionCliente: signal(false)
+    direccionCliente: signal(false),
   };
-  abrirdetallefactura:boolean=false
+  abrirdetallefactura: boolean = false;
   emailModel = signal<EmailModel>(new EmailModel());
   historialServicioModel = signal<HistorialServicioModel>(
     new HistorialServicioModel()
@@ -129,7 +129,7 @@ export class Cobranzas {
   ];
   tipocomprobante = [
     { label: 'Boleta', value: '03' },
-    { label: 'Factura', value: '01' }
+    { label: 'Factura', value: '01' },
   ];
 
   constructor(
@@ -140,7 +140,7 @@ export class Cobranzas {
     private pagosService: PagosService,
     private gmailService: GmailService,
     private historialServicio: Historialservicio,
-    private documentoService:DocumentoService
+    private documentoService: DocumentoService
   ) {}
   ngOnInit() {
     this.cargarTipoServicio();
@@ -173,7 +173,7 @@ export class Cobranzas {
     });
   }
   limpiarFiltros() {
-    this.facturacionEnvio().estado = '';
+    this.facturacionEnvio().estado = 'TODOS';
     this.searchValue = '';
     this.facturacionEnvio().nombre_completo = '';
   }
@@ -300,10 +300,10 @@ export class Cobranzas {
       codigo_factura: factura.codigo_factura,
     }));
   }
-  detallefactura(factura: FacturacionRequest){
-    this.facturaEnvio.set(new creardocumentoModel())
-    console.log(factura)
-    this.fila_select.set(factura)
+  detallefactura(factura: FacturacionRequest) {
+    this.facturaEnvio.set(new creardocumentoModel());
+    console.log(factura);
+    this.fila_select.set(factura);
     // this.facturaEnvio.update((e)=>({
     //   ...e,
     //   idContrato:factura.id_contrato,
@@ -315,83 +315,86 @@ export class Cobranzas {
     // }))
     this.facturaEnvio.update((prev) => ({
       ...prev,
-      codigoFactura:factura.codigo_factura,
-      tipoComprobante: factura.codigo_factura.substring(0,1)=='B'?'03':'01',
-      tipoDocumentoCliente:  factura.tipodocident==5?'1':factura.tipodocident==7?'6':'0',
+      codigoFactura: factura.codigo_factura,
+      tipoComprobante:
+        factura.codigo_factura.substring(0, 1) == 'B' ? '03' : '01',
+      tipoDocumentoCliente:
+        factura.tipodocident == 5 ? '1' : factura.tipodocident == 7 ? '6' : '0',
       numeroDocumentoCliente: factura.nrodocident,
-      nombreCliente:    factura.nombre_completo,
-      razonSocialCliente:     factura.nombre_completo,
-      direccionCliente: factura.direccion
+      nombreCliente: factura.nombre_completo,
+      razonSocialCliente: factura.nombre_completo,
+      direccionCliente: factura.direccion,
     }));
-    this.abrirdetallefactura=true
-    console.log(this.facturaEnvio())
+    this.abrirdetallefactura = true;
+    console.log(this.facturaEnvio());
   }
   generarDocumento(factura: FacturacionRequest) {
     if (!this.validarFormFactura()) {
       return;
     }
     this.spinner.set(true);
-    this.abrirdetallefactura=false
-// console.log(factura,this.facturaEnvio(),'data')
+    this.abrirdetallefactura = false;
+    // console.log(factura,this.facturaEnvio(),'data')
     this.documentoService.registrarDocumento(this.facturaEnvio()).subscribe({
-      next:(data)=>{
+      next: (data) => {
         this.messageService.add({
           severity: 'success',
           summary: 'Aviso de Usuario',
           detail: 'Se creó el documento de envío',
         });
-        if(this.facturaEnvio().tipoComprobante=='03'){
-
+        if (this.facturaEnvio().tipoComprobante == '03') {
           this.documentoService.getBoleta(factura.codigo_factura).subscribe({
-            next:(data)=>{
+            next: (data) => {
               this.spinner.set(false);
               this.messageService.add({
                 severity: 'success',
                 summary: 'Aviso de Usuario',
                 detail: 'Se creó el documento de envío',
               });
-              this.buscarFacturas()
-            },error:(err)=>{
-              this.abrirdetallefactura=true
+              this.buscarFacturas();
+            },
+            error: (err) => {
+              this.abrirdetallefactura = true;
               this.messageService.add({
                 severity: 'error',
                 summary: 'Aviso de Usuario',
                 detail: 'Ocurrió un error al generar la boleta',
               });
               this.spinner.set(false);
-            }
-          })
-        }else {
+            },
+          });
+        } else {
           this.documentoService.getFactura(factura.codigo_factura).subscribe({
-            next:(data)=>{
-
+            next: (data) => {
               this.messageService.add({
                 severity: 'success',
                 summary: 'Aviso de Usuario',
                 detail: 'Se creó la factura con ÉXITO',
               });
               this.spinner.set(false);
-              this.buscarFacturas()
-            },error:(err)=>{
-
+              this.buscarFacturas();
+            },
+            error: (err) => {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Aviso de Usuario',
                 detail: 'Ocurrió un error al crear la factura',
               });
               this.spinner.set(false);
-            }
-          })
+            },
+          });
         }
-      },error:(err)=>{
+      },
+      error: (err) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Aviso de Usuario',
-          detail: err.error?.resultado || 'Ocurrió un error al crear el documento',
+          detail:
+            err.error?.resultado || 'Ocurrió un error al crear el documento',
         });
         this.spinner.set(false);
-      }
-    })
+      },
+    });
   }
 
   verHistorial(factura: FacturacionRequest) {
@@ -446,7 +449,13 @@ export class Cobranzas {
           //agregar un valor mas que seria 0 es igual a TODOS
           // ✅ o con update (usa el valor anterior)
           this.listaTpoServicioes_servicio.update((prev) => [
-            { descripcion: 'TODOS', es_servicio: true, estareg: 1, id_tipo: 0, op:1 },
+            {
+              descripcion: 'TODOS',
+              es_servicio: true,
+              estareg: 1,
+              id_tipo: 0,
+              op: 1,
+            },
             ...prev,
           ]);
         } else {
@@ -487,9 +496,9 @@ export class Cobranzas {
 
   cerrarModal() {
     this.abrimodelpagos = false;
-    this.abrirdetallefactura=false
+    this.abrirdetallefactura = false;
     this.pagos.set(new PagosModel());
-    this.facturaEnvio.set(new creardocumentoModel())
+    this.facturaEnvio.set(new creardocumentoModel());
   }
   guardarPago() {
     // Lógica para guardar el pago
@@ -636,7 +645,6 @@ export class Cobranzas {
       this.formErrorsFactura.numeroDocumentoCliente.set(false);
     }
 
-
     return valido;
   }
   imprimirpdf(factura: FacturacionRequest) {
@@ -646,7 +654,8 @@ export class Cobranzas {
       console.error('No existe URL de PDF en la factura');
     }
   }
-  cambiocomprobante(){
-    this.facturaEnvio().tipoDocumentoCliente=this.facturaEnvio().tipoComprobante=='01'?'6':'1'
+  cambiocomprobante() {
+    this.facturaEnvio().tipoDocumentoCliente =
+      this.facturaEnvio().tipoComprobante == '01' ? '6' : '1';
   }
 }
