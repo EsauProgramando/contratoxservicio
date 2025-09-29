@@ -27,7 +27,7 @@ import {AutoCompleteCompleteEvent, AutoCompleteModule} from 'primeng/autocomplet
 import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {
-  ejecucionordentrabajoModel, materialesModel,
+  ejecucionordentrabajoModel, HistorialordentrabajoModel, materialesModel,
   ordentrabajofiltroModel,
   ordentrabajoModel, tipomaterialModel
 } from '../../../model/ordentrabajo/ordentrabajoModel';
@@ -50,6 +50,8 @@ import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPen
 import {PanelModule} from 'primeng/panel';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {TipomaterialServices} from '../../../services/mantenimiento/tipomaterial-services';
+import {MostrarPdf} from '../../../components/mostrar-pdf/mostrar-pdf';
+import {FirmaElec} from '../../../components/firma-elec/firma-elec';
 
 @Component({
   selector: 'app-ejecucion-orden-trabajo',
@@ -81,7 +83,10 @@ import {TipomaterialServices} from '../../../services/mantenimiento/tipomaterial
     AutoCompleteModule,
     CheckboxModule,
     PanelModule,
-    InputNumberModule
+    InputNumberModule,
+    ConfirmDialogModule,
+    MostrarPdf,
+    FirmaElec
   ],
   standalone: true,
   templateUrl: './ejecucion-orden-trabajo.html',
@@ -100,7 +105,7 @@ export class EjecucionOrdenTrabajo {
   CortesPendienteRequest = signal<CortesPendienteRequest[]>([]);
   Listadotecnicos=signal<tecnicoModel[]>([])
   Listadotipomaterial=signal<tipomaterialModel[]>([])
-  idtipomaterial:number=1
+  idtipomaterial:{ idtipomaterial: number; destipo: string }=new tipomaterialModel()
   ordentrabajoselected:ordentrabajoModel=new ordentrabajoModel()
   listafechas=signal<ordentrabajoModel[]>([])
   // Variables de filtro
@@ -170,9 +175,11 @@ export class EjecucionOrdenTrabajo {
     { label: 'CAMPO', value: 2 },
   ];
   emailModel = signal<EmailModel>(new EmailModel());
-  historialServicioModel = signal<HistorialServicioModel>(
-    new HistorialServicioModel()
+  historialServicioModel = signal<HistorialordentrabajoModel[]>(
+    []
   );
+  registroHistorial=signal<HistorialordentrabajoModel>(new HistorialordentrabajoModel());
+
   constructor(
     private messageService: MessageService,
     private cortesservice: Cortesservice,
@@ -184,7 +191,8 @@ export class EjecucionOrdenTrabajo {
     private tecnicoService:TecnicosService,
     private clienteSerice:ClientesService,
     private tiposervicioServicio:TipoServicioService,
-    private tipomaterialService:TipomaterialServices
+    private tipomaterialService:TipomaterialServices,
+    private confirmationService: ConfirmationService,
   ) {}
 
   ngOnInit() {
@@ -204,6 +212,10 @@ export class EjecucionOrdenTrabajo {
     this.tipomaterialService.getlistatipomaterials().subscribe({
       next:(data)=>{
         this.Listadotipomaterial.set(data.data)
+        this.idtipomaterial={
+          idtipomaterial:1,
+          destipo: "ONP/CPE"
+        }
       }
     })
   }
@@ -454,25 +466,6 @@ export class EjecucionOrdenTrabajo {
         return null;
     }
   }
-  cambioproceso(){
-    this.enviarOrdenTrabajo().estado=this.checked?'EN PROCESO':'PENDIENTE'
-  }
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-
-      // reader.onload = () => {
-      //   const base64 = reader.result as string; // esto incluye "data:mime/type;base64,..."
-      //   this.pagos.update((prev) => ({
-      //     ...prev,
-      //     adjunto_boleta: base64,
-      //   }));
-      // };
-
-      reader.readAsDataURL(file); // lee como DataURL para mantener metadata y tipo
-    }
-  }
   private formatDateForDB(date: Date): string {
     if (!date) return '';
     const pad = (n: number) => n < 10 ? '0' + n : n;
@@ -507,7 +500,91 @@ export class EjecucionOrdenTrabajo {
     })
   }
   agregarmaterial(){
-    this.OrdenTrabajofiltroEnvio().materiales.unshift(this.OrdenTrabajomaterial())
-    this.OrdenTrabajomaterial.set(new materialesModel())
+    const nuevo = this.OrdenTrabajomaterial();
+
+    nuevo.idtipo=this.idtipomaterial.idtipomaterial
+    nuevo.tipo=this.idtipomaterial.destipo
+    const existe = this.OrdenTrabajofiltroEnvio().materiales.some(
+      (m) => m.idtipo === nuevo.idtipo
+    );
+    if (existe) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Aviso de usuario',
+        detail: 'El tipo de material ya fue agregado',
+      });
+      return;
+    }
+    this.OrdenTrabajofiltroEnvio().materiales.unshift(nuevo);
+    this.OrdenTrabajomaterial.set(new materialesModel());
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Aviso de usuario',
+      detail: 'Material agregado al listado',
+    });
+  }
+  eliminarmaterial(material:materialesModel){
+    this.OrdenTrabajofiltroEnvio().materiales=this.OrdenTrabajofiltroEnvio().materiales.filter(
+      (m) => m.idtipo !== material.idtipo
+    );
+  }
+  confirm(material:materialesModel) {
+    this.confirmationService.confirm({
+      header: 'Está seguro de eliminar?',
+      message: 'Confirmación del proceso para el material '+ material.tipo + ' ?',
+      accept: () => {
+        this.eliminarmaterial(material)
+        this.messageService.add({ severity: 'info', summary: 'Eliminado', detail: 'Material eliminado' });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Cancelado', detail: 'Se canceló el proceso' });
+      },
+    });
+  }
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase();
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+
+      // ⚡ importante: crea nueva referencia
+      const nuevoHistorial = {
+        ...this.registroHistorial(),
+        extensiondoc: extension || '',
+        archivobase64: base64
+      };
+      this.registroHistorial.set(nuevoHistorial); // si usas signal()
+
+      console.log(this.registroHistorial());
+
+      // event.target.value = '';
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+
+  buscarcoordenadas() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.OrdenTrabajofiltroEnvio().latitud = position.coords.latitude;
+          this.OrdenTrabajofiltroEnvio().longitud = position.coords.longitude;
+        },
+        (error) => {
+        },
+        {
+          enableHighAccuracy: true, // intenta usar GPS si hay
+          timeout: 10000,           // 10 segundos
+          maximumAge: 0             // no usar cache
+        }
+      );
+    } else {
+      console.error('La geolocalización no está soportada en este navegador.');
+    }
   }
 }
