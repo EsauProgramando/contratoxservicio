@@ -86,7 +86,6 @@
                 <div class="flex flex-col ">
                   <label class="text-sm font-medium text-gray-600 mb-1">Tipo</label>
                   <p-select [options]="Listadotipomaterial()" [(ngModel)]="idtipomaterial"
-                            optionValue="idtipomaterial"
                             class="w-full" >
                     <ng-template #selectedItem let-selectedOption>
                       <div class="flex items-center gap-2">
@@ -162,13 +161,13 @@
                      size="small"
                      [tableStyle]="{ 'min-width': '30rem' }">
               <ng-template #header>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Marca</th>
-                  <th>Serie/MAC</th>
-                  <th>Cantidad</th>
-                  <th>Nota</th>
-                  <th>Acción</th>
+                <tr >
+                  <th style="color: #dc2626;background-color: #fff0f0">Tipo</th>
+                  <th style="color: #dc2626;background-color: #fff0f0">Marca</th>
+                  <th style="color: #dc2626;background-color: #fff0f0">Serie/MAC</th>
+                  <th style="color: #dc2626;background-color: #fff0f0">Cantidad</th>
+                  <th style="color: #dc2626;background-color: #fff0f0">Nota</th>
+                  <th style="color: #dc2626;background-color: #fff0f0">Acción</th>
                 </tr>
               </ng-template>
               <ng-template #body let-material>
@@ -181,7 +180,7 @@
                   <td>
                     <p-button icon="pi pi-trash" [rounded]="true" severity="danger"
                               pTooltip="Eliminar Material" tooltipPosition="left"
-                              [outlined]="true" />
+                              [outlined]="true" (click)="confirm(material)"/>
                   </td>
                 </tr>
               </ng-template>
@@ -213,9 +212,40 @@
               <span class="font-bold text-green-600">2) Evidencias y Geolocalización (opcional)</span>
             </div>
           </ng-template>
-          <p class="m-0">
-            Lorem ipsum dolor sit amet...
-          </p>
+          <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
+            <div class="col">
+              <label
+                for="adjunto_boleta"
+                class="block text-sm font-medium text-gray-700"
+              >Evidencia (Imagen/pdf)</label
+              >
+              <input
+                type="file"
+                id="adjunto_boleta"
+                (change)="onFileSelected($event)"
+                class="mt-1 block w-full text-sm text-gray-500 border border-gray-200 rounded-xl shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
+              />
+              <small>Sugerencia: toma foto del punto de instalación, rutas, potencia del medidor, speedtest, etc.</small>
+              <div class="gap-2 flex flex-col mt-2">
+                <label class="block text-sm font-medium text-gray-700">Capturar ubicación GPS</label>
+                <p-button label="Obtener Coordenadas" icon="pi pi-map-marker" severity="success" (click)="buscarcoordenadas()"/>
+                <div>
+                  <p-tag severity="secondary" class="mt-2"  [value]="'latitud : '+ this.OrdenTrabajofiltroEnvio().latitud.toString()" />
+                  <p-tag severity="secondary" class="mt-2"  [value]="'longitud : '+this.OrdenTrabajofiltroEnvio().longitud.toString()" />
+
+                </div>
+              </div>
+            </div>
+            <div class="col" >
+              <img *ngIf="this.registroHistorial().extensiondoc === 'jpeg' || this.registroHistorial().extensiondoc === 'jpg' || this.registroHistorial().extensiondoc === 'png'"
+                   [src]="this.registroHistorial().archivobase64"
+                   style="max-width: 100%; max-height: 250px;" class="mt-2" />
+              @if(this.registroHistorial().extensiondoc === 'pdf'){
+
+                <app-mostrar-pdf [base64pdf]="this.registroHistorial().archivobase64" class="mt-2" style="margin-bottom: 10rem"></app-mostrar-pdf>
+              }
+            </div>
+          </div>
         </p-panel>
       </div>
       <div class="md:col-span-5 mt-1">
@@ -338,11 +368,28 @@
               <span class="font-bold text-green-600">5) Firma digital del cliente (opcional)</span>
             </div>
           </ng-template>
-          <p class="m-0">
-            Lorem ipsum dolor sit amet...
-          </p>
+          <app-firma-elec></app-firma-elec>
         </p-panel>
       </div>
     </div>
   </section>
 </div>
+
+
+<p-confirmDialog #cd>
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded">
+      <div
+        class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20"
+      >
+        <i class="pi pi-question !text-5xl"></i>
+      </div>
+      <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+      <p class="mb-0">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button label="Save" (onClick)="onAccept()" styleClass="w-32"></p-button>
+        <p-button label="Cancel" [outlined]="true" (onClick)="onReject()" styleClass="w-32"></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmDialog>

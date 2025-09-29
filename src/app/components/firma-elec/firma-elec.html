@@ -1,0 +1,69 @@
+<div class="container">
+  <section class="tools-board">
+    <div class="row">
+      <label class="title">Opciones</label>
+      <ul class="options">
+        <li
+          class="option active tool"
+          id="brush"
+          [ngClass]="{ active: selectedTool === 'brush' }"
+          (click)="selectTool('brush')"
+        >
+          <i class="pi pi-pencil" style="font-size: 1.5rem"></i>
+          <span>Lapicero</span>
+        </li>
+        <li
+          class="option tool"
+          id="eraser"
+          [ngClass]="{ active: selectedTool === 'eraser' }"
+          (click)="selectTool('eraser')"
+        >
+          <i class="pi pi-eraser" style="font-size: 1.5rem"></i>
+          <span>Borrador</span>
+        </li>
+
+        <p-slider [(ngModel)]="slider" [min]="1" [max]="30"></p-slider>
+      </ul>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <button
+          pButton
+          pRipple
+          label="Limpiar"
+          icon="pi pi-refresh"
+          class="p-button-rounded p-button-secondary mt-1"
+          (click)="clearCanvas()"
+        ></button>
+      </div>
+      <div class="col">
+        <button
+          pButton
+          pRipple
+          icon="pi pi-save"
+          label="Guardar"
+          class="p-button-rounded p-button-success mt-1"
+          (click)="saveImage()"
+        ></button>
+      </div>
+    </div>
+  </section>
+  <section class="drawing-board">
+    <!-- <canvas  #canvas (mousedown)="startDraw($event)" (mousemove)="drawing($event)" (mouseup)="stopDrawing()"></canvas> -->
+    <div class="continidoCanva">
+      <canvas
+        #canvas
+        id="canvasId"
+        (mousedown)="startDraw($event)"
+        (mousemove)="drawing($event)"
+        (mouseup)="stopDrawing()"
+        (touchstart)="startDraw($event)"
+        (touchmove)="drawing($event)"
+        (touchend)="stopDrawing()"
+      >
+      </canvas>
+    </div>
+
+  </section>
+</div>
