@@ -17,8 +17,16 @@ export class FacturacionRequest {
   fechareg: number = 0;
   desctipo: string = '';
   email: string = '';
-  nrodocident:string='';
-  tipodocident:number=0;
-  direccion:string='';
-  url_pdf:string=''
+  nrodocident: string = '';
+  tipodocident: number = 0;
+  direccion: string = '';
+  url_pdf: string = '';
+
+  //EXTRAS
+  ticket: string = '';
+  fecha_pago: string = '';
+  monto_confirmado: number = 0;
+  fecharevision: string = '';
+  observacion_vache: string = '';
+  motivo_rechaso: string = '';
 }

@@ -252,6 +252,22 @@ export class MenuBar {
               });
             },
           },
+          //revision de vauchers
+          {
+            label: 'Validación de Vauchers',
+            icon: 'pi pi-eye', // validación/aprobación
+            routerLink: './validacion-vauchers',
+            command: () => {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Validación de Vauchers',
+                detail: 'Funcionalidad en desarrollo',
+                life: 3000,
+              });
+
+            },
+          },
+
 
           // {
           //   label: 'Registro Manual de Pagos',

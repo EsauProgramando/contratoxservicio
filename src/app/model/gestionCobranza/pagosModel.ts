@@ -11,7 +11,11 @@ export class PagosModel {
   observaciones: string = '';
   creador: string = '';
   codigo_factura: string = '';
-
+  ticket: string = '';
+  monto_confirmado: number = 0;
+  fecharevision: string = '';
+  observacion_vache: string = '';
+  motivo_rechaso: string = '';
   //otros campos
   nombre_completo: string = '';
   saldo: number = 0;
