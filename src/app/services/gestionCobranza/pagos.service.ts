@@ -24,4 +24,14 @@ export class PagosService {
       pago
     );
   }
+    //op 1 registra , 2 actualiza , 3 debaja, 4 activa
+  registrar_revision(
+    pago: PagosModel,
+    op: number
+  ): Observable<Response_Generico<any>> {
+    return this.http.post<Response_Generico<any>>(
+      `${this.baseUrl}/registrar_revision/${op}`,
+      pago
+    );
+  }
 }

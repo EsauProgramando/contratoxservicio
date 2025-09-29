@@ -113,5 +113,13 @@ export const pagesRoutes: Routes = [
         './gestionCobranza/retencion-negociacion-cliente/retencion-negociacion-cliente'
       ).then((m) => m.RetencionNegociacionCliente),
   },
+  //validacion-vauchers
+  {
+    path: 'validacion-vauchers',
+    loadComponent: () =>
+      import(
+        './gestionRecaudaciones/validacion-vauchers/validacion-vauchers'
+      ).then((m) => m.ValidacionVauchers),
+  },
   { path: '**', redirectTo: 'login' },
 ];

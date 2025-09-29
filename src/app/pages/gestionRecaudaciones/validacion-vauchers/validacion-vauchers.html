@@ -1,0 +1,337 @@
+@if (spinner()){
+<app-carga></app-carga>
+}
+<p-toast></p-toast>
+
+<div class="p-6 bg-white rounded-lg shadow-md space-y-6">
+  <header class="space-y-3">
+    <h1 class="text-2xl font-bold text-[#7C4DFF] flex items-center gap-2">
+      <i class="pi pi-credit-card text-[#7C4DFF] text-xl"></i>
+      Validación de Vouchers Yape
+    </h1>
+    <p class="text-sm text-gray-500 leading-relaxed">
+      Revisa y confirma pagos reportados por el cliente desde la web mediante el
+      número de operación Yape.
+    </p>
+    <hr class="border-t border-[#E0E0E0]" />
+  </header>
+
+  <!-- Filtros -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Nombre Completo -->
+    <div>
+      <label
+        for="nombre_completo"
+        class="text-sm font-semibold text-gray-600 block mb-1"
+      >
+        <i class="pi pi-user text-indigo-500 me-1"></i> Nombre Completo
+      </label>
+      <input
+        id="nombre_completo"
+        [(ngModel)]="searchValue"
+        placeholder="Ej. Juan Pérez"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+      />
+    </div>
+
+    <!-- Estado -->
+    <div>
+      <label
+        for="estado"
+        class="text-sm font-semibold text-gray-600 block mb-1"
+      >
+        <i class="pi pi-check-circle text-indigo-500 me-1"></i> Estado
+      </label>
+      <select
+        id="estado"
+        [(ngModel)]="facturacionEnvio().estado"
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <option *ngFor="let estado of estados" [value]="estado.value">
+          {{ estado.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <div class="flex justify-end gap-3 mt-6">
+    <button
+      (click)="limpiarFiltros()"
+      class="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer"
+    >
+      <i class="pi pi-times me-2"></i> Limpiar
+    </button>
+    <button
+      (click)="buscarFacturas()"
+      class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition cursor-pointer"
+    >
+      <i class="pi pi-search me-2"></i> Buscar
+    </button>
+  </div>
+
+  <p-table
+    [value]="facturas()"
+    [scrollable]="true"
+    [scrollable]="true"
+    scrollHeight="400px"
+    class="'p-datatable-striped p-datatable-sm shadow-md rounded-lg border-gray-200'"
+  >
+    <!-- Encabezado -->
+    <ng-template pTemplate="header">
+      <tr class="bg-indigo-50 text-indigo-800 text-sm font-semibold">
+        <th>Fecha Pago</th>
+        <th pSortableColumn="nombre_completo">
+          Cliente <p-sortIcon field="nombre_completo" />
+        </th>
+        <th>Servicio</th>
+        <th>N° operación</th>
+        <th>Periodo</th>
+        <th>Monto</th>
+        <th pSortableColumn="estado">Estado <p-sortIcon field="estado" /></th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuerpo -->
+    <ng-template pTemplate="body" let-factura>
+      <tr class="text-sm text-gray-700">
+        <td>{{ factura.fecha_pago | date : "dd/MM/yyyy" }}</td>
+        <td>{{ factura.nombre_completo }}</td>
+        <td>{{ factura.desctipo }}</td>
+        <td>{{ factura.ticket }}</td>
+        <td>{{ factura.periodo }}</td>
+        <td>S/{{ factura.monto }}</td>
+        <td>
+          <span
+            class="px-2 py-1 rounded-full text-xs font-medium"
+            [ngClass]="{
+              'bg-green-100 text-green-700': factura.estado === 'PENDIENTE_REVISION',
+              'bg-yellow-100 text-yellow-700': factura.estado === 'VALIDADO',
+              'bg-red-100 text-red-700': factura.estado === 'RECHAZADO',
+              
+            }"
+          >
+            {{ factura.estado }}
+          </span>
+        </td>
+
+        <td class="text-center">
+          <div class="flex gap-2 justify-center">
+            <!-- Botón Validar  -->
+            <button
+              pButton
+              type="button"
+              icon="pi pi-check"
+              class="p-button-rounded p-button-success p-button-sm"
+              pTooltip="Validar"
+              tooltipPosition="top"
+              (click)="validarVoucher(factura)"
+            ></button>
+            <!-- Botón Rechazar  -->
+            <button
+              pButton
+              type="button"
+              icon="pi pi-times"
+              class="p-button-rounded p-button-danger p-button-sm"
+              pTooltip="Rechazar"
+              tooltipPosition="top"
+              (click)="rechazarVoucher(factura)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-calendar"
+              class="p-button-rounded p-button-warning p-button-sm"
+              pTooltip="Ver Historial"
+              tooltipPosition="top"
+              (click)="verHistorial(factura)"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<p-dialog
+  [(visible)]="abrimodalhistorial"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+>
+  <ng-template pTemplate="header">
+    <h5>Historial de Servicios</h5>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <p-table [value]="listaHistorialServicio()" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha</th>
+          <th>Descripción</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.fecha_accion | date : "dd/MM/yyyy" }}</td>
+          <td>{{ item.descripcion }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-dialog>
+<p-dialog
+  [(visible)]="abrirmodalrechazo"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+>
+  <ng-template pTemplate="header">
+    <h5>Rechazar voucher</h5>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        MOTIVO DE RECHAZO <span class="text-red-500">*</span>
+      </label>
+      <p-select
+        [options]="rechazoMotivo"
+        [(ngModel)]="actuatulizarFacturaModel().motivo_rechaso"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        placeholder="Selecciona tipo"
+        class="w-full"
+      >
+        <ng-template #selectedItem let-opt>
+          <div class="flex items-center gap-2">
+            <!--Icono de RECHAZO-->
+            <i class="pi pi-times text-red-600"></i>
+            <span>{{ opt.label }}</span>
+          </div>
+        </ng-template>
+        <ng-template let-opt pTemplate="item">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-times text-red-600"></i>
+            <span>{{ opt.label }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+    <div class="md:col-span-2">
+      <label for="observaciones" class="block text-sm font-medium text-gray-700"
+        >DETALLE</label
+      >
+      <textarea
+        id="observaciones"
+        name="observaciones"
+        [(ngModel)]="actuatulizarFacturaModel().observacion_vache"
+        rows="2"
+        pInputTextarea
+        placeholder="Referencia"
+        class="w-full"
+      ></textarea>
+    </div>
+    <!-- Botones -->
+    <div class="flex justify-end gap-3 pt-4">
+      <button
+        type="button"
+        (click)="cerrarModal_rechazo()"
+        pButton
+        label="Cancelar"
+        class="p-button-outlined p-button-secondary"
+      ></button>
+      <button
+        type="submit"
+        (click)="actualizar_factura()"
+        [disabled]="disabled()"
+        pButton
+        label="Guardar"
+        class="p-button-success"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="abrirmodalvalidacion"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+>
+  <ng-template pTemplate="header">
+    <h5>Rechazar Validación</h5>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <!-- Monto -->
+    <div>
+      <label for="monto_pagado" class="block text-sm font-medium text-gray-700"
+        >Monto confirmado (S/.)</label
+      >
+      <input
+        type="number"
+        id="monto_pagado"
+        name="monto_pagado"
+        [(ngModel)]="pagos().monto_confirmado"
+        placeholder="0.00"
+        pInputText
+        class="w-full"
+        [maxlength]="pagos().monto_confirmado"
+        [max]="pagos().monto_confirmado"
+        [min]="1"
+        [invalid]="formErrors.monto_confirmado()"
+      />
+    </div>
+    <!-- Fecha de Pago -->
+    <div>
+      <label for="fecha_pago" class="block text-sm font-medium text-gray-700"
+        >Fecha/hora de operación</label
+      >
+      <p-datepicker
+        [(ngModel)]="pagos().fecharevision"
+        name="fecha_pago"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        inputId="buttondisplay"
+        class="w-full !h-[42px] rounded-xl"
+        [invalid]="formErrors.fecharevision()"
+        appendTo="body"
+        [showTime]="true"
+      ></p-datepicker>
+    </div>
+    <div class="md:col-span-2">
+      <label for="observaciones" class="block text-sm font-medium text-gray-700"
+        >DETALLE</label
+      >
+      <textarea
+        id="observaciones"
+        name="observaciones"
+        [(ngModel)]="pagos().observacion_vache"
+        rows="2"
+        pInputTextarea
+        placeholder="Referencia"
+        class="w-full"
+      ></textarea>
+    </div>
+    <!-- Botones -->
+    <div class="flex justify-end gap-3 pt-4">
+      <button
+        type="button"
+        (click)="abrirmodalvalidacion = false"
+        pButton
+        label="Cancelar"
+        class="p-button-outlined p-button-secondary"
+      ></button>
+      <button
+        type="submit"
+        (click)="guardarPago()"
+        [disabled]="disabled()"
+        pButton
+        label="Guardar"
+        class="p-button-success"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
