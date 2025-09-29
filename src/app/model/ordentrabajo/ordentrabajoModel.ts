@@ -49,7 +49,8 @@ export class ejecucionordentrabajoModel {
   iptv:    boolean=false;
   voip:    boolean=false;
   img_evidencia:      string='ALL';
-  materiales:materialesModel[]=[]
+  materiales:materialesModel[]=[];
+  historial:HistorialordentrabajoModel[]=[]
 }
 export class materialesModel {
   idtipo:number=1
