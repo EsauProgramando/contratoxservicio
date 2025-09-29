@@ -222,14 +222,14 @@ export class MenuBar {
                 severity: 'info',
                 summary: 'Bajas por Morosidad',
                 detail: 'Funcionalidad en desarrollo',
-                life: 3000,
+                life: 3000,   
               });
             },
           },
           {
-            label: 'Seguimiento Morocidad',
+            label: 'Seguimiento Morosidad',
             icon: 'pi pi-eye', // Icono de ojo
-            routerLink: './seguimiento-morocidad',
+            routerLink: './seguimiento-morosidad',
             command: () => {
               this.messageService.add({
                 severity: 'info',

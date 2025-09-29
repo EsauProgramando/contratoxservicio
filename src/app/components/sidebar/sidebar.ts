@@ -141,9 +141,9 @@ export class Sidebar {
             routerLink: './bajas-morosidad',
           },
           {
-            label: 'Seguimiento Morocidad',
+            label: 'Seguimiento Morosidad',
             icon: 'pi pi-eye', // Icono de ojo para seguimiento
-            routerLink: './seguimiento-morocidad',
+            routerLink: './seguimiento-morosidad',
           },
           {
             label: 'Retencion Negociacion Cliente',
