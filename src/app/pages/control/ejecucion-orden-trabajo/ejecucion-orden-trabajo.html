@@ -131,6 +131,7 @@
                   <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt"
                                  inputId="minmaxfraction" mode="decimal"
                                  [min]="0"
+                                 class="w-full"
                                  [minFractionDigits]="0" [maxFractionDigits]="5" />
 
                 </div>
@@ -189,16 +190,41 @@
           </div>
         </p-panel>
       </div>
-      <div class="md:col-span-5 mt-1">
-        <p-panel>
+      <div class="md:col-span-5 my-2">
+        <p-panel >
           <ng-template #header>
             <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">Resumen / Historial</span>
+              <span class="font-bold text-green-600 ">Resumen / Historial</span>
             </div>
           </ng-template>
-          <p class="m-0">
-            Lorem ipsum dolor sit amet...
-          </p>
+          <div class="timeline-container">
+            <p-timeline [value]="historialejecucionModel()" align="alternate" class="customized-timeline ">
+              <ng-template #marker let-event>
+        <span class="flex w-8 h-8 items-center justify-center text-white rounded-full z-10 shadow-sm" [style]="{ 'background-color': event.color }">
+            <i [class]="event.icon"></i>
+        </span>
+              </ng-template>
+              <ng-template #content let-event>
+                <p-card >
+                  <ng-template #title>
+                    <span class="text-sm font-bold" [style]="{'color': event.color}">{{event.descripcion}}</span>
+                  </ng-template>
+                  <ng-template #subtitle>
+                    <span class="text-xs" >{{event.fecha}}</span>
+                  </ng-template>
+                  <!--                <img *ngIf="event.archivobase64" [src]="event.archivobase64" width="200" class="shadow" />-->
+                  <img *ngIf="event.extensiondoc === 'jpeg' || event.extensiondoc === 'jpg' || event.extensiondoc === 'png'"
+                       [src]="event.archivobase64"
+                       style="max-width: 100%; max-height: 100px;" class="mt-2" />
+                  @if(event.extensiondoc === 'pdf'){
+                    <app-mostrar-pdf [base64pdf]="event.archivobase64" class="mt-2" style="max-height: 200px"></app-mostrar-pdf>
+                  }
+                  <!--                <p-button label="Read more" [text]="true" />-->
+                </p-card>
+              </ng-template>
+            </p-timeline>
+
+          </div>
         </p-panel>
       </div>
     </div>
@@ -213,7 +239,7 @@
             </div>
           </ng-template>
           <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
-            <div class="col">
+            <div class="col flex flex-col">
               <label
                 for="adjunto_boleta"
                 class="block text-sm font-medium text-gray-700"
@@ -226,6 +252,8 @@
                 class="mt-1 block w-full text-sm text-gray-500 border border-gray-200 rounded-xl shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
               />
               <small>Sugerencia: toma foto del punto de instalación, rutas, potencia del medidor, speedtest, etc.</small>
+
+              <p-button label="Subir Evidencia" icon="pi pi-upload" severity="warn" class="mt-2" (click)="subirevidencia()"/>
               <div class="gap-2 flex flex-col mt-2">
                 <label class="block text-sm font-medium text-gray-700">Capturar ubicación GPS</label>
                 <p-button label="Obtener Coordenadas" icon="pi pi-map-marker" severity="success" (click)="buscarcoordenadas()"/>
@@ -368,7 +396,28 @@
               <span class="font-bold text-green-600">5) Firma digital del cliente (opcional)</span>
             </div>
           </ng-template>
-          <app-firma-elec></app-firma-elec>
+          <app-firma-elec (uploadEmitir)="recibefirma($event)"></app-firma-elec>
+        </p-panel>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="grid md:grid-cols-1 sm:grid-cols-1 gap-4">
+      <div class="col mt-1">
+        <p-panel>
+          <ng-template #header>
+            <div class="flex items-center gap-1">
+              <span class="font-bold text-green-600">Acciones</span>
+            </div>
+          </ng-template>
+          <div class="flex items-center justify-center">
+
+            <p-button label="Activar Servicio" severity="success" class="mx-1" />
+
+            <p-button label="Dar atendido la OT" severity="info" class="mx-1" (click)="guardarejecucion()"/>
+            <p-button label="Guardar borrador" severity="secondary"  class="mx-1" (click)="guardarejecucion()"/>
+          </div>
+          <small>Al finalizar, la OT pasará a completado (o te preguntará si deseas cancelado). La activación de servicio es simulada.</small>
         </p-panel>
       </div>
     </div>
