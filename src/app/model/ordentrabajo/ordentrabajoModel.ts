@@ -68,4 +68,8 @@ export class HistorialordentrabajoModel {
   archivobase64:string=''
   extensiondoc:string=''
   descripcion:string=''
+  fecha:string=''
+  icon:string=''
+  color:string=''
+
 }
