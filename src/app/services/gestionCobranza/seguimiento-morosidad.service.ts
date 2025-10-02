@@ -3,11 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Response_Generico } from '../../model/responseGeneric';
-import { Clientes_morosidad_ext } from '../../model/gestionCobranza/Clientes_morosidad_ext';
 import { Clientes_morosidad_extModel } from '../../model/gestionCobranza/Clientes_morosidad_extModel';
-import { Sp_kpis_mora_total } from '../../model/gestionCobranza/Sp_kpis_mora_total';
 import { Detalle_facturas_moraModel } from '../../model/gestionCobranza/Detalle_facturas_moraModel';
-import { Detalle_facturas_mora } from '../../model/gestionCobranza/Detalle_facturas_mora';
 
 @Injectable({
   providedIn: 'root',
