@@ -65,13 +65,7 @@
           class="p-button-sm p-button-secondary"
           (click)="limpiar_filtros()"
         ></button>
-        <p-button
-          label="Registrar Baja"
-          icon="pi pi-plus"
-          class="transition-all duration-300 hover:scale-105"
-          styleClass="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg"
-          (click)="openDialog()"
-        />
+
         <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
           {{ Totalregistros }} registros
         </span>
@@ -84,7 +78,13 @@
     <h2 class="text-xl font-bold text-gray-800 mb-6">
       Servicios vencidos y próximos a corte
     </h2>
-
+    <p-button
+      label="Registrar Baja"
+      icon="pi pi-plus"
+      class="transition-all duration-300 hover:scale-105"
+      styleClass="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg"
+      (click)="openDialog()"
+    />
     <p-table
       [value]="ListadomorosidadRequest()"
       [tableStyle]="{ 'max-width': '100%' }"
