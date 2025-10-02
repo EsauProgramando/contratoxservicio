@@ -35,6 +35,8 @@ export class ejecucionordentrabajoModel {
   idtecnico:      string='ALL';
   idordentrabajo: string='';
   observaciones:  string='';
+  latitud:  number=0;
+  longitud:  number=0;
   potenciaopt:    number=0;
   rssi:    number=0;
   snr:    number=0;
@@ -47,7 +49,8 @@ export class ejecucionordentrabajoModel {
   iptv:    boolean=false;
   voip:    boolean=false;
   img_evidencia:      string='ALL';
-  materiales:materialesModel[]=[]
+  materiales:materialesModel[]=[];
+  historial:HistorialordentrabajoModel[]=[]
 }
 export class materialesModel {
   idtipo:number=1
@@ -58,6 +61,15 @@ export class materialesModel {
   nota: string='';
 }
 export class tipomaterialModel {
-  idtipoamterial:number=0
+  idtipomaterial:number=0
   destipo:string=''
+}
+export class HistorialordentrabajoModel {
+  archivobase64:string=''
+  extensiondoc:string=''
+  descripcion:string=''
+  fecha:string=''
+  icon:string=''
+  color:string=''
+
 }

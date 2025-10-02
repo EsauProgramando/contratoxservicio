@@ -36,7 +36,7 @@ import {CardModule} from 'primeng/card';
 import {RadioButtonModule} from 'primeng/radiobutton';
 @Component({
   selector: 'app-agencia-tecnica-component',
-  imports: [ButtonModule, FullCalendarModule, DatePicker, Select, Tag, FormsModule, PanelModule,
+  imports: [ButtonModule, FullCalendarModule, Select, Tag, FormsModule, PanelModule,
     AvatarModule, CargaComponent,TooltipModule,ToastModule,ConfirmDialogModule,TableModule,BadgeModule,ChipModule,IconFieldModule,
   InputIconModule,InputTextModule,CardModule,RadioButtonModule],
   templateUrl: './agencia-tecnica-component.html',

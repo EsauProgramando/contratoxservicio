@@ -27,7 +27,7 @@ import {AutoCompleteCompleteEvent, AutoCompleteModule} from 'primeng/autocomplet
 import {CheckboxModule} from 'primeng/checkbox';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {
-  ejecucionordentrabajoModel, materialesModel,
+  ejecucionordentrabajoModel, HistorialordentrabajoModel, materialesModel,
   ordentrabajofiltroModel,
   ordentrabajoModel, tipomaterialModel
 } from '../../../model/ordentrabajo/ordentrabajoModel';
@@ -50,7 +50,20 @@ import { CortesPendienteRequest } from '../../../model/gestionCobranza/CortesPen
 import {PanelModule} from 'primeng/panel';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {TipomaterialServices} from '../../../services/mantenimiento/tipomaterial-services';
-
+import {MostrarPdf} from '../../../components/mostrar-pdf/mostrar-pdf';
+import {FirmaElec} from '../../../components/firma-elec/firma-elec';
+import {TimelineModule} from 'primeng/timeline';
+import {CardModule} from 'primeng/card';
+import {Upload} from '../../../model/upload';
+import {EjecucionotServices} from '../../../services/ordentrabajo/ejecucionot-services';
+interface EventItem {
+  status?: string;
+  descripcion?: string;
+  date?: string;
+  icon?: string;
+  color?: string;
+  image?: string;
+}
 @Component({
   selector: 'app-ejecucion-orden-trabajo',
   imports: [
@@ -81,7 +94,12 @@ import {TipomaterialServices} from '../../../services/mantenimiento/tipomaterial
     AutoCompleteModule,
     CheckboxModule,
     PanelModule,
-    InputNumberModule
+    InputNumberModule,
+    ConfirmDialogModule,
+    MostrarPdf,
+    FirmaElec,
+    TimelineModule,
+    CardModule
   ],
   standalone: true,
   templateUrl: './ejecucion-orden-trabajo.html',
@@ -89,6 +107,7 @@ import {TipomaterialServices} from '../../../services/mantenimiento/tipomaterial
 })
 export class EjecucionOrdenTrabajo {
   spinner = signal<boolean>(false);
+  events: EventItem[]=[];
   abrirnuevaot:boolean=false;
   abrirasignar:boolean=false
   abrirreprogramar:boolean=false
@@ -100,7 +119,7 @@ export class EjecucionOrdenTrabajo {
   CortesPendienteRequest = signal<CortesPendienteRequest[]>([]);
   Listadotecnicos=signal<tecnicoModel[]>([])
   Listadotipomaterial=signal<tipomaterialModel[]>([])
-  idtipomaterial:number=1
+  idtipomaterial:{ idtipomaterial: number; destipo: string }=new tipomaterialModel()
   ordentrabajoselected:ordentrabajoModel=new ordentrabajoModel()
   listafechas=signal<ordentrabajoModel[]>([])
   // Variables de filtro
@@ -108,12 +127,7 @@ export class EjecucionOrdenTrabajo {
   estado: string = '';
   ordenarPor: string = 'vencimiento';
   Totalregistros: number = 0;
-  showModalBitacora: boolean = false;
-  fechainicial:Date=new Date()
-  fechafinal:Date=new Date()
-  // Datos de ejemplo (reemplazar con datos reales)
-  //array de de objetos del estado
-  listaHistorialOT=signal<ordentrabajoModel[]>([])
+  listaHistorialEOT=signal<HistorialordentrabajoModel[]>([])
   estados = [
     { label: 'TODOS', value: 'ALL',severity:'secondary' },
     { label: 'PENDIENTE', value: 'PENDIENTE',severity:'secondary' },
@@ -170,9 +184,12 @@ export class EjecucionOrdenTrabajo {
     { label: 'CAMPO', value: 2 },
   ];
   emailModel = signal<EmailModel>(new EmailModel());
-  historialServicioModel = signal<HistorialServicioModel>(
-    new HistorialServicioModel()
+  historialejecucionModel = signal<HistorialordentrabajoModel[]>(
+    []
   );
+  itemhistorial=signal<HistorialordentrabajoModel>(new HistorialordentrabajoModel());
+  registroHistorial=signal<HistorialordentrabajoModel>(new HistorialordentrabajoModel());
+
   constructor(
     private messageService: MessageService,
     private cortesservice: Cortesservice,
@@ -184,14 +201,28 @@ export class EjecucionOrdenTrabajo {
     private tecnicoService:TecnicosService,
     private clienteSerice:ClientesService,
     private tiposervicioServicio:TipoServicioService,
-    private tipomaterialService:TipomaterialServices
+    private tipomaterialService:TipomaterialServices,
+    private confirmationService: ConfirmationService,
+    private ejecucionService:EjecucionotServices
   ) {}
 
   ngOnInit() {
-    //poner valores por defecto a los filtros
+    // this.events = [
+    //   { status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0', image: 'game-controller.jpg' },
+    //   { status: 'Processing', date: '15/10/2020 14:00', icon: 'pi pi-cog', color: '#673AB7' },
+    //   { status: 'Shipped', date: '15/10/2020 16:15', icon: 'pi pi-shopping-cart', color: '#FF9800' },
+    //   { status: 'Delivered', date: '16/10/2020 10:00', icon: 'pi pi-check', color: '#607D8B' }
+    // ];
     this.cargartipomaterial()
     this.cargartecnicos()
     this.cargarclientes()
+    this.itemhistorial().color='#c0c0c0'
+    this.itemhistorial().descripcion='INICIO DE LA EJECUCIÓN'
+    this.itemhistorial().icon='pi pi-lightbulb'
+    this.itemhistorial().fecha=this.formatDateForDB(new Date())
+    this.historialejecucionModel().push(this.itemhistorial())
+    this.itemhistorial.set(new HistorialordentrabajoModel())
+
   }
   cargartecnicos(){
     this.tecnicoService.getlistatecnicos().subscribe({
@@ -204,6 +235,10 @@ export class EjecucionOrdenTrabajo {
     this.tipomaterialService.getlistatipomaterials().subscribe({
       next:(data)=>{
         this.Listadotipomaterial.set(data.data)
+        this.idtipomaterial={
+          idtipomaterial:1,
+          destipo: "ONP/CPE"
+        }
       }
     })
   }
@@ -412,31 +447,31 @@ export class EjecucionOrdenTrabajo {
     this.enviarOrdenTrabajo.set({ ...row })
     this.OrdenTrabajofiltroEnvio().estado='COMPLETADO'
   }
-  historialot(row:ordentrabajoModel){
-    this.enviarOrdenTrabajo.set(new ordentrabajoModel())
-    this.enviarOrdenTrabajo.set({ ...row })
-    this.listaHistorialOT.set([])
-    this.spinner.set(true)
-    this.ordentrabajoService.gethistorial_x_ordentrabajo(row.idordentrabajo).subscribe({
-      next:(data)=>{
-        this.abrirhistorial=true
-        this.listaHistorialOT.set(data.data)
-        this.spinner.set(false)
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Se cargó correctamente el historial de la OT',
-        });
-      },error:(err)=>{
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Ocurrió un problema al cargar el historial de la OT',
-        });
-        this.spinner.set(false)
-      }
-    })
-  }
+  // historialot(row:ordentrabajoModel){
+  //   this.enviarOrdenTrabajo.set(new ordentrabajoModel())
+  //   this.enviarOrdenTrabajo.set({ ...row })
+  //   this.listaHistorialOT.set([])
+  //   this.spinner.set(true)
+  //   this.ordentrabajoService.gethistorial_x_ordentrabajo(row.idordentrabajo).subscribe({
+  //     next:(data)=>{
+  //       this.abrirhistorial=true
+  //       this.listaHistorialOT.set(data.data)
+  //       this.spinner.set(false)
+  //       this.messageService.add({
+  //         severity: 'success',
+  //         summary: 'Éxito',
+  //         detail: 'Se cargó correctamente el historial de la OT',
+  //       });
+  //     },error:(err)=>{
+  //       this.messageService.add({
+  //         severity: 'error',
+  //         summary: 'Error',
+  //         detail: 'Ocurrió un problema al cargar el historial de la OT',
+  //       });
+  //       this.spinner.set(false)
+  //     }
+  //   })
+  // }
   getSeverity(product: ordentrabajoModel) {
     switch (product.estado) {
       case 'COMPLETADO':
@@ -452,25 +487,6 @@ export class EjecucionOrdenTrabajo {
 
       default:
         return null;
-    }
-  }
-  cambioproceso(){
-    this.enviarOrdenTrabajo().estado=this.checked?'EN PROCESO':'PENDIENTE'
-  }
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-
-      // reader.onload = () => {
-      //   const base64 = reader.result as string; // esto incluye "data:mime/type;base64,..."
-      //   this.pagos.update((prev) => ({
-      //     ...prev,
-      //     adjunto_boleta: base64,
-      //   }));
-      // };
-
-      reader.readAsDataURL(file); // lee como DataURL para mantener metadata y tipo
     }
   }
   private formatDateForDB(date: Date): string {
@@ -507,7 +523,173 @@ export class EjecucionOrdenTrabajo {
     })
   }
   agregarmaterial(){
-    this.OrdenTrabajofiltroEnvio().materiales.unshift(this.OrdenTrabajomaterial())
-    this.OrdenTrabajomaterial.set(new materialesModel())
+    const nuevo = this.OrdenTrabajomaterial();
+
+    nuevo.idtipo=this.idtipomaterial.idtipomaterial
+    nuevo.tipo=this.idtipomaterial.destipo
+    const existe = this.OrdenTrabajofiltroEnvio().materiales.some(
+      (m) => m.idtipo === nuevo.idtipo
+    );
+    if (existe) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Aviso de usuario',
+        detail: 'El tipo de material ya fue agregado',
+      });
+      return;
+    }
+    this.OrdenTrabajofiltroEnvio().materiales.unshift(nuevo);
+    this.OrdenTrabajomaterial.set(new materialesModel());
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Aviso de usuario',
+      detail: 'Material agregado al listado',
+    });
+  }
+  eliminarmaterial(material:materialesModel){
+    this.OrdenTrabajofiltroEnvio().materiales=this.OrdenTrabajofiltroEnvio().materiales.filter(
+      (m) => m.idtipo !== material.idtipo
+    );
+  }
+  confirm(material:materialesModel) {
+    this.confirmationService.confirm({
+      header: 'Está seguro de eliminar?',
+      message: 'Confirmación del proceso para el material '+ material.tipo + ' ?',
+      accept: () => {
+        this.eliminarmaterial(material)
+        this.messageService.add({ severity: 'info', summary: 'Eliminado', detail: 'Material eliminado' });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Cancelado', detail: 'Se canceló el proceso' });
+      },
+    });
+  }
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase();
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+
+      // ⚡ importante: crea nueva referencia
+      const nuevoHistorial = {
+        ...this.registroHistorial(),
+        extensiondoc: extension || '',
+        archivobase64: base64
+      };
+      this.registroHistorial.set(nuevoHistorial); // si usas signal()
+
+      console.log(this.registroHistorial());
+
+      // event.target.value = '';
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+
+  buscarcoordenadas() {
+    this.spinner.set(true)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.spinner.set(false)
+          this.OrdenTrabajofiltroEnvio().latitud = position.coords.latitude;
+          this.OrdenTrabajofiltroEnvio().longitud = position.coords.longitude;
+            const nuevo = new HistorialordentrabajoModel();
+            nuevo.icon = 'pi pi-map-marker';
+            nuevo.descripcion = 'UBICACIÓN CAPTURADA'
+            nuevo.fecha=this.formatDateForDB(new Date())
+            nuevo.color = '#d0475b';
+
+            this.historialejecucionModel.update(arr => [nuevo, ...arr]);
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Aviso de usuario',
+              detail: 'Se generó un registro nuevo en el historial',
+            });
+            this.itemhistorial.set(new HistorialordentrabajoModel());
+
+        },
+        (error) => {
+        },
+        {
+          enableHighAccuracy: true, // intenta usar GPS si hay
+          timeout: 10000,           // 10 segundos
+          maximumAge: 0             // no usar cache
+        }
+      );
+    } else {
+      console.error('La geolocalización no está soportada en este navegador.');
+    }
+  }
+  subirevidencia() {
+    const nuevo = new HistorialordentrabajoModel();
+    nuevo.icon = 'pi pi-image';
+    nuevo.archivobase64 = this.registroHistorial().archivobase64;
+    nuevo.extensiondoc = this.registroHistorial().extensiondoc;
+    nuevo.descripcion = 'SE SUBIÓ UNA EVIDENCIA';
+    nuevo.fecha=this.formatDateForDB(new Date())
+    nuevo.color = '#47b4ce';
+
+    this.historialejecucionModel.update(arr => [nuevo, ...arr]);
+
+    this.itemhistorial.set(new HistorialordentrabajoModel());
+    this.registroHistorial.set(new HistorialordentrabajoModel())
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Aviso de usuario',
+      detail: 'Se generó un registro nuevo en el historial',
+    });
+  }
+  recibefirma(event: Upload[]){
+    const nuevo = new HistorialordentrabajoModel();
+    nuevo.icon = 'pi pi-user-edit';
+    nuevo.archivobase64 = event[0].imgbase64;
+    nuevo.extensiondoc = 'jpeg';
+    nuevo.descripcion = 'SE SUBIÓ LA FIRMA DEL USUARIO';
+    nuevo.fecha=this.formatDateForDB(new Date())
+    nuevo.color = '#a147ce';
+
+    this.historialejecucionModel.update(arr => [nuevo, ...arr]);
+
+    this.itemhistorial.set(new HistorialordentrabajoModel());
+  }
+  guardarejecucion(){
+    this.spinner.set(true)
+    this.OrdenTrabajofiltroEnvio().historial=this.historialejecucionModel()
+    this.OrdenTrabajofiltroEnvio().idordentrabajo=this.ordentrabajoselected.idordentrabajo
+    this.ejecucionService.registrarejecucionot(this.OrdenTrabajofiltroEnvio(),1).subscribe({
+      next:(data)=>{
+        this.spinner.set(false)
+        if(data.mensaje=='EXITO'){
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Aviso de usuario',
+            detail: 'Se guardó correctamente la ejecución de la orden de trabajo',
+          });
+        }else{
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Aviso de usuario',
+            detail: 'Ocurrió un problema al registrar la ejecución',
+          });
+        }
+      },error:(err)=>{
+        this.spinner.set(false)
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Aviso de usuario',
+          detail: 'Ocurrió un problema al registrar la ejecución',
+        });
+
+      }
+    })
   }
 }

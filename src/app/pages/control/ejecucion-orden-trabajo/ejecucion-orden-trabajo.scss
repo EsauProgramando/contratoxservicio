@@ -1,0 +1,8 @@
+.timeline-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+:host ::ng-deep .p-inputnumber-input{
+  width: 100%;
+}
