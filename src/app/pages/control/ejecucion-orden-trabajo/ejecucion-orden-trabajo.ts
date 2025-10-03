@@ -114,6 +114,7 @@ export class EjecucionOrdenTrabajo {
   abrircierre:boolean=false
   abrirhistorial:boolean=false
   checked:boolean=false
+  abrirejecucion:boolean=false
   OrdenTrabajofiltroEnvio=signal(new ejecucionordentrabajoModel())
   OrdenTrabajomaterial=signal(new materialesModel())
   CortesPendienteRequest = signal<CortesPendienteRequest[]>([]);
@@ -473,7 +474,7 @@ export class EjecucionOrdenTrabajo {
   //   })
   // }
   getSeverity(product: ordentrabajoModel) {
-    switch (product.estado) {
+    switch (product.estadoejecucion) {
       case 'COMPLETADO':
         return 'success';
 
@@ -503,11 +504,11 @@ export class EjecucionOrdenTrabajo {
     return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
   }
   cambiotecnico(){
-    this.cargarfechas('ALL',this.OrdenTrabajofiltroEnvio().idtecnico)
+    this.cargarfechas(this.OrdenTrabajofiltroEnvio().estadoejecucion,this.OrdenTrabajofiltroEnvio().idtecnico)
   }
   cargarfechas(estado:string,idtecnico:string){
     this.spinner.set(true)
-    this.ordentrabajoService.getlistaordentrabajos_x_estado_tecnico(estado,idtecnico).subscribe({
+    this.ordentrabajoService.getlistaordentrabajos_x_estado_ejecucion_tecnico(estado,idtecnico).subscribe({
       next:(data)=>{
         this.listafechas.set(data.data)
 
@@ -659,11 +660,12 @@ export class EjecucionOrdenTrabajo {
 
     this.itemhistorial.set(new HistorialordentrabajoModel());
   }
-  guardarejecucion(){
+  guardarejecucion(op:number){
+    this.abrirejecucion=false
     this.spinner.set(true)
     this.OrdenTrabajofiltroEnvio().historial=this.historialejecucionModel()
     this.OrdenTrabajofiltroEnvio().idordentrabajo=this.ordentrabajoselected.idordentrabajo
-    this.ejecucionService.registrarejecucionot(this.OrdenTrabajofiltroEnvio(),1).subscribe({
+    this.ejecucionService.registrarejecucionot(this.OrdenTrabajofiltroEnvio(),op).subscribe({
       next:(data)=>{
         this.spinner.set(false)
         if(data.mensaje=='EXITO'){
@@ -673,7 +675,9 @@ export class EjecucionOrdenTrabajo {
             summary: 'Aviso de usuario',
             detail: 'Se guardó correctamente la ejecución de la orden de trabajo',
           });
+          this.cambiotecnico()
         }else{
+          this.abrirejecucion=true
 
           this.messageService.add({
             severity: 'error',
@@ -682,6 +686,7 @@ export class EjecucionOrdenTrabajo {
           });
         }
       },error:(err)=>{
+        this.abrirejecucion=true
         this.spinner.set(false)
         this.messageService.add({
           severity: 'error',
@@ -689,6 +694,33 @@ export class EjecucionOrdenTrabajo {
           detail: 'Ocurrió un problema al registrar la ejecución',
         });
 
+      }
+    })
+  }
+  ejecucionot(row:ordentrabajoModel){
+    this.OrdenTrabajofiltroEnvio.set(new ejecucionordentrabajoModel())
+    this.historialejecucionModel.set([])
+    this.ordentrabajoselected=row
+    this.abrirejecucion=true
+  }
+  editarejecucionot(row:ordentrabajoModel){
+    this.spinner.set(true)
+    this.OrdenTrabajofiltroEnvio.set(new ejecucionordentrabajoModel())
+    this.historialejecucionModel.set([])
+    this.ordentrabajoselected=row
+    this.ejecucionService.getdetalle_x_ejecucionot(row.idejecucion).subscribe({
+      next:(data)=>{
+        this.OrdenTrabajofiltroEnvio.set(data.data)
+        this.historialejecucionModel.set(data.data.historial)
+        this.abrirejecucion=true
+        this.spinner.set(false)
+      },error:(err)=>{
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Aviso de usuario',
+          detail: 'Ocurrió un problema al buscar la ejecución',
+        });
+        this.spinner.set(false)
       }
     })
   }
