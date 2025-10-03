@@ -125,7 +125,7 @@
               (click)="abrirBitacora(row)"
               class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded shadow-sm transition duration-150 ease-in-out cursor-pointer"
             >
-              Ver bitácora
+              Bitácora
             </button>
           </td>
 
@@ -138,7 +138,32 @@
                 (click)="accionWhatsapp(row)"
                 pTooltip="Enviar WhatsApp"
               ></button>
+
+              <!--BOTON PARA VER DETALLE-->
+              <button
+                pButton
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-info p-button-sm"
+                (click)="verdetalleNegociacion(row)"
+                pTooltip="Ver Detalle"
+              ></button>
+
+              <!--BOTON Actualizar estado-->
+              <button
+                pButton
+                icon="pi pi-refresh"
+                class="p-button-rounded p-button-warning p-button-sm"
+                (click)="actualizarEstado(row)"
+                pTooltip="Actualizar Estado"
+              ></button>
             </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="10" class="text-center text-gray-400 italic py-4">
+            No hay negociaciones disponibles.
           </td>
         </tr>
       </ng-template>
@@ -158,56 +183,73 @@
 >
   <ng-template pTemplate="content">
     <!-- Listado de bitácora -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Registros</h3>
-      <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-md">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+    <p-panel>
+      <ng-template #header>
+        <div class="flex items-center gap-1">
+          <span class="font-bold text-green-600">Listado de Bitácora</span>
+          @if (spinner()) {
+          <div
+            class="flex items-center gap-2 text-sm text-blue-500 animate-pulse"
+          >
+            <svg
+              class="w-4 h-4 animate-spin text-blue-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+            <span class="italic font-medium"
+              >Cargando... El listado de bitácora
+            </span>
+          </div>
+          }
+        </div>
+      </ng-template>
+
+      <section>
+        <p-table
+          [value]="listadoBitacora()"
+          [scrollable]="true"
+          scrollHeight="400px"
+        >
+          <ng-template pTemplate="header">
             <tr>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Fecha
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Tipo
-              </th>
-              <th
-                scope="col"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Detalle / Mensaje
-              </th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Detalle / Mensaje</th>
             </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let bit of listadoBitacora()">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ bit.fechareg | date : "dd/MM/yyyy HH:mm" }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ bit.bitacoraTipos }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ bit.detalle }}
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td>{{ row.fechareg | date : "dd/MM/yyyy HH:mm" }}</td>
+              <td>{{ row.bitacoraTipos }}</td>
+              <td>{{ row.detalle }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center text-gray-400 italic py-4">
+                No hay facturas disponibles.
               </td>
             </tr>
-            <tr *ngIf="listadoBitacora()?.length === 0">
-              <td
-                colspan="3"
-                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
-              >
-                No hay registros de bitácora.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-panel>
 
     <div class="space-y-4">
       <!-- Tipo -->
@@ -282,6 +324,33 @@
           <span class="font-bold text-green-600"
             >1. Datos del Cliente y Negociación</span
           >
+          @if (spinner()) {
+          <div
+            class="flex items-center gap-2 text-sm text-blue-500 animate-pulse"
+          >
+            <svg
+              class="w-4 h-4 animate-spin text-blue-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+            <span class="italic font-medium">Cargando.. </span>
+          </div>
+          }
         </div>
       </ng-template>
       <section>
@@ -328,17 +397,33 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Tipo de Servicio
+              <i
+                class="pi pi-info-circle"
+                style="color: red; font-size: 0.7rem"
+              ></i>
             </label>
 
             <p-select
-              [options]="listadoTiposervicio()"
-              [(ngModel)]="negociacionModel().id_tipo"
+              [options]="clienteContratoxServicio()"
+              [(ngModel)]="obtenerOneclienteContratoxServicio"
               optionLabel="descripcion"
-              optionValue="id_tipo"
               placeholder="Seleccione tipo"
               class="w-full"
               appendTo="body"
-            />
+              (ngModelChange)="
+                verFacturacion(
+                  obtenerOneclienteContratoxServicio.id_contrato,
+                  negociacionModel().id_cliente
+                )
+              "
+            >
+              <ng-template let-contrato pTemplate="item">
+                <div>
+                  Nº Contrato: {{ contrato.id_contrato }} -
+                  {{ contrato.descripcion }}
+                </div>
+              </ng-template>
+            </p-select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1"
@@ -367,6 +452,69 @@
         </div>
       </section>
     </p-panel>
+
+    <p-panel class="mt-4">
+      <ng-template #header>
+        <div class="flex items-center gap-1">
+          <span class="font-bold text-green-600"
+            >Facturas por Contrato Nº
+            {{ obtenerOneclienteContratoxServicio.id_contrato }}</span
+          >
+        </div>
+      </ng-template>
+      <section>
+        <p-table [value]="facturas()" [scrollable]="true" scrollHeight="400px">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Factura</th>
+              <th>Fecha de Emisión</th>
+              <th>Fecha de Vencimiento</th>
+              <th>Monto</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-factura>
+            <tr>
+              <td>{{ factura.codigo_factura }}</td>
+              <td>{{ factura.fecha_emision | date : "dd/MM/yyyy" }}</td>
+              <td>{{ factura.fecha_vencimiento | date : "dd/MM/yyyy" }}</td>
+              <td>{{ "S/" + factura.monto }}</td>
+              <td>{{ factura.observaciones }}</td>
+              <td>
+                <span
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': factura.estado === 'PAGADO',
+                    'bg-yellow-100 text-yellow-700':
+                      factura.estado === 'POR_VENCER',
+                    'bg-red-100 text-red-700': factura.estado === 'VENCIDO',
+                    'bg-purple-100 text-purple-700':
+                      factura.estado === 'MOROSO_CRONICO'
+                  }"
+                >
+                  {{ factura.estado }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center text-gray-400 italic py-4">
+                No hay facturas disponibles.
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="3" class="text-right font-bold">Total Monto:</td>
+              <td colspan="3" class="font-bold">S/ {{ totalMonto }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-panel>
     <p-panel class="mt-4">
       <ng-template #header>
         <div class="flex items-center gap-1">
@@ -376,11 +524,11 @@
         </div>
       </ng-template>
       <section>
-        <div class="w-full">
+        <div class="w-full mb-2">
           <div
             class="flex flex-col md:flex-row md:items-center md:justify-start gap-4"
           >
-            <div class="flex items-center">
+            <!-- <div class="flex items-center">
               <p-radiobutton
                 name="cambio"
                 value="FRACCIONAMIENTO"
@@ -388,7 +536,7 @@
                 inputId="FRACCIONAMIENTO"
               />
               <label for="FRACCIONAMIENTO" class="ml-2">FRACCIONAMIENTO</label>
-            </div>
+            </div> -->
 
             <div class="flex items-center">
               <p-radiobutton
@@ -415,6 +563,187 @@
             </div>
           </div>
         </div>
+        @if (this.negociacionModel().acciones_negociacion === 'FRACCIONAMIENTO')
+        {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div>
+            <label
+              for="monto_pagado"
+              class="block text-sm font-medium text-gray-700"
+              >Monto a Pagar
+              <i
+                class="pi pi-info-circle"
+                style="color: red; font-size: 0.7rem"
+              ></i
+            ></label>
+            <input
+              type="number"
+              pInputText
+              [(ngModel)]="negociacionModel().montopagar_inicial"
+              placeholder="Monto a Pagar"
+              [step]="1"
+              [minlength]="1"
+              class="w-full bg-gray-100 text-gray-500 pr-10"
+            />
+          </div>
+          <!--BOTON GENERAR-->
+          <div class="flex items-end justify-end">
+            <button
+              pButton
+              type="button"
+              label="Generar"
+              icon="pi pi-cog"
+              class="p-button-rounded p-button-success p-button-sm mt-6"
+              (click)="generarFraccionamiento()"
+            ></button>
+          </div>
+        </div>
+        <div>
+          <p-table
+            [value]="tablafraccionamiento"
+            [scrollable]="true"
+            scrollHeight="400px"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Factura</th>
+                <th>Monto</th>
+                <th>Monto Fraccionado</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-factura>
+              <tr>
+                <td>{{ factura.codigo_factura }}</td>
+                <td>{{ "S/" + factura.saldo }}</td>
+                <td>{{ "S/" + factura.monto_fraccionado }}</td>
+                <td>{{ factura.observaciones }}</td>
+                <td>
+                  <span
+                    class="px-2 py-1 rounded-full text-xs font-medium"
+                    [ngClass]="{
+                      'bg-green-100 text-green-700':
+                        factura.estado === 'PAGADO',
+                      'bg-yellow-100 text-yellow-700':
+                        factura.estado === 'POR_VENCER',
+                      'bg-red-100 text-red-700': factura.estado === 'VENCIDO',
+                      'bg-purple-100 text-purple-700':
+                        factura.estado === 'MOROSO_CRONICO'
+                    }"
+                  >
+                    {{ factura.estado }}
+                  </span>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6" class="text-center text-gray-400 italic py-4">
+                  No hay facturas disponibles.
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        } @if (this.negociacionModel().acciones_negociacion ===
+        'MODIFICAR_PLAN_PAGOS') {
+        <div>
+          <div>
+            <p-table
+              [value]="tablafraccionamiento"
+              [scrollable]="true"
+              scrollHeight="400px"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Factura</th>
+                  <th>Fecha Vencimiento</th>
+                  <th>Fecha Vencimiento Propuesto</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-factura let-editing="editing">
+                <tr>
+                  <td>{{ factura.codigo_factura }}</td>
+                  <td>{{ factura.fecha_vencimiento | date : "dd/MM/yyyy" }}</td>
+                  <td
+                    [pEditableColumn]="factura.fecha_vencimiento_nuevo"
+                    pEditableColumnField="fecha_vencimiento_nuevo"
+                  >
+                    <p-cellEditor>
+                      <ng-template pTemplate="input">
+                        <input
+                          pInputText
+                          type="date"
+                          [(ngModel)]="factura.fecha_vencimiento_nuevo"
+                          [style]="{ width: '200px' }"
+                        />
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{
+                          factura.fecha_vencimiento_nuevo | date : "dd/MM/yyyy"
+                        }}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                  <td>{{ factura.observaciones }}</td>
+                  <td>
+                    <span
+                      class="px-2 py-1 rounded-full text-xs font-medium"
+                      [ngClass]="{
+                        'bg-green-100 text-green-700':
+                          factura.estado === 'PAGADO',
+                        'bg-yellow-100 text-yellow-700':
+                          factura.estado === 'POR_VENCER',
+                        'bg-red-100 text-red-700': factura.estado === 'VENCIDO',
+                        'bg-purple-100 text-purple-700':
+                          factura.estado === 'MOROSO_CRONICO'
+                      }"
+                    >
+                      {{ factura.estado }}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center text-gray-400 italic py-4">
+                    No hay facturas disponibles.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        } @if (this.negociacionModel().acciones_negociacion ===
+        'PERIODO_DE_GRACIA') {
+        <div>
+          <div>
+            <label
+              for="monto_pagado"
+              class="block text-sm font-medium text-gray-700"
+              >Días de gracia
+              <i
+                class="pi pi-info-circle"
+                style="color: red; font-size: 0.7rem"
+              ></i
+            ></label>
+            <input
+              type="number"
+              pInputText
+              [(ngModel)]="negociacionModel().periodo_gracia"
+              placeholder="Días de gracia"
+              [step]="1"
+              [minlength]="1"
+              class="w-full bg-gray-100 text-gray-500 pr-10"
+            />
+          </div>
+        </div>
+        }
       </section>
     </p-panel>
 
@@ -504,6 +833,33 @@
         </div>
       </section>
     </p-panel>
+    @if (spinner() && bloquearboton()) {
+    <div class="flex items-center gap-2 text-sm text-blue-500 animate-pulse">
+      <svg
+        class="w-4 h-4 animate-spin text-blue-400"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v8H4z"
+        ></path>
+      </svg>
+      <span class="italic font-medium"
+        >se esta guardando la negociación por favor espera...</span
+      >
+    </div>
+    }
   </ng-template>
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-2 mt-4">
@@ -517,7 +873,261 @@
       <button
         pButton
         label="Cerrar"
-        (click)="negociacionDialog=false"
+        (click)="negociacionDialog = false"
+        class="p-button-sm p-button-secondary"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>
+<p-dialog
+  header="Detalle de negociación"
+  [(visible)]="verdetalle"
+  [modal]="true"
+  [maximizable]="true"
+  [style]="{ width: '70vw', maxWidth: '850px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  [baseZIndex]="10000"
+>
+  <ng-template pTemplate="content">
+    <p-panel>
+      <ng-template #header>
+        <div class="flex items-center gap-1">
+          <span class="font-bold text-green-600">DETALLE DEL CLIENTE</span>
+        </div>
+      </ng-template>
+      <section>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div>
+            <!--nombre_completo mostrar-->
+            <span class="block text-sm font-medium text-gray-700 mb-1"
+              >Cliente</span
+            >
+            <span class="block text-sm text-gray-500">{{
+              mostrardetallenegociacion().nombre_completo
+            }}</span>
+          </div>
+          <div>
+            <span class="block text-sm font-medium text-gray-700 mb-1"
+              >RUC/DNI</span
+            >
+            <span class="block text-sm text-gray-500">{{
+              mostrardetallenegociacion().nrodocident
+            }}</span>
+          </div>
+          <div>
+            <span class="block text-sm font-medium text-gray-700 mb-1"
+              >Tipo de Servicio</span
+            >
+            <span class="block text-sm text-gray-500">{{
+              mostrardetallenegociacion().desctipo
+            }}</span>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Deuda</label>
+            <span class="block text-sm text-gray-500"
+              >S/ {{ mostrardetallenegociacion().monto_total }}</span
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Accion Pactada</label>
+            <span class="block text-sm text-gray-500">
+              {{ mostrardetallenegociacion().acciones_negociacion }}</span
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              >Estado Negociacion</label
+            >
+            <span
+              [ngClass]="{
+                'px-2 py-1 rounded text-xs font-semibold': true,
+                'bg-green-100 text-green-800':
+                  mostrardetallenegociacion().estado === 'VIGENTE',
+                'bg-blue-100 text-blue-800':
+                  mostrardetallenegociacion().estado === 'CUMPLIDA',
+                'bg-red-100 text-red-800':
+                  mostrardetallenegociacion().estado === 'INCUMPLIDA',
+                'bg-gray-200 text-gray-800':
+                  mostrardetallenegociacion().estado === 'CANCELADA'
+              }"
+            >
+              {{ mostrardetallenegociacion().estado }}
+            </span>
+          </div>
+        </div>
+      </section>
+    </p-panel>
+    <p-panel class="mt-4">
+      <ng-template #header>
+        <div class="flex items-center gap-1">
+          <span class="font-bold text-green-600">Facturas del Cliente </span>
+          @if (spinner()) {
+          <div
+            class="flex items-center gap-2 text-sm text-blue-500 animate-pulse"
+          >
+            <svg
+              class="w-4 h-4 animate-spin text-blue-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+            <span class="italic font-medium"
+              >Cargando... las facturas del cliente</span
+            >
+          </div>
+          }
+        </div>
+      </ng-template>
+      <section>
+        <p-table
+          [value]="tablafraccionamiento"
+          [scrollable]="true"
+          scrollHeight="400px"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Factura</th>
+              <th>Fecha Vencimiento</th>
+              <th>Fecha de Vencimiento Nuevo</th>
+              <th>Monto</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-factura>
+            <tr>
+              <td>{{ factura.codigo_factura }}</td>
+              <td>{{ factura.fecha_vencimiento | date : "dd/MM/yyyy" }}</td>
+              <td>
+                {{ factura.fecha_vencimiento_nuevo | date : "dd/MM/yyyy" }}
+              </td>
+              <td>{{ "S/" + factura.monto }}</td>
+              <td>{{ factura.observaciones }}</td>
+              <td>
+                <span
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': factura.estado === 'PAGADO',
+                    'bg-yellow-100 text-yellow-700':
+                      factura.estado === 'POR_VENCER',
+                    'bg-red-100 text-red-700': factura.estado === 'VENCIDO',
+                    'bg-purple-100 text-purple-700':
+                      factura.estado === 'MOROSO_CRONICO'
+                  }"
+                >
+                  {{ factura.estado }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center text-gray-400 italic py-4">
+                No hay facturas disponibles.
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="3" class="text-right font-bold">Total Monto:</td>
+              <td colspan="3" class="font-bold">S/ {{ totalMontodeuda }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-panel>
+
+    <p-panel class="mt-4">
+      <ng-template #header>
+        <div class="flex items-center gap-1">
+          <span class="font-bold text-green-600">Listado de Bitácora</span>
+          @if (spinner()) {
+          <div
+            class="flex items-center gap-2 text-sm text-blue-500 animate-pulse"
+          >
+            <svg
+              class="w-4 h-4 animate-spin text-blue-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+            <span class="italic font-medium"
+              >Cargando... El listado de bitácora</span
+            >
+          </div>
+          }
+        </div>
+      </ng-template>
+
+      <section>
+        <p-table
+          [value]="listadoBitacora()"
+          [scrollable]="true"
+          scrollHeight="400px"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Detalle / Mensaje</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td>{{ row.fechareg | date : "dd/MM/yyyy HH:mm" }}</td>
+              <td>{{ row.bitacoraTipos }}</td>
+              <td>{{ row.detalle }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center text-gray-400 italic py-4">
+                No hay facturas disponibles.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </section>
+    </p-panel>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        pButton
+        label="Cerrar"
+        (click)="verdetalle = false"
         class="p-button-sm p-button-secondary"
       ></button>
     </div>

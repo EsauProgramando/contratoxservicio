@@ -21,25 +21,15 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
-
 import { ToastModule } from 'primeng/toast';
-
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
-import { Reaperturaservice } from '../../../services/gestionCobranza/reapertura.service';
-import { Cortesservice } from '../../../services/gestionCobranza/cortes.service';
-import { CortesenvioListadofiltro } from '../../../model/gestionCobranza/CortesenvioListadofiltro';
-import { CortesServicioRequest } from '../../../model/gestionCobranza/CortesServicioRequest';
 import { CargaComponent } from '../../../components/carga/carga.component';
-import { ReaperturaModel } from '../../../model/gestionCobranza/ReaperturaModel';
 import Swal from 'sweetalert2';
-import { Historialservicio } from '../../../services/mantenimiento/historialservicio';
-import { HistorialServicioModel } from '../../../model/mantenimiento/HistorialServicioModel';
 import { BitacuraModel } from '../../../model/gestionCobranza/BitacuraModel';
 import { GmailService } from '../../../services/gmail/gmail.service';
 import { WhatsappService } from '../../../services/whatsapp/whatsapp.service';
 import { BitacuraService } from '../../../services/mantenimiento/bitacura.service';
-import { Clientes_morosidad_extModel } from '../../../model/gestionCobranza/Clientes_morosidad_extModel';
 import { NogociacionClientesService } from '../../../services/gestionCobranza/nogociacion-clientes.service';
 import { NegociacionModel } from '../../../model/gestionCobranza/NegociacionModel';
 import { FacturacionService } from '../../../services/gestionClientes/facturacion.service';
@@ -53,6 +43,7 @@ import { TipoServicioService } from '../../../services/mantenimiento/tipo-servic
 import { TipoServicioModel } from '../../../model/mantenimiento/tiposervicioModel';
 import { PanelModule } from 'primeng/panel';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { ClienteContratoxServicio } from '../../../model/gestionCobranza/ClienteContratoxServicio';
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
   query: string;
@@ -107,12 +98,15 @@ export class RetencionNegociacionCliente {
   bloquearboton = signal<boolean>(false);
   BitacuraModel = signal<BitacuraModel>(new BitacuraModel());
   listadoBitacora = signal<BitacuraModel[]>([]);
-
+  verdetalle: boolean = false;
   negociacionModel = signal<NegociacionModel>(new NegociacionModel());
   cargarbitacora: boolean = false;
   showModalBitacora: boolean = false;
   Totalregistros: number = 0;
   negociacionDialog: boolean = false;
+  mostrardetallenegociacion = signal<NegociacionClientesRequest>(
+    new NegociacionClientesRequest()
+  );
   bitacoraTipos = [
     { label: 'WhatsApp', value: 'WhatsApp' },
     { label: 'Email', value: 'Email' },
@@ -133,6 +127,12 @@ export class RetencionNegociacionCliente {
     { label: 'INCUMPLIDA', value: 'INCUMPLIDA' },
     { label: 'CANCELADA', value: 'CANCELADA' },
   ];
+  estados: { label: string; value: string }[] = [
+    { label: 'VIGENTE', value: 'VIGENTE' },
+    { label: 'CUMPLIDA', value: 'CUMPLIDA' },
+    { label: 'INCUMPLIDA', value: 'INCUMPLIDA' },
+    { label: 'CANCELADA', value: 'CANCELADA' },
+  ];
   autorecordatorioList = [
     { label: 'SI', value: 1 },
     { label: 'NO', value: 0 },
@@ -143,6 +143,22 @@ export class RetencionNegociacionCliente {
   // Tipos de acción para la bitácora
   listadoTiposervicio = signal<TipoServicioModel[]>([]);
   clientes: ListadoClientes[] = [];
+  clienteContratoxServicio = signal<ClienteContratoxServicio[]>([]);
+  obtenerOneclienteContratoxServicio: ClienteContratoxServicio =
+    new ClienteContratoxServicio();
+  get totalMonto() {
+    return this.facturas().reduce((acc, factura) => acc + factura.monto, 0);
+  }
+  get totalMontodeuda() {
+    return this.facturas().reduce((acc, factura) => {
+      if (factura.estado !== 'PAGADO') {
+        acc += factura.monto;
+      }
+      return acc;
+    }, 0);
+  }
+  tablafraccionamiento: FacturacionRequest[] = [];
+
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
@@ -233,13 +249,14 @@ export class RetencionNegociacionCliente {
   }
 
   listadodbitacora() {
+    this.spinner.set(true);
     this.bitacuraService
       .buscarBitacoraPoridcliente(this.BitacuraModel().id_cliente)
       .subscribe({
         next: (response) => {
+          this.spinner.set(false);
           if (response?.mensaje === 'EXITO') {
             this.listadoBitacora.set(response?.data || []);
-            console.log(this.listadoBitacora());
           } else {
             this.messageService.add({
               severity: 'error',
@@ -247,6 +264,14 @@ export class RetencionNegociacionCliente {
               detail: response?.mensaje || 'Error al obtener la bitácora',
             });
           }
+        },
+        error: (err) => {
+          this.spinner.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err?.mensaje || 'Error al obtener la bitácora',
+          });
         },
       });
   }
@@ -296,6 +321,44 @@ export class RetencionNegociacionCliente {
   closeModalBitacora() {
     this.showModalBitacora = false;
   }
+  clientesxServicioContratados() {
+    if (this.negociacionModel().id_cliente == 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Seleccione un cliente válido.',
+      });
+      return;
+    }
+    this.spinner.set(true);
+    this.clienteContratoxServicio.set([]);
+    this.nogociacionClientesService
+      .clientesxServicioContratados(this.negociacionModel().id_cliente)
+      .subscribe({
+        next: (response) => {
+          this.spinner.set(false);
+          if (response?.mensaje == 'EXITO') {
+            this.clienteContratoxServicio.set(response.data);
+          } else {
+            this.clienteContratoxServicio.set([]);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje,
+            });
+          }
+        },
+        error: (error) => {
+          this.spinner.set(false);
+          this.clienteContratoxServicio.set([]);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al obtener contratos y servicios',
+          });
+        },
+      });
+  }
 
   limpiar_filtros() {
     this.BuscarNegociacion.set(new BuscarNegociacion());
@@ -332,6 +395,8 @@ export class RetencionNegociacionCliente {
 
   verFacturacion(idContrato: number, idCliente: number) {
     this.spinner.set(true);
+    this.facturas.set([]);
+    this.tablafraccionamiento = [];
     this.facturacionService
       .obtener_facturas_x_contrato(idContrato, idCliente)
       .subscribe({
@@ -339,6 +404,14 @@ export class RetencionNegociacionCliente {
           this.spinner.set(false);
           if (response?.mensaje == 'EXITO') {
             this.facturas.set(response.data);
+            this.tablafraccionamiento = response.data.filter(
+              (f) => f.estado !== 'PAGADO'
+            );
+            //igualar monto_fraccionado al saldo
+            this.tablafraccionamiento.forEach((f) => {
+              f.monto_fraccionado = f.saldo;
+            });
+            console.log(this.tablafraccionamiento, 'TABLA FRACCIONAMIENTO');
           } else {
             this.facturas.set([]);
             this.messageService.add({
@@ -361,6 +434,11 @@ export class RetencionNegociacionCliente {
   }
   openDialog() {
     this.negociacionDialog = true;
+    this.negociacionModel.set(new NegociacionModel());
+    this.facturas.set([]);
+    this.tablafraccionamiento = [];
+    this.obtenerOneclienteContratoxServicio = new ClienteContratoxServicio();
+    this.nombrecliente = new ListadoClientes();
   }
   cargarclientes() {
     this.clienteSerice.getClientes().subscribe({
@@ -386,12 +464,17 @@ export class RetencionNegociacionCliente {
     );
   }
   cambionombre() {
+    this.facturas.set([]);
+    //resetear el contrato seleccionado
+    this.obtenerOneclienteContratoxServicio = new ClienteContratoxServicio();
+    this.negociacionModel.set(new NegociacionModel());
     this.negociacionModel().nombre_completo =
       this.nombrecliente.nombres + ' ' + this.nombrecliente.apellidos;
     this.negociacionModel().id_cliente = this.nombrecliente.id;
     this.negociacionModel().nrodocident = this.nombrecliente.nrodocident;
     this.negociacionModel().email = this.nombrecliente.email;
     this.negociacionModel().telefono = this.nombrecliente.telefono;
+    this.clientesxServicioContratados();
   }
   guardarNegociacion() {
     if (this.negociacionModel().id_cliente == 0) {
@@ -410,5 +493,199 @@ export class RetencionNegociacionCliente {
       });
       return;
     }
+    this.bloquearboton.set(true);
+    this.spinner.set(true);
+    this.negociacionModel().id_contrato =
+      this.obtenerOneclienteContratoxServicio.id_contrato;
+    this.negociacionModel().id_tipo =
+      this.obtenerOneclienteContratoxServicio.id_tipo;
+    this.negociacionModel().fecha_inicio = this.formatDateForDB(
+      this.negociacionModel().fecha_inicio
+    );
+    this.negociacionModel().facturas = this.tablafraccionamiento.map(
+      (factura) => ({
+        id_factura: factura.id_factura,
+        monto: factura.monto,
+        monto_fraccionado: factura.monto_fraccionado || 0,
+        fecha_vencimiento: factura.fecha_vencimiento,
+        fecha_vencimiento_nuevo: factura.fecha_vencimiento_nuevo,
+      })
+    );
+    this.negociacionModel().usuario_crea = 'ADMIN'; // Reemplaza con el usuario actual
+    this.negociacionModel().monto_total = this.totalMontodeuda;
+    console.log(this.negociacionModel());
+    this.nogociacionClientesService
+      .guardar_negociacion(this.negociacionModel())
+      .subscribe({
+        next: (response) => {
+          this.bloquearboton.set(false);
+          this.spinner.set(false);
+          if (response?.mensaje === 'EXITO') {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Negociación guardada exitosamente.',
+            });
+            this.negociacionDialog = false;
+            this.buscarNegociacion();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje || 'Error al guardar la negociación',
+            });
+          }
+        },
+        error: (err) => {
+          this.bloquearboton.set(false);
+          this.spinner.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err?.mensaje || 'Error al guardar la negociación',
+          });
+        },
+      });
+  }
+
+  generarFraccionamiento() {
+    const montoPagarInicial = this.negociacionModel().montopagar_inicial;
+
+    // Validación de monto
+    if (montoPagarInicial <= 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'El monto a pagar inicial debe ser mayor a cero.',
+      });
+      return;
+    }
+
+    // Paso 1: Restar del saldo de la primera factura y actualizar monto_fraccionado
+    let montoRestante = montoPagarInicial;
+
+    if (this.tablafraccionamiento.length > 0) {
+      let primeraFactura = this.tablafraccionamiento[0];
+
+      if (primeraFactura.saldo >= montoRestante) {
+        // Si el saldo de la primera factura es mayor o igual al monto que se paga
+        primeraFactura.monto_fraccionado = montoRestante; // Asignamos el monto fraccionado
+        primeraFactura.saldo = 0; // El saldo de la primera factura se paga completamente
+        montoRestante = 0; // No queda monto restante para distribuir
+      } else {
+        // Si el saldo de la primera factura es menor que el monto a pagar
+        primeraFactura.monto_fraccionado = primeraFactura.saldo; // El monto fraccionado es igual al saldo
+        montoRestante -= primeraFactura.saldo; // Restamos el saldo de la primera factura
+        primeraFactura.saldo = 0; // La factura queda completamente saldada
+      }
+    }
+
+    // Paso 2: Si queda monto restante, distribuirlo entre las demás facturas
+    if (montoRestante > 0) {
+      // Calculamos el total de los saldos restantes de las facturas que no son la primera
+      const totalSaldoRestante = this.tablafraccionamiento.reduce(
+        (total, factura, index) => {
+          if (index > 0) {
+            // Ignoramos la primera factura
+            return total + factura.saldo;
+          }
+          return total;
+        },
+        0
+      );
+
+      // Paso 3: Distribuir proporcionalmente entre las facturas restantes
+      if (totalSaldoRestante > 0) {
+        for (let i = 1; i < this.tablafraccionamiento.length; i++) {
+          let factura = this.tablafraccionamiento[i];
+
+          // Calculamos cuánto se distribuye a cada factura en proporción a su saldo
+          let montoProporcional =
+            (factura.saldo / totalSaldoRestante) * montoRestante;
+
+          // Almacenamos el monto fraccionado en el campo monto_fraccionado
+          factura.monto_fraccionado = montoProporcional;
+        }
+      }
+    }
+
+    console.log('Fraccionamiento finalizado:', this.tablafraccionamiento);
+  }
+  formatDateForDB(dateInput: any): string {
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+
+    if (isNaN(date.getTime())) {
+      throw new Error('Fecha inválida en formatDateForDB');
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+  verdetalleNegociacion(row: NegociacionClientesRequest) {
+    this.verdetalle = true;
+    this.mostrardetallenegociacion.set(row);
+    this.verFacturacion(row.id_contrato, row.id_cliente);
+    this.BitacuraModel().id_cliente = row.id_cliente;
+    this.listadodbitacora();
+  }
+  actualizarEstado(row: NegociacionClientesRequest) {
+    // precarga el modelo
+    this.negociacionModel().id_negociacion = row.id_negociacion;
+    this.negociacionModel().id_cliente = row.id_cliente;
+    this.negociacionModel().id_contrato = row.id_contrato;
+    this.negociacionModel().id_tipo = row.id_tipo;
+    this.negociacionModel().estado = row.estado;
+
+    // convierte tus estados a inputOptions de SweetAlert
+    const inputOptions = Object.fromEntries(
+      this.estados.map((e) => [e.value, e.label])
+    );
+
+    Swal.fire({
+      title: 'Confirmar actualización de estado',
+      html: `¿Está seguro de actualizar el estado de la negociación del cliente <strong>${row.nombre_completo}</strong>?`,
+      input: 'select',
+      inputOptions,
+      inputValue: row.estado ?? 'VIGENTE',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'No, cancelar',
+      preConfirm: (nuevoEstado) => {
+        if (!nuevoEstado) {
+          Swal.showValidationMessage('Seleccione un estado');
+          return;
+        }
+        return nuevoEstado;
+      },
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const payload = { ...this.negociacionModel(), estado: result.value };
+        console.log(payload, 'Payload para actualizar estado');
+
+        this.nogociacionClientesService.modificar_estado(payload).subscribe({
+          next: () => {
+            this.buscarNegociacion();
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Estado de la negociación actualizado correctamente.',
+            });
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo actualizar el estado de la negociación.',
+            });
+          },
+        });
+      }
+    });
   }
 }

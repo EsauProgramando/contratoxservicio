@@ -26,4 +26,7 @@ export class NegociacionClientesRequest {
   email: string = '';
   telefono: string = '';
   nrodocident: string = '';
+  nombre_completo: string = '';
+  desctipo: string = '';
+  monto_total: number = 0;
 }
