@@ -29,6 +29,9 @@ export class OrdentrabajoService {
   getlistaordentrabajos_x_estado_tecnico(estado:string,idtecnico:string): Observable<Response_Generico<ordentrabajoModel[]>> {
     return this.http.get<Response_Generico<ordentrabajoModel[]>>(`${this.baseUrl}/buscar-x-estado-tecnico/${estado}/${idtecnico}`);
   }
+  getlistaordentrabajos_x_estado_ejecucion_tecnico(estado:string,idtecnico:string): Observable<Response_Generico<ordentrabajoModel[]>> {
+    return this.http.get<Response_Generico<ordentrabajoModel[]>>(`${this.baseUrl}/buscar-x-estado-ejecucion-tecnico/${estado}/${idtecnico}`);
+  }
   getlistaordentrabajos_resumen_x_estado_tecnico(estado:string,idtecnico:string): Observable<Response_Generico<tecnicoresumenModel[]>> {
     return this.http.get<Response_Generico<tecnicoresumenModel[]>>(`${this.baseUrl}/buscar-reporte-x-estado-tecnico/${estado}/${idtecnico}`);
   }

@@ -15,6 +15,8 @@ export class ordentrabajoModel {
   tipo:string='';
   path_imagen:string='';
   observacion:string='';
+  estadoejecucion:string='';
+  idejecucion:string=''
 }
 export class requestOrden {
   id_tecnico:     string='';
@@ -33,6 +35,7 @@ export class ordentrabajofiltroModel {
 export class ejecucionordentrabajoModel {
   estado:         string='ALL';
   idtecnico:      string='ALL';
+  estadoejecucion:string='ALL'
   idordentrabajo: string='';
   observaciones:  string='';
   latitud:  number=0;

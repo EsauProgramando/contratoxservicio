@@ -13,414 +13,122 @@
     </p>
     <hr class="border-gray-300" />
   </header>
-
-  <section>
-    <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-4">
-      <div class="col">
-        <div class="flex flex-col ">
-          <label class="text-sm font-medium text-gray-600 mb-1">Técnicos</label>
-          <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico"
-                    optionValue="idtecnico"
-                    class="w-full" placeholder="Seleccionar Técnico"
-                    (ngModelChange)="cambiotecnico()">
-            <ng-template #selectedItem let-selectedOption>
-              <div class="flex items-center gap-2">
-                {{ selectedOption.nombres + ' ' + selectedOption.apellidos }}
-              </div>
-            </ng-template>
-            <ng-template let-option #item>
-              <div class="flex items-center gap-2">
-                {{ option.nombres + ' ' + option.apellidos }}
-              </div>
-            </ng-template>
-          </p-select>
-
-        </div>
-      </div>
-      <div class="col">
-        <div class="flex flex-col ">
-          <label class="text-sm font-medium text-gray-600 mb-1">Orden de trabajo Asignadas:</label>
-          <p-select [options]="listafechas()"
-                    [(ngModel)]="ordentrabajoselected"
-                    class="w-full" placeholder="Detalle de la orden de trabajo"
-                    >
-            <ng-template #selectedItem let-selectedOption>
-              <div class="flex items-center gap-2">
-                {{ selectedOption.idordentrabajo + '-' + selectedOption.tecnico+'-' + selectedOption.fechaorden }}
-              </div>
-            </ng-template>
-            <ng-template let-option #item>
-              <div class="flex items-center gap-2">
-                {{ option.idordentrabajo + '-' + option.tecnico+'-' + option.fechaorden }}
-              </div>
-            </ng-template>
-          </p-select>
-
-        </div>
-      </div>
-
-      <div class="col">
-        @if(ordentrabajoselected && ordentrabajoselected.estado){
-
-        <div class="colum gap-1 mt-2">
-          <p-tag severity="secondary" style="font-size: 0.7rem" [value]="ordentrabajoselected.tecnico+' • '+ordentrabajoselected.servicio+' • '+ordentrabajoselected.direccion+' • '+ordentrabajoselected.tipo" />
-          <p-tag severity="secondary"  style="font-size: 0.7rem"  [value]="ordentrabajoselected.estado" />
-          <p-tag severity="success"  style="font-size: 0.7rem"  [value]="ordentrabajoselected.servicio" />
-        </div>
-        }
-      </div>
-    </div>
-  </section>
-  <section>
-    <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
-      <div class="md:col-span-6 mt-1">
-        <p-panel>
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">1) Materiales / Equipos usados</span>
+  <!-- Filtros -->
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold text-gray-700">Filtros</h2>
+    <div class="flex flex-wrap gap-4 items-end">
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Técnicos</label>
+        <p-select [options]="Listadotecnicos()" [(ngModel)]="OrdenTrabajofiltroEnvio().idtecnico"
+                  optionValue="idtecnico"  class="w-full md:w-56" placeholder="Seleccionar Técnico">
+          <ng-template #selectedItem let-selectedOption>
+            <div class="flex items-center gap-2">
+              {{ selectedOption.nombres + ' ' + selectedOption.apellidos }}
             </div>
           </ng-template>
-          <section>
-            <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-4">
-              <div class="col">
-                <div class="flex flex-col ">
-                  <label class="text-sm font-medium text-gray-600 mb-1">Tipo</label>
-                  <p-select [options]="Listadotipomaterial()" [(ngModel)]="idtipomaterial"
-                            class="w-full" >
-                    <ng-template #selectedItem let-selectedOption>
-                      <div class="flex items-center gap-2">
-                        {{  selectedOption.destipo }}
-                      </div>
-                    </ng-template>
-                    <ng-template let-option #item>
-                      <div class="flex items-center gap-2">
-                        {{ option.destipo }}
-                      </div>
-                    </ng-template>
-                  </p-select>
-
-                </div>
-              </div>
-              <div class="col">
-                <div class="flex flex-col ">
-                  <label class="text-sm font-medium text-gray-600 mb-1">Marca / Modelo:</label>
-                  <input
-                    pInputText
-                    [(ngModel)]="OrdenTrabajomaterial().marca"
-                    placeholder="Ej: Huawei HG8145X6"
-                    class="w-full p-inputtext p-component rounded-md shadow-sm"
-                  />
-
-                </div>
-              </div>
-              <div class="col">
-                <div class="flex flex-col ">
-                  <label class="text-sm font-medium text-gray-600 mb-1">Serie / MAC:</label>
-                  <input
-                    pInputText
-                    [(ngModel)]="OrdenTrabajomaterial().serie"
-                    placeholder="Ej: 98:AB:CD:12:34:36"
-                    class="w-full p-inputtext p-component rounded-md shadow-sm"
-                  />
-
-                </div>
-              </div>
-              <div class="col">
-                <div class="flex flex-col ">
-                  <label class="text-sm font-medium text-gray-600 mb-1">Cantidad:</label>
-                  <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt"
-                                 inputId="minmaxfraction" mode="decimal"
-                                 [min]="0"
-                                 class="w-full"
-                                 [minFractionDigits]="0" [maxFractionDigits]="5" />
-
-                </div>
-              </div>
-              <div class="col">
-                <div class="flex flex-col ">
-                  <label class="text-sm font-medium text-gray-600 mb-1">Nota:</label>
-                  <input
-                    pInputText
-                    [(ngModel)]="OrdenTrabajomaterial().nota"
-                    placeholder="Ej: 98:AB:CD:12:34:36"
-                    class="w-full p-inputtext p-component rounded-md shadow-sm"
-                  />
-
-                </div>
-              </div>
-              <div class="col">
-                <div class="flex flex-col items-center justify-center">
-                  <p-button label="Agregar" icon="pi pi-plus" severity="success" (click)="agregarmaterial()"/>
-                </div>
-              </div>
-            </div>
-          </section>
-          <div class="mt-2">
-            <p-table [value]="OrdenTrabajofiltroEnvio().materiales"
-                     showGridlines
-                     stripedRows
-                     size="small"
-                     [tableStyle]="{ 'min-width': '30rem' }">
-              <ng-template #header>
-                <tr >
-                  <th style="color: #dc2626;background-color: #fff0f0">Tipo</th>
-                  <th style="color: #dc2626;background-color: #fff0f0">Marca</th>
-                  <th style="color: #dc2626;background-color: #fff0f0">Serie/MAC</th>
-                  <th style="color: #dc2626;background-color: #fff0f0">Cantidad</th>
-                  <th style="color: #dc2626;background-color: #fff0f0">Nota</th>
-                  <th style="color: #dc2626;background-color: #fff0f0">Acción</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-material>
-                <tr>
-                  <td>{{ material.tipo }}</td>
-                  <td>{{ material.marca }}</td>
-                  <td>{{ material.serie }}</td>
-                  <td>{{ material.cantidad }}</td>
-                  <td>{{ material.nota }}</td>
-                  <td>
-                    <p-button icon="pi pi-trash" [rounded]="true" severity="danger"
-                              pTooltip="Eliminar Material" tooltipPosition="left"
-                              [outlined]="true" (click)="confirm(material)"/>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-
-          </div>
-        </p-panel>
-      </div>
-      <div class="md:col-span-5 my-2">
-        <p-panel >
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600 ">Resumen / Historial</span>
+          <ng-template let-option #item>
+            <div class="flex items-center gap-2">
+              {{ option.nombres + ' ' + option.apellidos }}
             </div>
           </ng-template>
-          <div class="timeline-container">
-            <p-timeline [value]="historialejecucionModel()" align="alternate" class="customized-timeline ">
-              <ng-template #marker let-event>
-        <span class="flex w-8 h-8 items-center justify-center text-white rounded-full z-10 shadow-sm" [style]="{ 'background-color': event.color }">
-            <i [class]="event.icon"></i>
+        </p-select>
+
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-sm font-medium text-gray-600 mb-1">Estado de Ejecución</label>
+        <p-select [options]="estados" [(ngModel)]="OrdenTrabajofiltroEnvio().estadoejecucion" optionLabel="name" optionValue="value"  class="w-full md:w-56">
+          <ng-template #selectedItem let-selectedOption>
+            <div class="flex items-center gap-2">
+              <p-tag [severity]="selectedOption.severity">{{ selectedOption.label }}</p-tag>
+            </div>
+          </ng-template>
+          <ng-template let-option #item>
+            <div class="flex items-center gap-2">
+              <p-tag [severity]="option.severity">{{ option.label }}</p-tag>
+            </div>
+          </ng-template>
+        </p-select>
+
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button
+          pButton
+          label="Aplicar"
+          class="p-button-sm p-button-primary"
+          (click)="cambiotecnico()"
+        ></button>
+        <button
+          pButton
+          label="Limpiar"
+          class="p-button-sm p-button-secondary"
+          (click)="limpiar_filtros()"
+        ></button>
+        <span class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm">
+          {{ listafechas().length }} registros
         </span>
-              </ng-template>
-              <ng-template #content let-event>
-                <p-card >
-                  <ng-template #title>
-                    <span class="text-sm font-bold" [style]="{'color': event.color}">{{event.descripcion}}</span>
-                  </ng-template>
-                  <ng-template #subtitle>
-                    <span class="text-xs" >{{event.fecha}}</span>
-                  </ng-template>
-                  <!--                <img *ngIf="event.archivobase64" [src]="event.archivobase64" width="200" class="shadow" />-->
-                  <img *ngIf="event.extensiondoc === 'jpeg' || event.extensiondoc === 'jpg' || event.extensiondoc === 'png'"
-                       [src]="event.archivobase64"
-                       style="max-width: 100%; max-height: 100px;" class="mt-2" />
-                  @if(event.extensiondoc === 'pdf'){
-                    <app-mostrar-pdf [base64pdf]="event.archivobase64" class="mt-2" style="max-height: 200px"></app-mostrar-pdf>
-                  }
-                  <!--                <p-button label="Read more" [text]="true" />-->
-                </p-card>
-              </ng-template>
-            </p-timeline>
-
-          </div>
-        </p-panel>
       </div>
     </div>
   </section>
+
+  <!-- Tabla -->
   <section>
-    <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
-      <div class="md:col-span-6 mt-1">
-        <p-panel>
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">2) Evidencias y Geolocalización (opcional)</span>
-            </div>
-          </ng-template>
-          <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
-            <div class="col flex flex-col">
-              <label
-                for="adjunto_boleta"
-                class="block text-sm font-medium text-gray-700"
-              >Evidencia (Imagen/pdf)</label
-              >
-              <input
-                type="file"
-                id="adjunto_boleta"
-                (change)="onFileSelected($event)"
-                class="mt-1 block w-full text-sm text-gray-500 border border-gray-200 rounded-xl shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
-              />
-              <small>Sugerencia: toma foto del punto de instalación, rutas, potencia del medidor, speedtest, etc.</small>
+    <p-table
+      #dt2
+      [value]="listafechas()"
+      [tableStyle]="{ 'max-width': '100%' }"
+      ngClass="p-datatable-striped p-datatable-sm"
+      [globalFilterFields]="['nombre_completo', 'servicio', 'direccion', 'estado','tecnico']"
+      [scrollable]="true" scrollHeight="400px"
+    >
+      <ng-template #header>
+        <tr>
+          <th>ID OT</th>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Dirección</th>
+          <th>Tipo</th>
+          <th>Fecha Agendada</th>
+          <th>IdEjec.</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr class="hover:bg-gray-50">
+          <td>
+            {{ row.idordentrabajo }}
+          </td>
+          <td>
+            {{ row.nombre_completo }}
+          </td>
+          <td>
+            {{ row.servicio }}
+          </td>
+          <td>{{ row.direccion }}</td>
+          <td>{{ row.tipo }}</td>
+          <td >{{ row.fechaorden | date:'dd-MM-yyyy HH:mm'}}</td>
+          <td ><p-tag severity="info" [value]="row.idejecucion"></p-tag></td>
+          <td><p-tag [severity]="getSeverity(row)" [value]="row.estadoejecucion"></p-tag></td>
+          <td class="space-x-1">
 
-              <p-button label="Subir Evidencia" icon="pi pi-upload" severity="warn" class="mt-2" (click)="subirevidencia()"/>
-              <div class="gap-2 flex flex-col mt-2">
-                <label class="block text-sm font-medium text-gray-700">Capturar ubicación GPS</label>
-                <p-button label="Obtener Coordenadas" icon="pi pi-map-marker" severity="success" (click)="buscarcoordenadas()"/>
-                <div>
-                  <p-tag severity="secondary" class="mt-2"  [value]="'latitud : '+ this.OrdenTrabajofiltroEnvio().latitud.toString()" />
-                  <p-tag severity="secondary" class="mt-2"  [value]="'longitud : '+this.OrdenTrabajofiltroEnvio().longitud.toString()" />
+            @if(row.estadoejecucion=='EN PROCESO'){
+              <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true"
+                        pTooltip="Editar Ejecución" tooltipPosition="left" severity="secondary"
+                        (click)="editarejecucionot(row)"/>
 
-                </div>
-              </div>
-            </div>
-            <div class="col" >
-              <img *ngIf="this.registroHistorial().extensiondoc === 'jpeg' || this.registroHistorial().extensiondoc === 'jpg' || this.registroHistorial().extensiondoc === 'png'"
-                   [src]="this.registroHistorial().archivobase64"
-                   style="max-width: 100%; max-height: 250px;" class="mt-2" />
-              @if(this.registroHistorial().extensiondoc === 'pdf'){
+            }
 
-                <app-mostrar-pdf [base64pdf]="this.registroHistorial().archivobase64" class="mt-2" style="margin-bottom: 10rem"></app-mostrar-pdf>
-              }
-            </div>
-          </div>
-        </p-panel>
-      </div>
-      <div class="md:col-span-5 mt-1">
-        <p-panel>
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">3) Señal y Pruebas</span>
-            </div>
-          </ng-template>
-          <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
-            <div class="col">
-              <div class="flex flex-col ">
-                <label class="text-sm font-medium text-gray-600 ">Potencia óptica (dBm) [FTTH]</label>
-                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+            @if(row.estadoejecucion=='PENDIENTE'){
+              <p-button icon="pi pi-cog" [rounded]="true" [outlined]="true"
+                        pTooltip="Ejecutar OT" tooltipPosition="left" severity="info"
+                        (click)="ejecucionot(row)"/>
 
-              </div>
-            </div>
-            <div class="col">
-              <div class="flex flex-col ">
-                <label class="text-sm font-medium text-gray-600 ">RSSI (dBm) [Wireless]</label>
-                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().rssi" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
-
-              </div>
-            </div>
-            <div class="col-span-2">
-              <div class="flex flex-col ">
-                <label class="text-sm font-medium text-gray-600 ">SNR (dB) [Wireless]</label>
-                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().snr" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
-
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="flex flex-col ">
-                <label class="text-sm font-medium text-gray-600 ">Speedtest (Desc Mbps)</label>
-                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().descmbps" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
-
-              </div>
-            </div>
-            <div class="col">
-              <div class="flex flex-col ">
-                <label class="text-sm font-medium text-gray-600 ">Speedtest (Sub Mbps)</label>
-                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().subbps" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
-
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="flex flex-col ">
-                <label class="text-sm font-medium text-gray-600 ">Ping</label>
-                <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().ping" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
-
-              </div>
-            </div>
-            <div class="col">
-              <div class="flex flex-col items-center justify-center">
-                <p-button label="Simular test" severity="success" />
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="flex ">
-                <label class="text-sm font-medium text-gray-600  mx-1">Ping gateway</label>
-                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().pinggateway" [binary]="true" />
-              </div>
-            </div>
-            <div class="col">
-              <div class="flex ">
-                <label class="text-sm font-medium text-gray-600  mx-1">Navegación web</label>
-                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().navegacionweb" [binary]="true" />
-              </div>
-            </div>
-            <div class="col">
-              <div class="flex ">
-                <label class="text-sm font-medium text-gray-600  mx-1">Speedtest</label>
-                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().speedtest" [binary]="true" />
-              </div>
-            </div>
-            <div class="col">
-              <div class="flex ">
-                <label class="text-sm font-medium text-gray-600  mx-1">IPTV</label>
-                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().iptv" [binary]="true" />
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="flex ">
-                <label class="text-sm font-medium text-gray-600  mx-1">VoIP</label>
-                <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().voip" [binary]="true" />
-              </div>
-            </div>
-          </div>
-
-
-        </p-panel>
-      </div>
-    </div>
-  </section>
-  <section>
-    <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
-      <div class="md:col-span-6 mt-1">
-        <p-panel>
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">4) Observaciones del técnico</span>
-            </div>
-          </ng-template>
-          <p-floatlabel variant="on">
-            <textarea pTextarea id="over_label" [(ngModel)]="OrdenTrabajofiltroEnvio().observaciones"
-                      rows="5" cols="30" style="resize: none" class="h-full w-full"
-            placeholder="Ej. ONT instalada en sala; potencia -19.8dBm; router en modo bridge"></textarea>
-            <label>Redactar Observación verificada</label>
-          </p-floatlabel>
-        </p-panel>
-      </div>
-      <div class="md:col-span-5 mt-1">
-        <p-panel>
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">5) Firma digital del cliente (opcional)</span>
-            </div>
-          </ng-template>
-          <app-firma-elec (uploadEmitir)="recibefirma($event)"></app-firma-elec>
-        </p-panel>
-      </div>
-    </div>
-  </section>
-  <section>
-    <div class="grid md:grid-cols-1 sm:grid-cols-1 gap-4">
-      <div class="col mt-1">
-        <p-panel>
-          <ng-template #header>
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-green-600">Acciones</span>
-            </div>
-          </ng-template>
-          <div class="flex items-center justify-center">
-
-            <p-button label="Activar Servicio" severity="success" class="mx-1" />
-
-            <p-button label="Dar atendido la OT" severity="info" class="mx-1" (click)="guardarejecucion()"/>
-            <p-button label="Guardar borrador" severity="secondary"  class="mx-1" (click)="guardarejecucion()"/>
-          </div>
-          <small>Al finalizar, la OT pasará a completado (o te preguntará si deseas cancelado). La activación de servicio es simulada.</small>
-        </p-panel>
-      </div>
-    </div>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </section>
 </div>
 
@@ -442,3 +150,378 @@
     </div>
   </ng-template>
 </p-confirmDialog>
+
+@if (abrirejecucion){
+  <p-dialog
+    header="Abrir ejecucion"
+    [(visible)]="abrirejecucion"
+    [modal]="true"
+    [style]="{ width: '95vw' }"
+    [breakpoints]="{ '960px': '100vw' }"
+    [baseZIndex]="10000"
+  >
+
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50"
+        >
+          <i class="pi pi-calendar text-indigo-600 text-xl"></i>
+        </div>
+        <h2 class="text-xl font-semibold text-gray-800">Ejecución - {{ordentrabajoselected.idordentrabajo}}</h2>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+
+      <section>
+        <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
+          <div class="md:col-span-6 mt-1">
+            <p-panel>
+              <ng-template #header>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-green-600">1) Materiales / Equipos usados</span>
+                </div>
+              </ng-template>
+              <section>
+                <div class="grid md:grid-cols-3 sm:grid-cols-1 gap-4">
+                  <div class="col">
+                    <div class="flex flex-col ">
+                      <label class="text-sm font-medium text-gray-600 mb-1">Tipo</label>
+                      <p-select [options]="Listadotipomaterial()" [(ngModel)]="idtipomaterial"
+                                class="w-full" >
+                        <ng-template #selectedItem let-selectedOption>
+                          <div class="flex items-center gap-2">
+                            {{  selectedOption.destipo }}
+                          </div>
+                        </ng-template>
+                        <ng-template let-option #item>
+                          <div class="flex items-center gap-2">
+                            {{ option.destipo }}
+                          </div>
+                        </ng-template>
+                      </p-select>
+
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="flex flex-col ">
+                      <label class="text-sm font-medium text-gray-600 mb-1">Marca / Modelo:</label>
+                      <input
+                        pInputText
+                        [(ngModel)]="OrdenTrabajomaterial().marca"
+                        placeholder="Ej: Huawei HG8145X6"
+                        class="w-full p-inputtext p-component rounded-md shadow-sm"
+                      />
+
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="flex flex-col ">
+                      <label class="text-sm font-medium text-gray-600 mb-1">Serie / MAC:</label>
+                      <input
+                        pInputText
+                        [(ngModel)]="OrdenTrabajomaterial().serie"
+                        placeholder="Ej: 98:AB:CD:12:34:36"
+                        class="w-full p-inputtext p-component rounded-md shadow-sm"
+                      />
+
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="flex flex-col ">
+                      <label class="text-sm font-medium text-gray-600 mb-1">Cantidad:</label>
+                      <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt"
+                                     inputId="minmaxfraction" mode="decimal"
+                                     [min]="0"
+                                     class="w-full"
+                                     [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="flex flex-col ">
+                      <label class="text-sm font-medium text-gray-600 mb-1">Nota:</label>
+                      <input
+                        pInputText
+                        [(ngModel)]="OrdenTrabajomaterial().nota"
+                        placeholder="Ej: 98:AB:CD:12:34:36"
+                        class="w-full p-inputtext p-component rounded-md shadow-sm"
+                      />
+
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="flex flex-col items-center justify-center">
+                      <p-button label="Agregar" icon="pi pi-plus" severity="success" (click)="agregarmaterial()"/>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <div class="mt-2">
+                <p-table [value]="OrdenTrabajofiltroEnvio().materiales"
+                         showGridlines
+                         stripedRows
+                         size="small"
+                         [tableStyle]="{ 'min-width': '30rem' }">
+                  <ng-template #header>
+                    <tr >
+                      <th style="color: #dc2626;background-color: #fff0f0">Tipo</th>
+                      <th style="color: #dc2626;background-color: #fff0f0">Marca</th>
+                      <th style="color: #dc2626;background-color: #fff0f0">Serie/MAC</th>
+                      <th style="color: #dc2626;background-color: #fff0f0">Cantidad</th>
+                      <th style="color: #dc2626;background-color: #fff0f0">Nota</th>
+                      <th style="color: #dc2626;background-color: #fff0f0">Acción</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-material>
+                    <tr>
+                      <td>{{ material.tipo }}</td>
+                      <td>{{ material.marca }}</td>
+                      <td>{{ material.serie }}</td>
+                      <td>{{ material.cantidad }}</td>
+                      <td>{{ material.nota }}</td>
+                      <td>
+                        <p-button icon="pi pi-trash" [rounded]="true" severity="danger"
+                                  pTooltip="Eliminar Material" tooltipPosition="left"
+                                  [outlined]="true" (click)="confirm(material)"/>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+
+              </div>
+            </p-panel>
+          </div>
+          <div class="md:col-span-5 my-2">
+            <p-panel >
+              <ng-template #header>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-green-600 ">Resumen / Historial</span>
+                </div>
+              </ng-template>
+              <div class="timeline-container">
+                <p-timeline [value]="historialejecucionModel()" align="alternate" class="customized-timeline ">
+                  <ng-template #marker let-event>
+        <span class="flex w-8 h-8 items-center justify-center text-white rounded-full z-10 shadow-sm" [style]="{ 'background-color': event.color }">
+            <i [class]="event.icon"></i>
+        </span>
+                  </ng-template>
+                  <ng-template #content let-event>
+                    <p-card >
+                      <ng-template #title>
+                        <span class="text-sm font-bold" [style]="{'color': event.color}">{{event.descripcion}}</span>
+                      </ng-template>
+                      <ng-template #subtitle>
+                        <span class="text-xs" >{{event.fecha}}</span>
+                      </ng-template>
+                      <!--                <img *ngIf="event.archivobase64" [src]="event.archivobase64" width="200" class="shadow" />-->
+                      <img *ngIf="event.extensiondoc === 'jpeg' || event.extensiondoc === 'jpg' || event.extensiondoc === 'png'"
+                           [src]="event.archivobase64"
+                           style="max-width: 100%; max-height: 100px;" class="mt-2" />
+                      @if(event.extensiondoc === 'pdf'){
+                        <app-mostrar-pdf [base64pdf]="event.archivobase64" class="mt-2" style="max-height: 200px"></app-mostrar-pdf>
+                      }
+                      <!--                <p-button label="Read more" [text]="true" />-->
+                    </p-card>
+                  </ng-template>
+                </p-timeline>
+
+              </div>
+            </p-panel>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
+          <div class="md:col-span-6 mt-1">
+            <p-panel>
+              <ng-template #header>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-green-600">2) Evidencias y Geolocalización (opcional)</span>
+                </div>
+              </ng-template>
+              <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
+                <div class="col flex flex-col">
+                  <label
+
+                    class="block text-sm font-medium text-gray-700"
+                  >Evidencia (Imagen/pdf)</label
+                  >
+                  <input
+                    type="file"
+
+                    (change)="onFileSelected($event)"
+                    class="mt-1 block w-full text-sm text-gray-500 border border-gray-200 rounded-xl shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
+                  />
+                  <small>Sugerencia: toma foto del punto de instalación, rutas, potencia del medidor, speedtest, etc.</small>
+
+                  <p-button label="Subir Evidencia" icon="pi pi-upload" severity="warn" class="mt-2" (click)="subirevidencia()"/>
+                  <div class="gap-2 flex flex-col mt-2">
+                    <label class="block text-sm font-medium text-gray-700">Capturar ubicación GPS</label>
+                    <p-button label="Obtener Coordenadas" icon="pi pi-map-marker" severity="success" (click)="buscarcoordenadas()"/>
+                    <div>
+                      <p-tag severity="secondary" class="mt-2"  [value]="'latitud : '+ this.OrdenTrabajofiltroEnvio().latitud.toString()" />
+                      <p-tag severity="secondary" class="mt-2"  [value]="'longitud : '+this.OrdenTrabajofiltroEnvio().longitud.toString()" />
+
+                    </div>
+                  </div>
+                </div>
+                <div class="col" >
+                  <img *ngIf="this.registroHistorial().extensiondoc === 'jpeg' || this.registroHistorial().extensiondoc === 'jpg' || this.registroHistorial().extensiondoc === 'png'"
+                       [src]="this.registroHistorial().archivobase64"
+                       style="max-width: 100%; max-height: 250px;" class="mt-2" />
+                  @if(this.registroHistorial().extensiondoc === 'pdf'){
+
+                    <app-mostrar-pdf [base64pdf]="this.registroHistorial().archivobase64" class="mt-2" style="margin-bottom: 10rem"></app-mostrar-pdf>
+                  }
+                </div>
+              </div>
+            </p-panel>
+          </div>
+          <div class="md:col-span-5 mt-1">
+            <p-panel>
+              <ng-template #header>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-green-600">3) Señal y Pruebas</span>
+                </div>
+              </ng-template>
+              <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-2">
+                <div class="col">
+                  <div class="flex flex-col ">
+                    <label class="text-sm font-medium text-gray-600 ">Potencia óptica (dBm) [FTTH]</label>
+                    <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().potenciaopt" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flex flex-col ">
+                    <label class="text-sm font-medium text-gray-600 ">RSSI (dBm) [Wireless]</label>
+                    <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().rssi" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+                  </div>
+                </div>
+                <div class="col-span-2">
+                  <div class="flex flex-col ">
+                    <label class="text-sm font-medium text-gray-600 ">SNR (dB) [Wireless]</label>
+                    <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().snr" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="flex flex-col ">
+                    <label class="text-sm font-medium text-gray-600 ">Speedtest (Desc Mbps)</label>
+                    <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().descmbps" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flex flex-col ">
+                    <label class="text-sm font-medium text-gray-600 ">Speedtest (Sub Mbps)</label>
+                    <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().subbps" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="0" [maxFractionDigits]="5" />
+
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="flex flex-col ">
+                    <label class="text-sm font-medium text-gray-600 ">Ping</label>
+                    <p-inputNumber [(ngModel)]="OrdenTrabajofiltroEnvio().ping" inputId="minmaxfraction" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="5" />
+
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flex flex-col items-center justify-center">
+                    <p-button label="Simular test" severity="success" />
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="flex ">
+                    <label class="text-sm font-medium text-gray-600  mx-1">Ping gateway</label>
+                    <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().pinggateway" [binary]="true" />
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flex ">
+                    <label class="text-sm font-medium text-gray-600  mx-1">Navegación web</label>
+                    <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().navegacionweb" [binary]="true" />
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flex ">
+                    <label class="text-sm font-medium text-gray-600  mx-1">Speedtest</label>
+                    <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().speedtest" [binary]="true" />
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="flex ">
+                    <label class="text-sm font-medium text-gray-600  mx-1">IPTV</label>
+                    <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().iptv" [binary]="true" />
+                  </div>
+                </div>
+
+                <div class="col">
+                  <div class="flex ">
+                    <label class="text-sm font-medium text-gray-600  mx-1">VoIP</label>
+                    <p-checkbox [(ngModel)]="OrdenTrabajofiltroEnvio().voip" [binary]="true" />
+                  </div>
+                </div>
+              </div>
+
+
+            </p-panel>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="grid md:grid-cols-11 sm:grid-cols-1 gap-4">
+          <div class="md:col-span-6 mt-1">
+            <p-panel>
+              <ng-template #header>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-green-600">4) Observaciones del técnico</span>
+                </div>
+              </ng-template>
+              <p-floatlabel variant="on">
+            <textarea pTextarea [(ngModel)]="OrdenTrabajofiltroEnvio().observaciones"
+                      rows="5" cols="30" style="resize: none" class="h-full w-full"
+                      placeholder="Ej. ONT instalada en sala; potencia -19.8dBm; router en modo bridge"></textarea>
+                <label>Redactar Observación verificada</label>
+              </p-floatlabel>
+            </p-panel>
+          </div>
+          <div class="md:col-span-5 mt-1">
+            <p-panel>
+              <ng-template #header>
+                <div class="flex items-center gap-1">
+                  <span class="font-bold text-green-600">5) Firma digital del cliente (opcional)</span>
+                </div>
+              </ng-template>
+              <app-firma-elec (uploadEmitir)="recibefirma($event)"></app-firma-elec>
+            </p-panel>
+          </div>
+        </div>
+      </section>
+    </ng-template>
+
+    <ng-template pTemplate="footer" >
+      <div class="flex flex-col items-center justify-center bg-indigo-50 pt-2 w-full">
+              <div class="flex items-center justify-center">
+
+                <p-button label="Activar Servicio" severity="success" class="mx-1" />
+                @if (ordentrabajoselected.idejecucion){
+                  <p-button label="Dar atendido la OT" severity="info" class="mx-1" (click)="guardarejecucion(3)"/>
+
+                } @else {
+                  <p-button label="Guardar borrador" severity="secondary"  class="mx-1" (click)="guardarejecucion(1)"/>
+
+                }
+              </div>
+              <small>Al finalizar, la OT pasará a completado (o te preguntará si deseas cancelado). La activación de servicio es simulada.</small>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+}
