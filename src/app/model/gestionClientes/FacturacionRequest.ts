@@ -21,7 +21,7 @@ export class FacturacionRequest {
   tipodocident: number = 0;
   direccion: string = '';
   url_pdf: string = '';
-
+  fecha_vencimiento_nuevo: string = ''; // formato yyyy-MM-dd
   //EXTRAS
   ticket: string = '';
   fecha_pago: string = '';
@@ -29,4 +29,5 @@ export class FacturacionRequest {
   fecharevision: string = '';
   observacion_vache: string = '';
   motivo_rechaso: string = '';
+  monto_fraccionado: number = 0;
 }

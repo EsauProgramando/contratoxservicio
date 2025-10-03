@@ -6,6 +6,7 @@ import { Response_Generico } from '../../model/responseGeneric';
 import { NegociacionModel } from '../../model/gestionCobranza/NegociacionModel';
 import { BuscarNegociacion } from '../../model/gestionCobranza/BuscarNegociacion';
 import { NegociacionClientesRequest } from '../../model/gestionCobranza/NegociacionClientesRequest';
+import { ClienteContratoxServicio } from '../../model/gestionCobranza/ClienteContratoxServicio';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,22 @@ export class NogociacionClientesService {
     return this.http.post<Response_Generico<NegociacionClientesRequest[]>>(
       `${this.baseUrl}/buscar_negociacion`,
       filtro
+    );
+  }
+  // clientesxServicioContratados(id_cliente: number): Observable<Response_Generico<ClienteContratoxServicio[]>> {
+  clientesxServicioContratados(
+    id_cliente: number
+  ): Observable<Response_Generico<any>> {
+    return this.http.get<Response_Generico<ClienteContratoxServicio>>(
+      `${this.baseUrl}/clientesxServicioContratados/${id_cliente}`
+    );
+  }
+    modificar_estado(
+    negociacion: NegociacionModel
+  ): Observable<Response_Generico<any>> {
+    return this.http.post<Response_Generico<any>>(
+      `${this.baseUrl}/modificar_estado`,
+      negociacion
     );
   }
 }
